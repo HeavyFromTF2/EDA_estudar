@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quick Sort — Demonstração Interativa</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #ffffff;
+    --bg2: #f5f5f3;
+    --bg3: #ededea;
+    --text: #1a1a18;
+    --text2: #5f5e5a;
+    --text3: #88877f;
+    --border: rgba(0,0,0,0.12);
+    --border2: rgba(0,0,0,0.22);
+    --info-bg: #e6f1fb;
+    --info-text: #042c53;
+    --info-border: #185fa5;
+    --warn-bg: #faeeda;
+    --warn-text: #412402;
+    --warn-border: #854f0b;
+    --success-bg: #eaf3de;
+    --success-text: #173404;
+    --success-border: #3b6d11;
+    --radius: 8px;
+    --radius-lg: 12px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1c1a;
+      --bg2: #252523;
+      --bg3: #2e2e2b;
+      --text: #e8e6de;
+      --text2: #a8a69e;
+      --text3: #6e6c66;
+      --border: rgba(255,255,255,0.1);
+      --border2: rgba(255,255,255,0.2);
+      --info-bg: #0c447c;
+      --info-text: #b5d4f4;
+      --info-border: #378add;
+      --warn-bg: #633806;
+      --warn-text: #fac775;
+      --warn-border: #ba7517;
+      --success-bg: #27500a;
+      --success-text: #c0dd97;
+      --success-border: #639922;
+    }
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: var(--bg3);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1rem;
+  }
+
+  .container {
+    max-width: 780px;
+    margin: 0 auto;
+    background: var(--bg);
+    border-radius: var(--radius-lg);
+    border: 0.5px solid var(--border);
+    padding: 2rem;
+  }
+
+  h1 {
+    font-size: 22px;
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+  .subtitle {
+    font-size: 14px;
+    color: var(--text2);
+    margin-bottom: 1.5rem;
+  }
+
+  .controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+
+  .btn {
+    cursor: pointer;
+    padding: 8px 18px;
+    border: 0.5px solid var(--border2);
+    border-radius: var(--radius);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    transition: background .15s;
+    font-family: inherit;
+  }
+  .btn:hover { background: var(--bg2); }
+  .btn:disabled { opacity: 0.4; cursor: default; }
+  .btn-primary {
+    background: var(--info-bg);
+    color: var(--info-text);
+    border-color: var(--info-border);
+  }
+  .btn-primary:hover { filter: brightness(0.95); }
+
+  .phase-badge {
+    display: inline-block;
+    padding: 3px 12px;
+    border-radius: var(--radius);
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .desc-box {
+    background: var(--bg2);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    font-size: 14px;
+    color: var(--text);
+    min-height: 68px;
+    margin-bottom: 16px;
+    line-height: 1.6;
+    border: 0.5px solid var(--border);
+  }
+
+  #visual-svg {
+    display: block;
+    width: 100%;
+    margin-bottom: 12px;
+    background: var(--bg2);
+    border-radius: var(--radius);
+    border: 0.5px solid var(--border);
+  }
+
+  .array-label {
+    margin-bottom: 6px;
+    font-size: 12px;
+    color: var(--text3);
+  }
+
+  #array-row {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+
+  .cell {
+    min-width: 40px;
+    height: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    border: 1px solid;
+  }
+  .cell-idx {
+    font-size: 9px;
+    font-weight: 400;
+    color: var(--text3);
+    line-height: 1;
+  }
+  .cell-val { line-height: 1.2; }
+
+  .cell-normal  { background: var(--bg); border-color: var(--border2); color: var(--text); }
+  .cell-scope   { background: var(--info-bg); border-color: var(--info-border); color: var(--info-text); }
+  .cell-pivot   { background: var(--warn-bg); border-color: var(--warn-border); color: var(--warn-text); }
+  .cell-sorted  { background: var(--success-bg); border-color: var(--success-border); color: var(--success-text); }
+
+  .step-counter {
+    font-size: 12px;
+    color: var(--text3);
+    margin-top: 4px;
+  }
+
+  .pseudocode-section {
+    margin-top: 2rem;
+    border-top: 1px dashed var(--border2);
+    padding-top: 1.5rem;
+  }
+  .pseudocode-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-top: 12px;
+    margin-bottom: 6px;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .code-container {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+    font-family: monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    overflow-x: auto;
+    margin-bottom: 14px;
+  }
+  .code-line {
+    display: flex;
+    border-radius: 4px;
+    padding: 2px 6px;
+  }
+  .line-num {
+    width: 24px;
+    color: var(--text3);
+    flex-shrink: 0;
+  }
+  .line-text {
+    white-space: pre;
+    flex-grow: 1;
+  }
+  .line-comment {
+    color: #2b8a3e;
+    font-style: italic;
+  }
+  @media (prefers-color-scheme: dark) {
+    .line-comment { color: #69db7c; }
+  }
+
+  .legend {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 0.5px solid var(--border);
+    font-size: 12px;
+    color: var(--text2);
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-dot {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    border: 1.5px solid;
+    flex-shrink: 0;
+  }
+
+  .info-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 10px;
+    margin-bottom: 1.5rem;
+  }
+  .info-card {
+    background: var(--bg2);
+    border-radius: var(--radius);
+    padding: 10px 14px;
+    font-size: 13px;
+    border: 0.5px solid var(--border);
+  }
+  .info-card strong { display: block; font-size: 15px; font-weight: 500; margin-bottom: 2px; }
+  .info-card span { color: var(--text2); }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Quick Sort — Demonstração Interativa</h1>
+  <p class="subtitle">Estruturas de Dados e Algoritmos · IPBeja · EDA Aula 4</p>
+
+  <div class="info-row">
+    <div class="info-card"><strong>Caso Médio</strong><span>Custo: &Theta;(n log n)</span></div>
+    <div class="info-card"><strong>Pior Cenário</strong><span>Custo: &Theta;(n&sup2;) (Se já ordenado)</span></div>
+    <div class="info-card"><strong>Partition</strong><span>Complexidade Linear: &Theta;(n)</span></div>
+  </div>
+
+  <div class="controls">
+    <button class="btn btn-primary" id="btn-prev" onclick="step(-1)">← Anterior</button>
+    <button class="btn btn-primary" id="btn-next" onclick="step(1)">Próximo →</button>
+    <button class="btn" onclick="reset()">↺ Recomeçar</button>
+    <span id="phase-label" class="phase-badge"></span>
+  </div>
+
+  <div class="desc-box" id="desc-box"></div>
+
+  <svg id="visual-svg" viewBox="0 0 680 140"></svg>
+
+  <div class="array-label">Array Principal A (índices Base 1, conforme os slides):</div>
+  <div id="array-row"></div>
+  <div class="step-counter" id="step-counter"></div>
+
+  <div class="pseudocode-section">
+    
+    <div class="pseudocode-title">Secção 1: QUICKSORT(A, p, r) — Divisão e Conquista</div>
+    <div class="code-container">
+      <div class="code-line"><span class="line-num">1</span><span class="line-text">if p < r then</span><span class="line-comment">// Condição de paragem: o intervalo tem de ter mais do que 1 elemento.</span></div>
+      <div class="code-line"><span class="line-num">2</span><span class="line-text">    q = PARTITION(A, p, r)</span><span class="line-comment">// Separa o array em redor do pivô e descobre a sua posição intermédia.</span></div>
+      <div class="code-line"><span class="line-num">3</span><span class="line-text">    QUICKSORT(A, p, q - 1)</span><span class="line-comment">// Ordena recursivamente a metade esquerda (elementos menores).</span></div>
+      <div class="code-line"><span class="line-num">4</span><span class="line-text">    QUICKSORT(A, q + 1, r)</span><span class="line-comment">// Ordena recursivamente a metade direita (elementos maiores).</span></div>
+    </div>
+
+    <div class="pseudocode-title">Secção 2: PARTITION(A, p, r) — Reorganização em torno do Pivô</div>
+    <div class="code-container">
+      <div class="code-line"><span class="line-num">1</span><span class="line-text">x = A[r]</span><span class="line-comment">// O pivô x é sempre o último elemento da fatia atual.</span></div>
+      <div class="code-line"><span class="line-num">2</span><span class="line-text">i = p - 1</span><span class="line-comment">// O índice 'i' marca o fim da zona dos elementos que são menores que x.</span></div>
+      <div class="code-line"><span class="line-num">3</span><span class="line-text">for j = p to r - 1 do</span><span class="line-comment">// O índice 'j' corre a fatia para varrer e analisar cada valor.</span></div>
+      <div class="code-line"><span class="line-num">4</span><span class="line-text">    if A[j] ≤ x then</span><span class="line-comment">// Encontraste um valor menor ou igual ao pivô?</span></div>
+      <div class="code-line"><span class="line-num">5</span><span class="line-text">        i = i + 1</span><span class="line-comment">// Alarga a fronteira dos pequenos avançando o 'i'.</span></div>
+      <div class="code-line"><span class="line-num">6</span><span class="line-text">        exchange A[i] with A[j]</span><span class="line-comment">// Joga o elemento pequeno para a zona reservada à esquerda.</span></div>
+      <div class="code-line"><span class="line-num">7</span><span class="line-text">exchange A[i + 1] with A[r]</span><span class="line-comment">// Coloca o pivô no meio exato das duas zonas (em i + 1).</span></div>
+      <div class="code-line"><span class="line-num">8</span><span class="line-text">return i + 1</span><span class="line-comment">// Devolve a posição final estável do pivô.</span></div>
+    </div>
+
+  </div>
+
+  <div class="legend">
+    <div class="legend-item">
+      <div class="legend-dot" style="background:var(--info-bg);border-color:var(--info-border)"></div>
+      Intervalo sob análise [p..r]
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:var(--warn-bg);border-color:var(--warn-border)"></div>
+      Pivô ativo / Elemento lido por j
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:var(--success-bg);border-color:var(--success-border)"></div>
+      Pivô encaixado na posição final ordenada
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:var(--bg);border-color:var(--border2)"></div>
+      Fora do bloco atual de recursão
+    </div>
+  </div>
+</div>
+
+<script>
+const ORIG = [16, 4, 10, 14, 7, 9, 3, 2, 8, 1];
+
+let steps = [];
+let cur = 0;
+let finalPositions = new Set();
+
+function genSteps(){
+  steps = [];
+  let A = [null, ...ORIG];
+  finalPositions.clear();
+
+  function snap(desc, phase, p, r, meta={}) {
+    steps.push({
+      A: A.slice(),
+      desc,
+      phase,
+      p,
+      r,
+      meta: JSON.parse(JSON.stringify(meta)),
+      fixed: Array.from(finalPositions)
+    });
+  }
+
+  function partition(p, r) {
+    let x = A[r]; 
+    let i = p - 1;
+    
+    snap(`Entramos na função <code>PARTITION</code> para o intervalo [${p}..${r}].<br>O pivô escolhido é o último elemento: <b>x = A[${r}] = ${x}</b>. Arrancamos com <b>i = ${i}</b>.`, "partition", p, r, { x, i, j: p, stage: 'init' });
+
+    for (let j = p; j <= r - 1; j++) {
+      snap(`O ponteiro <b>j</b> está no índice <b>${j}</b>. Vamos testar se <b>A[${j}] (${A[j]})</b> é menor ou igual ao nosso pivô <b>x (${x})</b>.`, "partition", p, r, { x, i, j, stage: 'check' });
+      
+      if (A[j] <= x) {
+        i = i + 1;
+        snap(`Boa! Como <b>${A[j]} &le; ${x}</b>, avançamos o ponteiro dos menores (<b>i</b> passou para <b>${i}</b>) e vamos trocar o <b>A[${i}]</b> com o <b>A[${j}]</b>.`, "partition", p, r, { x, i, j, stage: 'before_swap' });
+        
+        let temp = A[i];
+        A[i] = A[j];
+        A[j] = temp;
+        
+        snap(`Troca feita! O valor menor <b>${A[i]}</b> saltou para a esquerda. A zona segura até ao índice <b>i = ${i}</b> está arrumada.`, "partition", p, r, { x, i, j, stage: 'after_swap' });
+      } else {
+        snap(`Como <b>A[${j}] (${A[j]}) > ${x}</b>, não mexemos em nada. O elemento fica sossegado na zona direita dos maiores.`, "partition", p, r, { x, i, j, stage: 'no_action' });
+      }
+    }
+
+    snap(`Varredura do loop feita. Está na hora de tirar o pivô <b>A[${r}] (${x})</b> da ponta e encaixá-lo no meio, trocando com o <b>A[${i+1}] (${A[i+1]})</b>.`, "partition", p, r, { x, i, j: r, stage: 'before_final' });
+    
+    let temp = A[i + 1];
+    A[i + 1] = A[r];
+    A[r] = temp;
+    
+    let q = i + 1;
+    finalPositions.add(q); 
+    
+    snap(`Perfeito! O pivô encontrou o seu lugar definitivo no índice <b>q = ${q}</b> (valor <b>${A[q]}</b>). Tudo à esquerda é menor e tudo à direita é maior.`, "partition", p, r, { x, i, q, j: q, stage: 'final' });
+    return q;
+  }
+
+  function quickSort(p, r) {
+    if (p < r) {
+      snap(`Disparou o <code>QUICKSORT</code> no intervalo [${p}..${r}]. Como a fatia tem tamanho válido (p &lt; r), vamos fatiá-la com o Partition.`, "sort", p, r, {});
+      let q = partition(p, r);
+      
+      snap(`Divisão: O pivô dividiu as águas no índice <b>q = ${q}</b>. Vamos mandar a metade esquerda para a recursão: <code>QUICKSORT(A, ${p}, ${q-1})</code>.`, "sort", p, r, { q });
+      quickSort(p, q - 1);
+      
+      snap(`Divisão: Agora mandamos a metade direita tratar da vida: <code>QUICKSORT(A, ${q+1}, ${r})</code>.`, "sort", p, r, { q });
+      quickSort(q + 1, r);
+    } else if (p === r) {
+      finalPositions.add(p);
+      snap(`Encontrámos um bloco unitário em <b>A[${p}] = ${A[p]}</b>. Um elemento sozinho já está ordenado por natureza!`, "sort", p, r, { base: true });
+    }
+  }
+
+  snap("<b>Ponto de Partida:</b> Carregámos o array desordenado tal como está no <code>main()</code> do PDF. Vamos começar!", "start", null, null, {});
+  quickSort(1, A.length - 1);
+  
+  for(let k=1; k<=10; k++) finalPositions.add(k);
+  snap("Tudo pronto! O array foi completamente esmiuçado e ordenado com sucesso de ponta a ponta.", "done", null, null, {});
+}
+
+function drawVisual(s) {
+  const svg = document.getElementById('visual-svg');
+  svg.innerHTML = '';
+  
+  for(let idx=1; idx<=10; idx++) {
+    let x = 40 + (idx-1)*60;
+    let y = 50;
+    
+    let fill = 'var(--bg)';
+    let border = 'var(--border)';
+    
+    if (s.fixed.includes(idx)) {
+      fill = 'var(--success-bg)';
+      border = 'var(--success-border)';
+    } else if (s.p && idx >= s.p && idx <= s.r) {
+      if (s.meta && s.meta.j === idx && s.phase === 'partition') {
+        fill = 'var(--warn-bg)';
+        border = 'var(--warn-border)';
+      } else if (s.meta && s.phase === 'partition' && idx === s.r) {
+        fill = 'var(--warn-bg)';
+        border = 'var(--warn-border)';
+      } else {
+        fill = 'var(--info-bg)';
+        border = 'var(--info-border)';
+      }
+    }
+
+    drawBox(svg, x, y, s.A[idx], idx, fill, border);
+
+    if (s.phase === 'partition' && s.meta) {
+      if (s.meta.i === idx) {
+        drawPointer(svg, x + 23, y + 52, "i", "var(--text)");
+      }
+      if (s.meta.j === idx) {
+        drawPointer(svg, x + 23, y - 22, "j ↓", "var(--warn-text)");
+      }
+      if (s.meta.i === s.p - 1 && idx === s.p) {
+        drawPointer(svg, x - 15, y + 52, "i", "var(--text)");
+      }
+    }
+  }
+}
+
+function drawBox(svg, x, y, val, idx, fill, border) {
+  const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+  rect.setAttribute('x', x); rect.setAttribute('y', y);
+  rect.setAttribute('width', 46); rect.setAttribute('height', 38);
+  rect.setAttribute('fill', fill); rect.setAttribute('stroke', border);
+  rect.setAttribute('stroke-width', '1.5');
+  rect.setAttribute('rx', '6');
+  svg.appendChild(rect);
+
+  const tIdx = document.createElementNS('http://www.w3.org/2000/svg','text');
+  tIdx.setAttribute('x', x + 23); tIdx.setAttribute('y', y + 14);
+  tIdx.setAttribute('text-anchor', 'middle'); tIdx.setAttribute('font-size', '9');
+  tIdx.setAttribute('fill', 'var(--text3)');
+  tIdx.textContent = `[${idx}]`;
+  svg.appendChild(tIdx);
+
+  const tVal = document.createElementNS('http://www.w3.org/2000/svg','text');
+  tVal.setAttribute('x', x + 23); tVal.setAttribute('y', y + 28);
+  tVal.setAttribute('text-anchor', 'middle'); tVal.setAttribute('font-size', '14'); 
+  tVal.setAttribute('font-weight', '600');
+  tVal.setAttribute('fill', 'var(--text)');
+  tVal.textContent = val;
+  svg.appendChild(tVal);
+}
+
+function drawPointer(svg, x, y, label, color) {
+  const txt = document.createElementNS('http://www.w3.org/2000/svg','text');
+  txt.setAttribute('x', x); txt.setAttribute('y', y);
+  txt.setAttribute('font-size', '12'); txt.setAttribute('font-weight', 'bold');
+  txt.setAttribute('fill', color); txt.setAttribute('text-anchor', 'middle');
+  txt.textContent = label;
+  svg.appendChild(txt);
+}
+
+function drawArrayRow(A, s){
+  const row = document.getElementById('array-row');
+  row.innerHTML = '';
+  for(let i = 1; i < A.length; i++){
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    
+    if(s.fixed.includes(i) || s.phase === 'done') cell.classList.add('cell-sorted');
+    else if(s.p && i >= s.p && i <= s.r) {
+      if(s.meta && i === s.r) cell.classList.add('cell-pivot');
+      else cell.classList.add('cell-scope');
+    }
+    else cell.classList.add('cell-normal');
+
+    const idxEl = document.createElement('div');
+    idxEl.className = 'cell-idx';
+    idxEl.textContent = i;
+    const valEl = document.createElement('div');
+    valEl.className = 'cell-val';
+    valEl.textContent = A[i];
+    cell.appendChild(idxEl);
+    cell.appendChild(valEl);
+    row.appendChild(cell);
+  }
+}
+
+function render(){
+  const s = steps[cur];
+  drawVisual(s);
+  drawArrayRow(s.A, s);
+  document.getElementById('desc-box').innerHTML = s.desc;
+
+  const phaseColors = {
+    start:     'background:var(--bg3);color:var(--text2)',
+    sort:      'background:var(--info-bg);color:var(--info-text)',
+    partition: 'background:var(--warn-bg);color:var(--warn-text)',
+    done:      'background:var(--success-bg);color:var(--success-text)'
+  };
+  const phaseNames = { start: 'Início', sort: 'Divisão Quick', partition: 'Rotina Partition', done: 'Concluído!' };
+  const pb = document.getElementById('phase-label');
+  pb.style.cssText = (phaseColors[s.phase] || '') + ';padding:3px 12px;border-radius:8px;font-size:12px;font-weight:500';
+  pb.textContent = phaseNames[s.phase] || s.phase;
+
+  document.getElementById('step-counter').textContent = `Passo ${cur+1} de ${steps.length}`;
+  document.getElementById('btn-prev').disabled = cur === 0;
+  document.getElementById('btn-next').disabled = cur === steps.length - 1;
+}
+
+function step(d){ cur = Math.max(0, Math.min(steps.length-1, cur+d)); render(); }
+function reset(){ cur = 0; render(); }
+
+genSteps();
+render();
+</script>
+</body>
+</html>

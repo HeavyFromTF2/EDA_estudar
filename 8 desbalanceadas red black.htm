@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manual Completo e Interativo: Árvores Red-Black</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #ffffff;
+    --bg2: #f5f5f3;
+    --bg3: #ededea;
+    --text: #1a1a18;
+    --text2: #5f5e5a;
+    --text3: #88877f;
+    --border: rgba(0,0,0,0.12);
+    --border2: rgba(0,0,0,0.22);
+    --info-bg: #e6f1fb;
+    --info-text: #042c53;
+    --info-border: #185fa5;
+    --warn-bg: #faeeda;
+    --warn-text: #412402;
+    --warn-border: #854f0b;
+    --danger-bg: #fdf2f2;
+    --danger-text: #771d1d;
+    --danger-border: #de3535;
+    --radius: 8px;
+    --radius-lg: 12px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1c1a;
+      --bg2: #252523;
+      --bg3: #2e2e2b;
+      --text: #e8e6de;
+      --text2: #a8a69e;
+      --text3: #6e6c66;
+      --border: rgba(255,255,255,0.1);
+      --border2: rgba(255,255,255,0.2);
+      --info-bg: #0c447c;
+      --info-text: #b5d4f4;
+      --info-border: #378add;
+      --warn-bg: #633806;
+      --warn-text: #fac775;
+      --warn-border: #ba7517;
+      --danger-bg: #5a1a1a;
+      --danger-text: #fbcbcb;
+      --danger-border: #ec5959;
+    }
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: var(--bg3);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1rem;
+  }
+
+  .container {
+    max-width: 1000px;
+    margin: 0 auto;
+    background: var(--bg);
+    border-radius: var(--radius-lg);
+    border: 0.5px solid var(--border);
+    padding: 2.5rem;
+  }
+
+  h1 { font-size: 24px; font-weight: 600; margin-bottom: 6px; }
+  .subtitle { font-size: 15px; color: var(--text2); margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem; }
+
+  h2 { font-size: 18px; font-weight: 500; margin: 1.5rem 0 0.5rem 0; color: var(--info-border); }
+  h3 { font-size: 15px; font-weight: 600; margin: 1rem 0 0.25rem 0; }
+  p { font-size: 14px; line-height: 1.6; margin-bottom: 1rem; color: var(--text); }
+  
+  ul { margin-left: 20px; margin-bottom: 1rem; font-size: 14px; line-height: 1.6; }
+  li { margin-bottom: 4px; }
+  code { background: var(--bg2); padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 13px; }
+  pre { background: var(--bg2); padding: 1rem; border-radius: var(--radius); border: 1px solid var(--border); overflow-x: auto; font-family: monospace; font-size: 12.5px; line-height: 1.5; margin-bottom: 1rem; }
+
+  .nav-tabs {
+    display: flex;
+    gap: 8px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .tab-btn {
+    padding: 10px 16px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    color: var(--text2);
+    font-size: 14px;
+    font-weight: 500;
+    border-bottom: 2px solid transparent;
+  }
+  .tab-btn.active {
+    color: var(--info-border);
+    border-bottom-color: var(--info-border);
+  }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  .interactive-box {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 1rem;
+    align-items: center;
+  }
+  .btn {
+    cursor: pointer;
+    padding: 8px 16px;
+    border: 0.5px solid var(--border2);
+    border-radius: var(--radius);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 13px;
+  }
+  .btn:hover { background: var(--bg3); }
+  .btn-primary { background: var(--info-bg); color: var(--info-text); border-color: var(--info-border); }
+
+  .danger-badge {
+    background: var(--danger-bg);
+    color: var(--danger-text);
+    padding: 12px 16px;
+    border-radius: var(--radius);
+    font-size: 13px;
+    border: 0.5px solid var(--danger-border);
+    margin-bottom: 1rem;
+  }
+
+  /* Estilos para renderizar árvore real em SVG */
+  .tree-viz {
+    width: 100%;
+    min-height: 380px;
+    background: var(--bg);
+    border: 1px dashed var(--text3);
+    border-radius: var(--radius);
+    margin-top: 1rem;
+  }
+  .node circle {
+    stroke-width: 3px;
+  }
+  .node text {
+    font-family: sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+    text-anchor: middle;
+    dominant-baseline: middle;
+  }
+  .link {
+    fill: none;
+    stroke: var(--text3);
+    stroke-width: 2px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Sebenta Completa: Aula 8 — Árvores Red-Black</h1>
+  <p class="subtitle">Pesquisa Binária Balanceada, Propriedades Estritas, Rotações e Casos de Ajuste · IPBeja</p>
+
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab(0)">1. Teoria & Propriedades</button>
+    <button class="tab-btn" onclick="switchTab(1)">2. Rotações Mecânicas</button>
+    <button class="tab-btn" onclick="switchTab(2)">3. Inserção & Os 3 Casos</button>
+    <button class="tab-btn" onclick="switchTab(3)">4. Remoção (Fixup)</button>
+    <button class="tab-btn" onclick="switchTab(4)">5. Simulador de Árvore Real</button>
+  </div>
+
+  <div id="tab0" class="tab-content active">
+    <h2>Porquê Árvores Red-Black? (Slide 2)</h2>
+    <p>As operações básicas numa Árvore de Pesquisa Binária normal demoram <code>O(h)</code>, onde <code>h</code> é a altura. Se os dados forem inseridos ordenados, a árvore degenera numa lista ligada gigante com <code>h = n</code>, estragando a eficiência. As árvores **Red-Black** resolvem isto forçando um balanceamento através de atribuição de cores, garantindo tempo <strong>O(log n)</strong> no pior cenário possível.</p>
+    
+    <h2>As 5 Propriedades Invioláveis (Slide 4)</h2>
+    <p>Uma árvore de pesquisa binária é uma Árvore Red-Black se satisfizer as seguintes propriedades:</p>
+    <div class="danger-badge">
+      <strong>1.</strong> Cada nó é obrigatoriamente ou <code>RED</code> (Vermelho) ou <code>BLACK</code> (Preto).<br>
+      <strong>2.</strong> A Raiz da árvore é sempre <code>BLACK</code>.<br>
+      <strong>3.</strong> Todas as folhas vazias (<code>NIL</code>) são sempre <code>BLACK</code>.<br>
+      <strong>4.</strong> Se um nó é <code>RED</code>, os seus dois nós filhos têm de ser obrigatoriamente <code>BLACK</code> (Não pode haver dois vermelhos consecutivos verticalmente).<br>
+      <strong>5.</strong> Para cada nó, todos os caminhos simples desse nó até às folhas descendentas contêm exatamente o mesmo número de nós <code>BLACK</code> (Altura Negra - <i>black-height</i>).
+    </div>
+    <p>O Slide 5 demonstra matematicamente que uma árvore red-black com <code>n</code> nós internos tem uma altura máxima de <code>h &lt;= 2 log(n + 1)</code>.</p>
+  </div>
+
+  <div id="tab1" class="tab-content">
+    <h2>Rotações na Árvore (Slide 6 e 7)</h2>
+    <p>As operações de modificação (Inserção/Remoção) alteram a árvore e quebram as propriedades Red-Black. Para repor a ordem sem violar as regras de pesquisa binária (elementos à esquerda menores, à direita maiores), usamos as **Rotações Locais** que alteram os ponteiros de forma instantânea em tempo <code>O(1)</code>.</p>
+    
+    <h3>Pseudocódigo Comentado: LEFT-ROTATE(T, x) (Slide 7)</h3>
+    <pre>
+LEFT-ROTATE(T, x)
+1  y = x.right            // Define y como o filho direito de x (y vai subir para a posição de x)
+2  x.right = y.left       // O filho esquerdo de y passa a ser o novo filho direito de x
+3  if y.left != T.nil     // Se a subárvore esquerda de y não for uma folha vazia (sentinela)...
+4      y.left.p = x       // ...atualiza o ponteiro do pai dessa subárvore para apontar para x
+5  y.p = x.p              // O pai de y passa a ser o antigo pai de x (y assume o lugar na estrutura superior)
+6  if x.p == T.nil        // Se x era a raiz original da árvore...
+7      T.root = y         // ...então y passa a ser a nova raiz oficial da árvore T
+8  else if x == x.p.left  // Caso contrário, se x era o filho esquerdo do pai...
+9      x.p.left = y       // ...y passa a ser o filho esquerdo desse pai
+10 else x.p.right = y     // Se x era o filho direito, y passa a ser o filho direito desse pai
+11 y.left = x             // x desce na árvore e fica posicionado à esquerda de y
+12 x.p = y                // Atualiza o pai de x, indicando que agora o seu novo pai é y
+    </pre>
+    <p>A rotação <code>RIGHT-ROTATE(T, y)</code> funciona exatamente de forma simétrica à anterior (Slide 6), invertendo as referências de esquerda e direita.</p>
+  </div>
+
+  <div id="tab2" class="tab-content">
+    <h2>Inserção Dinâmica: RB-INSERT(T, z) (Slide 10)</h2>
+    <p>Todos os nós entram na árvore usando a lógica padrão de inserção binária, mas com duas particularidades fundamentais: o nó inserido é pintado inicialmente como <strong>RED</strong> e os seus filhos apontam para a folha sentinela universal <code>T.nil</code>.</p>
+    
+    <h2>O Algoritmo de Ajuste: RB-INSERT-FIXUP(T, z) (Slide 11-14)</h2>
+    <p>Se o pai do nó inserido também for <code>RED</code>, quebrou-se a Propriedade 4. O algoritmo avalia a cor do <strong>tio</strong> de <code>z</code> para decidir o que fazer. Assumindo que o pai de <code>z</code> é filho esquerdo do avô, temos 3 Casos:</p>
+    
+    <div class="interactive-box">
+      <h3 style="color:var(--danger-border)">Caso 1: O tio de z é RED (Slide 12)</h3>
+      <p><strong>Ação:</strong> Apenas recolorização. O pai e o tio passam a <code>BLACK</code>, e o avô passa a <code>RED</code>. O ponteiro <code>z</code> sobe para o avô (<code>z = z.p.p</code>) para continuar a verificação nos níveis superiores.</p>
+      
+      <h3 style="color:var(--warn-border)">Caso 2: O tio de z é BLACK e z é filho da direita (Ziguezague - Slide 13)</h3>
+      <p><strong>Ação:</strong> Aplica-se uma <code>LEFT-ROTATE(T, z.p)</code> no pai de z. Isto transforma o ziguezague numa linha reta estável, caindo imediatamente no Caso 3.</p>
+      
+      <h3 style="color:var(--info-border)">Caso 3: O tio de z é BLACK e z é filho da esquerda (Linha Reta - Slide 14)</h3>
+      <p><strong>Ação:</strong> O pai passa a <code>BLACK</code>, o avô passa a <code>RED</code> e aplica-se uma <code>RIGHT-ROTATE(T, z.p.p)</code> no avô. A árvore fica perfeitamente balanceada aqui e o ciclo termina.</p>
+    </div>
+  </div>
+
+  <div id="tab3" class="tab-content">
+    <h2>Remoção: RB-DELETE(T, z) (Slide 25)</h2>
+    <p>Remover nós numa árvore Red-Black exige o uso de uma rotina auxiliar chamada <code>RB-TRANSPLANT(T, u, v)</code> para substituir sub-árvores. Se o nó fisicamente removido ou movido for <strong>BLACK</strong>, removeu-se uma unidade preta de um caminho, violando a Propriedade 5. Para corrigir, ativa-se o procedimento reparador.</p>
+    
+    <h2>Os 4 Casos do RB-DELETE-FIXUP(T, x) (Slide 26)</h2>
+    <p>O nó substituto <code>x</code> ganha a propriedade conceitual de ser "Preto Extra" (Double-Black). O algoritmo analisa o seu **irmão** <code>w</code> para descarregar este peso preto:</p>
+    <ul>
+      <li><strong>Caso 1:</strong> O irmão <code>w</code> é <code>RED</code>. Troca-se a cor do pai com <code>w</code>, faz-se uma rotação no pai e o irmão muda, caindo num dos casos seguintes.</li>
+      <li><strong>Caso 2:</strong> O irmão <code>w</code> é <code>BLACK</code> e ambos os seus filhos são <code>BLACK</code>. Retira-se o peso preto de <code>w</code> (passa a <code>RED</code>) e o problema do preto extra sobe para o pai (<code>x = x.p</code>).</li>
+      <li><strong>Caso 3:</strong> O irmão <code>w</code> é <code>BLACK</code>, o filho esquerdo de <code>w</code> é <code>RED</code> e o direito é <code>BLACK</code>. Faz-se rotação local em <code>w</code> para transformá-lo no Caso 4.</li>
+      <li><strong>Caso 4:</strong> O irmão <code>w</code> é <code>BLACK</code> e o seu filho direito é <code>RED</code>. Ajustam-se as cores finais, executa-se uma rotação no pai e o preto extra é absorvido com sucesso, terminando o algoritmo.</li>
+    </ul>
+  </div>
+
+  <div id="tab4" class="tab-content">
+    <h2>Simulador Estrutural Interativo</h2>
+    <p>Insere chaves para ver o motor calcular rotações reais e aplicar as cores de forma estrita para manter o balanceamento Red-Black:</p>
+    
+    <div class="interactive-box">
+      <div class="controls">
+        <input type="number" id="insert-val" value="10" style="width:70px; padding:6px; border-radius:4px; border:1px solid var(--text3); background: var(--bg); color: var(--text);">
+        <button class="btn btn-primary" onclick="triggerInsert()">Inserir na Árvore</button>
+        <button class="btn" onclick="triggerReset()">Reset Árvore</button>
+      </div>
+      <div id="sim-log" style="font-family:monospace; font-size:12px; color:var(--warn-border); margin-bottom:10px; min-height:20px;"></div>
+      
+      <svg class="tree-viz" id="tree-svg"></svg>
+    </div>
+  </div>
+</div>
+
+<script>
+function switchTab(idx) {
+  document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
+  document.querySelectorAll('.tab-content').forEach((c, i) => c.classList.toggle('active', i === idx));
+  if (idx === 4) {
+    setTimeout(renderSVG, 50);
+  }
+}
+
+const RED = 0;
+const BLACK = 1;
+
+class RBNode {
+  constructor(key) {
+    this.key = key;
+    this.color = RED;
+    this.left = null;
+    this.right = null;
+    this.p = null;
+  }
+}
+
+// Inicialização segura da folha sentinela T.nil universal do PDF
+const NIL = new RBNode(null);
+NIL.color = BLACK;
+NIL.left = NIL;
+NIL.right = NIL;
+NIL.p = NIL;
+
+class RedBlackTree {
+  constructor() {
+    this.root = NIL;
+  }
+
+  leftRotate(x) {
+    let y = x.right;
+    x.right = y.left;
+    if (y.left !== NIL) {
+      y.left.p = x;
+    }
+    y.p = x.p;
+    if (x.p === NIL) {
+      this.root = y;
+    } else if (x === x.p.left) {
+      x.p.left = y;
+    } else {
+      x.p.right = y;
+    }
+    y.left = x;
+    x.p = y;
+  }
+
+  rightRotate(x) {
+    let y = x.left;
+    x.left = y.right;
+    if (y.right !== NIL) {
+      y.right.p = x;
+    }
+    y.p = x.p;
+    if (x.p === NIL) {
+      this.root = y;
+    } else if (x === x.p.right) {
+      x.p.right = y;
+    } else {
+      x.p.left = y;
+    }
+    y.right = x;
+    x.p = y;
+  }
+
+  insert(key) {
+    let z = new RBNode(key);
+    z.left = NIL;
+    z.right = NIL;
+    
+    let y = NIL;
+    let x = this.root;
+    
+    while (x !== NIL) {
+      y = x;
+      if (z.key < x.key) {
+        x = x.left;
+      } else if (z.key > x.key) {
+        x = x.right;
+      } else {
+        return false;
+      }
+    }
+    
+    z.p = y;
+    if (y === NIL) {
+      this.root = z;
+    } else if (z.key < y.key) {
+      y.left = z;
+    } else {
+      y.right = z;
+    }
+    
+    this.insertFixup(z);
+    return true;
+  }
+
+  insertFixup(z) {
+    while (z.p.color === RED) {
+      if (z.p === z.p.p.left) {
+        let y = z.p.p.right;
+        if (y.color === RED) {
+          z.p.color = BLACK;
+          y.color = BLACK;
+          z.p.p.color = RED;
+          z = z.p.p;
+        } else {
+          if (z === z.p.right) {
+            z = z.p;
+            this.leftRotate(z);
+          }
+          z.p.color = BLACK;
+          z.p.p.color = RED;
+          this.rightRotate(z.p.p);
+        }
+      } else {
+        let y = z.p.p.left;
+        if (y.color === RED) {
+          z.p.color = BLACK;
+          y.color = BLACK;
+          z.p.p.color = RED;
+          z = z.p.p;
+        } else {
+          if (z === z.p.left) {
+            z = z.p;
+            this.rightRotate(z);
+          }
+          z.p.color = BLACK;
+          z.p.p.color = RED;
+          this.leftRotate(z.p.p);
+        }
+      }
+    }
+    this.root.color = BLACK;
+  }
+}
+
+let tree = new RedBlackTree();
+[15, 6, 18, 3, 7, 17, 20, 2, 4, 13, 9].forEach(k => tree.insert(k));
+
+function triggerInsert() {
+  const input = document.getElementById('insert-val');
+  const val = parseInt(input.value);
+  const log = document.getElementById('sim-log');
+  if (isNaN(val)) return;
+  
+  let ok = tree.insert(val);
+  if(ok) {
+    log.innerHTML = `Inserido ${val}. Reajustes efetuados de acordo com os Casos do PDF.`;
+  } else {
+    log.innerHTML = `A chave ${val} já existe na árvore. Tenta outro número.`;
+  }
+  renderSVG();
+  input.value = '';
+}
+
+function triggerReset() {
+  tree = new RedBlackTree();
+  document.getElementById('sim-log').innerHTML = "Árvore reinicializada (Vazia).";
+  renderSVG();
+}
+
+function buildLayout(node, depth, leftBound, rightBound, elements, links) {
+  if (node === NIL) return;
+  
+  let x = (leftBound + rightBound) / 2;
+  let y = depth * 60 + 40;
+  
+  elements.push({ node: node, x: x, y: y });
+  
+  if (node.left !== NIL) {
+    let nextX = (leftBound + x) / 2;
+    let nextY = (depth + 1) * 60 + 40;
+    links.push({ x1: x, y1: y, x2: nextX, y2: nextY });
+    buildLayout(node.left, depth + 1, leftBound, x, elements, links);
+  }
+  if (node.right !== NIL) {
+    let nextX = (x + rightBound) / 2;
+    let nextY = (depth + 1) * 60 + 40;
+    links.push({ x1: x, y1: y, x2: nextX, y2: nextY });
+    buildLayout(node.right, depth + 1, x, rightBound, elements, links);
+  }
+}
+
+function renderSVG() {
+  const svg = document.getElementById('tree-svg');
+  if (!svg) return;
+  svg.innerHTML = '';
+  
+  let elements = [];
+  let links = [];
+  
+  let width = svg.getBoundingClientRect().width || 800;
+  buildLayout(tree.root, 0, 20, width - 20, elements, links);
+  
+  links.forEach(l => {
+    let line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    line.setAttribute("class", "link");
+    line.setAttribute("x1", l.x1);
+    line.setAttribute("y1", l.y1);
+    line.setAttribute("x2", l.x2);
+    line.setAttribute("y2", l.y2);
+    svg.appendChild(line);
+  });
+  
+  elements.forEach(e => {
+    let g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    g.setAttribute("class", "node");
+    
+    let circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    circle.setAttribute("cx", e.x);
+    circle.setAttribute("cy", e.y);
+    circle.setAttribute("r", "18");
+    
+    if (e.node.color === RED) {
+      circle.setAttribute("fill", "#dc3545");
+      circle.setAttribute("stroke", "#b71c1c");
+    } else {
+      circle.setAttribute("fill", "#212529");
+      circle.setAttribute("stroke", "#000000");
+    }
+    
+    let text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    text.setAttribute("x", e.x);
+    text.setAttribute("y", e.y);
+    text.setAttribute("fill", "#ffffff");
+    text.textContent = e.node.key;
+    
+    g.appendChild(circle);
+    g.appendChild(text);
+    svg.appendChild(g);
+  });
+}
+
+window.addEventListener('resize', renderSVG);
+window.onload = () => { renderSVG(); };
+</script>
+</body>
+</html>

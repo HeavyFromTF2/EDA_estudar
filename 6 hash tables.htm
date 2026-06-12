@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sebenta Interativa: Tabelas de Dispersão (Hash Tables)</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #ffffff;
+    --bg2: #f5f5f3;
+    --bg3: #ededea;
+    --text: #1a1a18;
+    --text2: #5f5e5a;
+    --text3: #88877f;
+    --border: rgba(0,0,0,0.12);
+    --border2: rgba(0,0,0,0.22);
+    --info-bg: #e6f1fb;
+    --info-text: #042c53;
+    --info-border: #185fa5;
+    --warn-bg: #faeeda;
+    --warn-text: #412402;
+    --warn-border: #854f0b;
+    --success-bg: #eaf3de;
+    --success-text: #173404;
+    --success-border: #3b6d11;
+    --radius: 8px;
+    --radius-lg: 12px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1c1a;
+      --bg2: #252523;
+      --bg3: #2e2e2b;
+      --text: #e8e6de;
+      --text2: #a8a69e;
+      --text3: #6e6c66;
+      --border: rgba(255,255,255,0.1);
+      --border2: rgba(255,255,255,0.2);
+      --info-bg: #0c447c;
+      --info-text: #b5d4f4;
+      --info-border: #378add;
+      --warn-bg: #633806;
+      --warn-text: #fac775;
+      --warn-border: #ba7517;
+      --success-bg: #27500a;
+      --success-text: #c0dd97;
+      --success-border: #639922;
+    }
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: var(--bg3);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1rem;
+  }
+
+  .container {
+    max-width: 940px;
+    margin: 0 auto;
+    background: var(--bg);
+    border-radius: var(--radius-lg);
+    border: 0.5px solid var(--border);
+    padding: 2.5rem;
+  }
+
+  h1 { font-size: 24px; font-weight: 600; margin-bottom: 6px; }
+  .subtitle { font-size: 15px; color: var(--text2); margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem; }
+
+  h2 { font-size: 18px; font-weight: 600; margin: 1.8rem 0 0.6rem 0; color: var(--info-border); }
+  h3 { font-size: 15px; font-weight: 600; margin: 1.2rem 0 0.5rem 0; color: var(--text); }
+  p { font-size: 14px; line-height: 1.6; margin-bottom: 1rem; color: var(--text); }
+  
+  ul { margin-left: 20px; margin-bottom: 1rem; font-size: 14px; line-height: 1.6; }
+  li { margin-bottom: 6px; }
+  code { background: var(--bg2); padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 13px; font-weight: 600; }
+
+  .nav-tabs {
+    display: flex;
+    gap: 8px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .tab-btn {
+    padding: 10px 16px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    color: var(--text2);
+    font-size: 14px;
+    font-weight: 500;
+    border-bottom: 2px solid transparent;
+  }
+  .tab-btn.active {
+    color: var(--info-border);
+    border-bottom-color: var(--info-border);
+    font-weight: 600;
+  }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  .interactive-box {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-top: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .grid-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  @media (min-width: 750px) {
+    .grid-layout { grid-template-columns: 1fr 1fr; }
+  }
+
+  .code-container {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+    overflow-x: auto;
+  }
+  .code-container strong {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--info-border);
+    font-size: 13px;
+  }
+  pre {
+    margin: 0;
+  }
+  code.pseudocode {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 12px;
+    line-height: 1.6;
+    background: none;
+    padding: 0;
+    border-radius: 0;
+    color: var(--text);
+    white-space: pre;
+  }
+  .code-comment { color: #2b8a3e; font-style: italic; }
+  @media (prefers-color-scheme: dark) { .code-comment { color: #69db7c; } }
+
+  .grid-table {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(75px, 1fr));
+    gap: 8px;
+    margin: 1.8rem 0;
+  }
+  .cell {
+    border: 1.5px solid var(--border2);
+    background: var(--bg);
+    height: 62px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius);
+    font-weight: 600;
+    font-size: 14px;
+    position: relative;
+  }
+  .cell .idx {
+    position: absolute;
+    top: 2px;
+    left: 5px;
+    font-size: 10px;
+    color: var(--text3);
+    font-weight: normal;
+  }
+  .cell.occupied {
+    background: var(--info-bg);
+    border-color: var(--info-border);
+    color: var(--info-text);
+  }
+  .cell.tested {
+    background: var(--warn-bg);
+    border-color: var(--warn-border);
+    color: var(--warn-text);
+  }
+
+  .controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .btn {
+    cursor: pointer;
+    padding: 8px 14px;
+    border: 0.5px solid var(--border2);
+    border-radius: var(--radius);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .btn:hover { background: var(--bg3); }
+  .btn-primary { background: var(--info-bg); color: var(--info-text); border-color: var(--info-border); }
+
+  .info-badge {
+    background: var(--info-bg);
+    color: var(--info-text);
+    padding: 12px 16px;
+    border-radius: var(--radius);
+    font-size: 13px;
+    border: 0.5px solid var(--info-border);
+    margin-bottom: 1.2rem;
+    line-height: 1.6;
+  }
+  .danger-badge {
+    background: var(--warn-bg);
+    color: var(--warn-text);
+    padding: 12px 16px;
+    border-radius: var(--radius);
+    font-size: 13px;
+    border: 0.5px solid var(--warn-border);
+    margin-bottom: 1.2rem;
+    line-height: 1.6;
+  }
+  .formula {
+    background: var(--bg3);
+    padding: 10px 14px;
+    border-left: 4px solid var(--info-border);
+    font-family: monospace;
+    font-size: 14px;
+    font-weight: 600;
+    margin: 10px 0;
+    display: block;
+    border-radius: 0 var(--radius) var(--radius) 0;
+  }
+  
+  .explanation-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.2rem;
+    margin-bottom: 1.5rem;
+  }
+  .badge-tech {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .tech-linear { background: #ffe3e3; color: #b01e1e; }
+  .tech-quad { background: #e3fafc; color: #0c8599; }
+  .tech-double { background: #ebfbee; color: #2b8a3e; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Sebenta Teórico-Prática: Aula 6 — Tabelas de Dispersão</h1>
+  <p class="subtitle">Mapeamento Associativo, Funções de Hash e Resolução de Colisões · IPBeja</p>
+
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab(0)">1. Endereçamento Direto vs Hash</button>
+    <button class="tab-btn" onclick="switchTab(1)">2. Funções Hash Matemáticas</button>
+    <button class="tab-btn" onclick="switchTab(2)">3. Encadeamento (Chaining)</button>
+    <button class="tab-btn" onclick="switchTab(3)">4. Descomplicar: Técnicas de Sondagem</button>
+  </div>
+
+  <div id="tab0" class="tab-content active">
+    <h2>Tabelas de Endereçamento Direto (Slide 4)</h2>
+    <p>Quando o universo de chaves possíveis <code>U</code> é muito pequeno e controlado, podemos criar um array <code>T</code> onde o valor da própria chave dita o índice exato da sua posição (ex: o elemento com a chave <code>k = 4</code> fica guardado diretamente na célula <code>T[4]</code>). O tempo de execução de qualquer operação aqui é perfeito: <strong>O(1)</strong>.</p>
+    
+    <div class="danger-badge">
+      <strong>O Grande Problema Prático (Slide 6):</strong> Se as chaves puderem ser números gigantes (como o número de NIF ou BI), mas na realidade só precisarmos de guardar 10 ou 20 elementos reais, criar uma tabela com capacidade para todo o universo teórico seria um desperdício monstruoso e impossível de memória RAM.
+    </div>
+    
+    <h2>A Solução: Tabelas de Dispersão / Hash Tables (Slide 7)</h2>
+    <p>Em vez de mapearmos a chave diretamente, passamo-la por um filtro matemático: uma <strong>Função de Dispersão (Hash Function)</strong>, designada por <code>h(k)</code>. Esta função recebe uma chave arbitrária do universo <code>U</code> e reduz ou dispersa esse valor para um intervalo menor de posições correspondente ao tamanho real da nossa tabela <code>[0, 1, ..., m-1]</code>.</p>
+    
+    <div class="info-badge">
+      <strong>⚠️ O Fenómeno Inevitável da Colisão (Slide 9):</strong> Como o tamanho da tabela <code>m</code> é significativamente menor do que o universo de chaves possíveis, haverá sempre momentos em que duas chaves diferentes vão produzir exatamente o mesmo índice (<code>h(k1) == h(k2)</code>). Os métodos que estudamos de seguida servem exclusivamente para gerir e resolver estes conflitos!
+    </div>
+  </div>
+
+  <div id="tab1" class="tab-content">
+    <h2>Funções de Dispersão Matemáticas (Slide 13 e 14)</h2>
+    <p>Uma boa função de dispersão deve aproximar-se do paradigma da <strong>Dispersão Uniforme Simples</strong>: cada chave deve ter a mesma probabilidade de ser mapeada em qualquer uma das <code>m</code> posições da tabela, independentemente das outras chaves já inseridas.</p>
+    
+    <h3>1. O Método da Divisão (Slide 13)</h3>
+    <p>É o algoritmo mais direto e comum, baseado no resto da divisão inteira:</p>
+    <span class="formula">h(k) = k mod m</span>
+    <p><strong>⚠️ Regra de Ouro para o Exame:</strong> Para evitar padrões viciados nos dados, o tamanho da tabela <code>m</code> deve ser obrigatoriamente um <strong>número primo</strong> que não esteja excessivamente perto de nenhuma potência de 2.</p>
+
+    <h3>2. O Método da Multiplicação (Slide 14)</h3>
+    <p>Este método não depende tanto da escolha de <code>m</code>. Funciona em dois passos matemáticos: primeiro multiplica-se a chave <code>k</code> por uma constante fracionária fixa <code>A</code> (onde $0 < A < 1$) e extrai-se a parte decimal desse produto. De seguida, multiplica-se esse resto decimal por <code>m</code> e retira-se apenas a parte inteira (função chão / floor):</p>
+    <span class="formula">h(k) = ⌊m × ( (k × A) mod 1 )⌋</span>
+    <p><em>Nota Teórica:</em> Segundo Knuth, o valor ideal para esta constante é baseado na proporção áurea: $A \approx 0.6180339887...$</p>
+  </div>
+
+  <div id="tab2" class="tab-content">
+    <h2>Resolução de Colisões por Encadeamento (Chaining)</h2>
+    <p>No método de **Encadeamento** (Slide 10), os elementos em colisão não lutam pelo espaço das outras células da tabela. Cada célula do array <code>T[i]</code> não guarda o registo final, mas sim um apontador para a **cabeça de uma Lista Ligada** que agrupa todos os registos que fizeram hash para esse índice.</p>
+    
+    <h2>Análise de Complexidade Crítica (Slide 11 e 12)</h2>
+    <p>Para analisar estas tabelas, usamos o termo <strong>Fator de Carga (Load Factor)</strong>, denotado por <code>α</code>, que define a ocupação média de cada lista:</p>
+    <span class="formula">α = n / m  (onde n = número total de elementos guardados; m = tamanho do array)</span>
+    
+    <ul>
+      <li><strong>Inserção:</strong> No pior caso é <strong>O(1)</strong>, partindo do princípio de que os novos nós são anexados diretamente à cabeça della lista ligada de forma imediata.</li>
+      <li><strong>Pesquisa (Pior Caso):</strong> É <strong>O(n)</strong>. Se todas as <code>n</code> chaves colidirem para a mesmíssima posição, a tabela de dispersão colapsa e transforma-se numa única lista ligada gigante.</li>
+      <li><strong>Pesquisa (Caso Médio de Sucesso):</strong> O tempo de execução esperado é de <strong>Θ(1 + α)</strong>, representando o tempo para computar a função hash mais o custo de percorrer metade della lista encadeada daquela posição.</li>
+    </ul>
+  </div>
+
+  <div id="tab3" class="tab-content">
+    <h2>O que é o Endereçamento Aberto e o que é a "Sondagem"?</h2>
+    <p>No **Endereçamento Aberto** (Slide 21), esquece as listas ligadas. **Tudo é guardado dentro do próprio array**. Se o teu índice ideal está ocupado por outro elemento, tu não podes criar ramificações. Tens de procurar (<strong>sondar</strong>) outra posição livre no array seguindo uma sequência estrita de passos.</p>
+    
+    <p>A variável <code>i</code> representa o número da tua tentativa: começas na tentativa <code>i = 0</code> (a tua posição favorita). Se falhar, passas para a tentativa <code>i = 1</code>, depois <code>i = 2</code>, e assim por diante. As três técnicas abaixo diferem apenas em **como calculam os saltos para a próxima tentativa**.</p>
+
+    <h2>As 3 Técnicas de Sondagem Explicadas Sem Complicações</h2>
+
+    <div class="explanation-card">
+      <span class="badge-tech tech-linear">1. Teste Linear (Linear Probing)</span>
+      <p><strong>O que faz na prática:</strong> Se houver colisão, ele simplesmente tenta a célula imediatamente a seguir (<code>+1</code>, <code>+2</code>, <code>+3</code>...). É o equivalente a procurares um lugar para estacionar e ires avançando de um em um até veres um lugar vazio.</p>
+      <p><strong>Como calcula (Fórmula):</strong> <code>h(k, i) = (h'(k) + i) mod m</code></p>
+      <p><strong>O Problema (Agregação Primária / Primary Clustering):</strong> Como andamos de 1 em 1, criam-se blocos gigantescos de células consecutivas totalmente ocupadas. Se uma nova chave for dar a qualquer ponto desse bloco, vai ter de percorrer penosamente o bloco inteiro até chegar ao fim e encontrar uma vaga, tornando o algoritmo lento.</p>
+    </div>
+
+    <div class="explanation-card">
+      <span class="badge-tech tech-quad">2. Teste Quadrático (Quadratic Probing)</span>
+      <p><strong>O que faz na prática:</strong> Para evitar andar devagarinho de 1 em 1, esta técnica faz saltos que crescem de forma quadrática a cada falha. Na primeira tentativa falhada salta 1 casa, na segunda salta 4 casas, na terceira salta 9 casas, etc. A ideia é afastarmo-nos rapidamente da zona de colisão.</p>
+      <p><strong>Como calcula (Fórmula):</strong> <code>h(k, i) = (h'(k) + c1*i + c2*i²) mod m</code></p>
+      <p><strong>O Problema (Agregação Secundária / Secondary Clustering):</strong> É melhor que o linear, mas tem um defeito: duas chaves completamente diferentes que tenham o mesmo índice inicial (por exemplo, ambas dão índice 3) vão fazer **exatamente a mesma sequência de saltos idêntica** (ambas saltam para o 4, depois para o 8, etc.), criando um mini-congestionamento secundário.</p>
+    </div>
+
+    <div class="explanation-card">
+      <span class="badge-tech tech-double">3. Dispersão Dupla (Double Hashing)</span>
+      <p><strong>O que faz na prática:</strong> É a técnica ideal. Aqui, se houver colisão, o tamanho do teu salto é calculado por uma **segunda função hash independente (h2)**. Isso significa que o tamanho do salto é personalizado para a tua chave!</p>
+      <p><strong>Como calcula (Fórmula):</strong> <code>h(k, i) = (h1(k) + i * h2(k)) mod m</code></p>
+      <p><strong>Porque é a melhor?</strong> Imagina que a chave 14 e a chave 25 colidem na posição 3. No teste quadrático ou linear, ambas iam saltar para o mesmo sítio a seguir. Na dispersão dupla, o 14 calcula um tamanho de salto de 2 em 2 posições, enquanto o 25 calcula um tamanho de salto de 5 em 5 posições. Elas divergem imediatamente e espalham-se na tabela de forma perfeita!</p>
+    </div>
+
+    <div class="interactive-box">
+      <h3>Simulador de Sondagens Mecânicas (m = 11 posições)</h3>
+      <p style="font-size:13px; color:var(--text2); margin-bottom: 15px;">
+        Experimenta este teste típico de exame: escolhe o <b>Teste Linear</b> e insere as chaves <b>11</b>, <b>22</b> e <b>33</b> consecutivamente. Vais ver o efeito da "Agregação Primária" acontecer em tempo real (as células laranjas mostram os testes falhados).
+      </p>
+      
+      <div class="controls">
+        <label><b>Técnica de Sondagem:</b></label>
+        <select id="hash-method" onchange="resetTable()" style="padding:6px; border-radius:4px; font-weight:600; background:var(--bg); color:var(--text); border:1px solid var(--border2);">
+          <option value="linear">Teste Linear: (h0(k) + i) mod 11</option>
+          <option value="quad">Teste Quadrático: (h0(k) + 1*i + 3*i²) mod 11</option>
+          <option value="double">Dispersão Dupla: (h1(k) + i*h2(k)) mod 11</option>
+        </select>
+        
+        <input type="number" id="hash-input" value="11" style="width:65px; padding:6px; border-radius:4px; border:1px solid var(--text3); font-weight:bold; text-align:center;">
+        <button class="btn btn-primary" onclick="insertHash()">Inserir Chave</button>
+        <button class="btn" onclick="resetTable()">Limpar Tudo</button>
+      </div>
+
+      <div id="hash-log" style="font-size:13px; color:var(--warn-border); margin-bottom:10px; font-family:monospace; min-height:20px; font-weight:600;"></div>
+      <div class="grid-table" id="hash-grid"></div>
+
+      <div class="grid-layout">
+        <div class="code-container">
+          <strong>HASH-INSERT(T, k)</strong>
+          <pre><code class="pseudocode">1  i = 0  <span class="code-comment">// Começamos na tentativa zero</span>
+2  repeat
+3      q = h(k, i)  <span class="code-comment">// Calcula o índice p/ a chave e nº da tentativa</span>
+4      if T[q] == NIL  <span class="code-comment">// Se a célula [q] estiver vazia...</span>
+5          T[q] = k  <span class="code-comment">// ...guardamos lá a chave com sucesso!</span>
+6          return q  <span class="code-comment">// Devolvemos o índice onde ficou guardada</span>
+7      else 
+8          i = i + 1  <span class="code-comment">// Colisão: passamos à próxima tentativa</span>
+9  until i == m  <span class="code-comment">// Repete até esgotar o tamanho da tabela</span>
+10 error "hash table overflow"  <span class="code-comment">// Tabela cheia sem vagas</span></code></pre>
+        </div>
+
+        <div class="code-container">
+          <strong>HASH-SEARCH(T, k)</strong>
+          <pre><code class="pseudocode">1  i = 0  <span class="code-comment">// Iniciamos a busca na tentativa zero</span>
+2  repeat
+3      q = h(k, i)  <span class="code-comment">// Calcula o índice esperado nesta tentativa</span>
+4      if T[q] == k  <span class="code-comment">// Encontrámos a chave na tabela!</span>
+5          return q  <span class="code-comment">// Devolvemos a posição atual dela</span>
+6      i = i + 1  <span class="code-comment">// Não era ela, passamos à próxima tentativa</span>
+7  until T[q] == NIL or i == m  <span class="code-comment">// Para se achar vazio ou testar m vezes</span>
+8  return NIL  <span class="code-comment">// Saiu do ciclo: a chave não existe</span></code></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function switchTab(idx) {
+  document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
+  document.querySelectorAll('.tab-content').forEach((c, i) => c.classList.toggle('active', i === idx));
+}
+
+const M = 11;
+let hashTable = Array(M).fill(null);
+
+function renderHashGrid(tested = []) {
+  const grid = document.getElementById('hash-grid');
+  grid.innerHTML = '';
+  for(let i = 0; i < M; i++) {
+    let cell = document.createElement('div');
+    cell.className = 'cell';
+    if(hashTable[i] !== null) cell.classList.add('occupied');
+    if(tested.includes(i)) cell.classList.add('tested');
+    
+    cell.innerHTML = `<span class="idx">${i}</span>${hashTable[i] !== null ? hashTable[i] : ''}`;
+    grid.appendChild(cell);
+  }
+}
+
+function resetTable() {
+  hashTable = Array(M).fill(null);
+  document.getElementById('hash-log').innerHTML = '';
+  renderHashGrid();
+}
+
+function insertHash() {
+  const k = parseInt(document.getElementById('hash-input').value);
+  if(isNaN(k)) return;
+  
+  const method = document.getElementById('hash-method').value;
+  const log = document.getElementById('hash-log');
+  log.innerHTML = '';
+
+  let i = 0;
+  let testedIndices = [];
+  let foundSlot = false;
+
+  const h1 = k % M;
+  const h2 = 1 + (k % (M - 2)); 
+
+  while(i < M) {
+    let idx = 0;
+    if(method === 'linear') {
+      idx = (h1 + i) % M;
+    } else if(method === 'quad') {
+      idx = (h1 + 1 * i + 3 * i * i) % M;
+    } else if(method === 'double') {
+      idx = (h1 + i * h2) % M;
+    }
+
+    testedIndices.push(idx);
+
+    if(hashTable[idx] === null) {
+      hashTable[idx] = k;
+      log.innerHTML = `Sucesso: Chave ${k} alocada no índice ${idx} (Tentativa i = ${i}).`;
+      foundSlot = true;
+      break;
+    } else {
+      log.innerHTML += `Colisão em [${idx}] (i=${i}) -> `;
+      i++;
+    }
+  }
+
+  if(!foundSlot) {
+    log.innerHTML = `<b>ERRO: HASH TABLE OVERFLOW!</b> Tabela cheia para a chave ${k} após testar ${M} posições.`;
+  }
+
+  renderHashGrid(testedIndices);
+}
+
+renderHashGrid();
+</script>
+</body>
+</html>

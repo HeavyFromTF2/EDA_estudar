@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Insertion Sort — Demonstração Interativa</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #ffffff;
+    --bg2: #f5f5f3;
+    --bg3: #ededea;
+    --text: #1a1a18;
+    --text2: #5f5e5a;
+    --text3: #88877f;
+    --border: rgba(0,0,0,0.12);
+    --border2: rgba(0,0,0,0.22);
+    --info-bg: #e6f1fb;
+    --info-text: #042c53;
+    --info-border: #185fa5;
+    --warn-bg: #faeeda;
+    --warn-text: #412402;
+    --warn-border: #854f0b;
+    --success-bg: #eaf3de;
+    --success-text: #173404;
+    --success-border: #3b6d11;
+    --radius: 8px;
+    --radius-lg: 12px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1c1a;
+      --bg2: #252523;
+      --bg3: #2e2e2b;
+      --text: #e8e6de;
+      --text2: #a8a69e;
+      --text3: #6e6c66;
+      --border: rgba(255,255,255,0.1);
+      --border2: rgba(255,255,255,0.2);
+      --info-bg: #0c447c;
+      --info-text: #b5d4f4;
+      --info-border: #378add;
+      --warn-bg: #633806;
+      --warn-text: #fac775;
+      --warn-border: #ba7517;
+      --success-bg: #27500a;
+      --success-text: #c0dd97;
+      --success-border: #639922;
+    }
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: var(--bg3);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1rem;
+  }
+
+  .container {
+    max-width: 780px;
+    margin: 0 auto;
+    background: var(--bg);
+    border-radius: var(--radius-lg);
+    border: 0.5px solid var(--border);
+    padding: 2rem;
+  }
+
+  h1 {
+    font-size: 22px;
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+  .subtitle {
+    font-size: 14px;
+    color: var(--text2);
+    margin-bottom: 1.5rem;
+  }
+
+  .controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+
+  .btn {
+    cursor: pointer;
+    padding: 8px 18px;
+    border: 0.5px solid var(--border2);
+    border-radius: var(--radius);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    transition: background .15s;
+    font-family: inherit;
+  }
+  .btn:hover { background: var(--bg2); }
+  .btn:disabled { opacity: 0.4; cursor: default; }
+  .btn-primary {
+    background: var(--info-bg);
+    color: var(--info-text);
+    border-color: var(--info-border);
+  }
+  .btn-primary:hover { filter: brightness(0.95); }
+
+  .phase-badge {
+    display: inline-block;
+    padding: 3px 12px;
+    border-radius: var(--radius);
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .desc-box {
+    background: var(--bg2);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    font-size: 14px;
+    color: var(--text);
+    min-height: 52px;
+    margin-bottom: 16px;
+    line-height: 1.6;
+    border: 0.5px solid var(--border);
+  }
+
+  #visual-svg {
+    display: block;
+    width: 100%;
+    margin-bottom: 12px;
+  }
+
+  .array-label {
+    margin-bottom: 6px;
+    font-size: 12px;
+    color: var(--text3);
+  }
+
+  #array-row {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+
+  .cell {
+    min-width: 40px;
+    height: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    border: 1px solid;
+  }
+  .cell-idx {
+    font-size: 9px;
+    font-weight: 400;
+    color: var(--text3);
+    line-height: 1;
+  }
+  .cell-val { line-height: 1.2; }
+
+  .cell-unsorted { background: var(--bg2); border-color: var(--border2); color: var(--text); }
+  .cell-key      { background: var(--warn-bg); border-color: var(--warn-border); color: var(--warn-text); }
+  .cell-compare  { background: var(--info-bg); border-color: var(--info-border); color: var(--info-text); }
+  .cell-sorted   { background: var(--success-bg); border-color: var(--success-border); color: var(--success-text); }
+
+  .step-counter {
+    font-size: 12px;
+    color: var(--text3);
+    margin-top: 4px;
+  }
+
+  /* ESTILOS DO PSEUDOCÓDIGO COMENTADO */
+  .pseudocode-section {
+    margin-top: 2rem;
+    border-top: 1px dashed var(--border2);
+    padding-top: 1.5rem;
+  }
+  .pseudocode-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: var(--text);
+  }
+  .code-container {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+    font-family: monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    overflow-x: auto;
+  }
+  .code-line {
+    display: flex;
+    border-radius: 4px;
+    padding: 2px 6px;
+  }
+  .line-num {
+    width: 24px;
+    color: var(--text3);
+    flex-shrink: 0;
+  }
+  .line-text {
+    white-space: pre;
+    flex-grow: 1;
+  }
+  .line-comment {
+    color: #2b8a3e;
+    font-style: italic;
+  }
+  @media (prefers-color-scheme: dark) {
+    .line-comment { color: #69db7c; }
+  }
+
+  .legend {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 0.5px solid var(--border);
+    font-size: 12px;
+    color: var(--text2);
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-dot {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    border: 1.5px solid;
+    flex-shrink: 0;
+  }
+
+  .info-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 10px;
+    margin-bottom: 1.5rem;
+  }
+  .info-card {
+    background: var(--bg2);
+    border-radius: var(--radius);
+    padding: 10px 14px;
+    font-size: 13px;
+    border: 0.5px solid var(--border);
+  }
+  .info-card strong { display: block; font-size: 15px; font-weight: 500; margin-bottom: 2px; }
+  .info-card span { color: var(--text2); }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Insertion Sort — Demonstração Interativa</h1>
+  <p class="subtitle">Estruturas de Dados e Algoritmos · IPBeja · EDA Aula 3</p>
+
+  <div class="info-row">
+    <div class="info-card"><strong>Melhor Caso</strong><span>Custo: O(n)</span></div>
+    <div class="info-card"><strong>Caso Médio / Pior</strong><span>Custo: O(n²)</span></div>
+    <div class="info-card"><strong>Espaço Auxiliar</strong><span>Custo: O(1) (In-place)</span></div>
+  </div>
+
+  <div class="controls">
+    <button class="btn btn-primary" id="btn-prev" onclick="step(-1)">← Anterior</button>
+    <button class="btn btn-primary" id="btn-next" onclick="step(1)">Próximo →</button>
+    <button class="btn" onclick="reset()">↺ Recomeçar</button>
+    <span id="phase-label" class="phase-badge"></span>
+  </div>
+
+  <div class="desc-box" id="desc-box"></div>
+
+  <svg id="visual-svg" viewBox="0 0 680 160"></svg>
+
+  <div class="array-label">Array A (índice em cima, valor em baixo):</div>
+  <div id="array-row"></div>
+  <div class="step-counter" id="step-counter"></div>
+
+  <div class="pseudocode-section">
+    <div class="pseudocode-title">Linha de Execução de Exame — INSERTION-SORT(A)</div>
+    <div class="code-container" id="code-container">
+      <div class="code-line" id="line-1"><span class="line-num">1</span><span class="line-text">for j = 2 to A.length</span><span class="line-comment">// Começa no 2º elemento. O 1º já está "ordenado" sozinho.</span></div>
+      <div class="code-line" id="line-2"><span class="line-num">2</span><span class="line-text">    key = A[j]</span><span class="line-comment">// Memoriza a "chave" (o elemento que queres encaixar).</span></div>
+      <div class="code-line" id="line-3"><span class="line-num">3</span><span class="line-text">    // Inserir A[j] na sequência ordenada A[1..j-1]</span><span class="line-comment">// Explicação teórica do objetivo da iteração.</span></div>
+      <div class="code-line" id="line-4"><span class="line-num">4</span><span class="line-text">    i = j - 1</span><span class="line-comment">// Começa a olhar para o vizinho imediatamente à esquerda.</span></div>
+      <div class="code-line" id="line-5"><span class="line-num">5</span><span class="line-text">    while i > 0 and A[i] > key</span><span class="line-comment">// Enquanto houver números à esquerda MAIORES que a chave...</span></div>
+      <div class="code-line" id="line-6"><span class="line-num">6</span><span class="line-text">        A[i + 1] = A[i]</span><span class="line-comment">// Arrasta o número maior uma casa para a direita para abrir espaço.</span></div>
+      <div class="code-line" id="line-7"><span class="line-num">7</span><span class="line-text">        i = i - 1</span><span class="line-comment">// Recua o ponteiro uma posição à esquerda para continuar a procurar.</span></div>
+      <div class="code-line" id="line-8"><span class="line-num">8</span><span class="line-text">    A[i + 1] = key</span><span class="line-comment">// Encontrou o sítio certo! Larga lá a chave guardada na vaga livre.</span></div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item">
+      <div class="legend-dot" style="background:var(--warn-bg);border-color:var(--warn-border)"></div>
+      Chave Atual (Elemento a Inserir)
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:var(--info-bg);border-color:var(--info-border)"></div>
+      A ser comparado / Deslocado
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:var(--success-bg);border-color:var(--success-border)"></div>
+      Sub-array já ordenado
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:var(--bg2);border-color:var(--border2)"></div>
+      Elementos ainda não avaliados
+    </div>
+  </div>
+</div>
+
+<script>
+// O mesmo array inicial que usaste no Heap Sort para facilitar a comparação mental de performance
+const ORIG = [16, 4, 10, 14, 7, 9, 3, 2, 8, 1];
+
+let steps = [];
+let cur = 0;
+
+function genSteps() {
+  steps = [];
+  // Mantemos indexação de base 1 para consistência com o teu projeto anterior
+  let A = [null, ...ORIG];
+  const n = A.length - 1;
+
+  function snap(desc, phase, keyIdx, compIdx, sortedCount) {
+    steps.push({
+      A: A.slice(),
+      desc,
+      phase,
+      keyIdx,
+      compIdx,
+      sortedCount
+    });
+  }
+
+  snap("Array inicial. O sub-array ordenado começa apenas com o primeiro elemento (índice 1).", "init", null, null, 1);
+
+  for (let j = 2; j <= n; j++) {
+    let key = A[j];
+    snap(`Definimos a chave <b>A[${j}] = ${key}</b>. Vamos inseri-la na posição correta do sub-array ordenado à esquerda.`, "scan", j, j - 1, j - 1);
+    
+    let i = j - 1;
+    let moved = false;
+
+    while (i > 0 && A[i] > key) {
+      snap(`Como <b>A[${i}] (${A[i]}) > Chave (${key})</b>, deslocamos o ${A[i]} para a direita (índice ${i+1}).`, "shift", i + 1, i, j - 1);
+      A[i + 1] = A[i];
+      moved = true;
+      i--;
+    }
+
+    if (i > 0) {
+      snap(`Comparação: Encontrado elemento menor ou igual à chave <b>A[${i}] (${A[i]}) &le; Chave (${key})</b>. A busca termina aqui.`, "compare", i + 1, i, j - 1);
+    } else {
+      snap(`Atingimos o início do array (ponteiro i = 0). A chave atual é o menor elemento avaliado até agora.`, "compare", 1, null, j - 1);
+    }
+
+    A[i + 1] = key;
+    snap(`Inserimos a chave <b>${key}</b> na sua vaga correta (posição A[${i + 1}]).`, "insert", i + 1, null, j);
+  }
+
+  snap("Ordenação concluída! Array final ordenado em ordem crescente: " + A.slice(1).join(", ") + ".", "done", null, null, n);
+}
+
+function drawVisual(A, keyIdx, compIdx, sortedCount, phase) {
+  const svg = document.getElementById('visual-svg');
+  svg.innerHTML = '';
+
+  const n = A.length - 1;
+  const startX = 40;
+  const spacing = 62;
+  const centerY = 80;
+
+  for (let i = 1; i <= n; i++) {
+    const cx = startX + (i - 1) * spacing;
+    
+    // Decisão de cores baseada nos estados do Insertion Sort
+    let fillVar = 'var(--bg2)', strokeColor = 'var(--border2)', textColor = 'var(--text)';
+    let isKey = (i === keyIdx);
+    let isComp = (i === compIdx);
+    let isSorted = (i <= sortedCount && phase !== 'done' && !isKey && !isComp) || phase === 'done';
+
+    if (isKey) {
+      fillVar = 'var(--warn-bg)'; strokeColor = 'var(--warn-border)'; textColor = 'var(--warn-text)';
+    } else if (isComp) {
+      fillVar = 'var(--info-bg)'; strokeColor = 'var(--info-border)'; textColor = 'var(--info-text)';
+    } else if (isSorted) {
+      fillVar = 'var(--success-bg)'; strokeColor = 'var(--success-border)'; textColor = 'var(--success-text)';
+    }
+
+    // Desenha barra ou retângulo vertical para dar um aspeto moderno e linear
+    const rectH = 50;
+    const rectW = 44;
+    const rx = cx - rectW/2;
+    const ry = centerY - rectH/2;
+
+    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    rect.setAttribute('x', rx); rect.setAttribute('y', ry);
+    rect.setAttribute('width', rectW); rect.setAttribute('height', rectH);
+    rect.setAttribute('rx', 8);
+    rect.setAttribute('fill', fillVar);
+    rect.setAttribute('stroke', strokeColor);
+    rect.setAttribute('stroke-width', '1.5');
+    svg.appendChild(rect);
+
+    // Índices
+    const idx = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    idx.setAttribute('x', cx); idx.setAttribute('y', ry - 10);
+    idx.setAttribute('text-anchor', 'middle');
+    idx.setAttribute('font-size', '11');
+    idx.setAttribute('fill', 'var(--text3)');
+    idx.textContent = `i=${i}`;
+    svg.appendChild(idx);
+
+    // Valores
+    const txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    txt.setAttribute('x', cx); txt.setAttribute('y', centerY);
+    txt.setAttribute('text-anchor', 'middle');
+    txt.setAttribute('dominant-baseline', 'central');
+    txt.setAttribute('font-size', '15');
+    txt.setAttribute('font-weight', '600');
+    txt.setAttribute('fill', textColor);
+    txt.textContent = A[i];
+    svg.appendChild(txt);
+    
+    // Indicador especial por baixo se for a chave atual "Key"
+    if(isKey && phase !== 'insert') {
+      const subTxt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      subTxt.setAttribute('x', cx); subTxt.setAttribute('y', ry + rectH + 16);
+      subTxt.setAttribute('text-anchor', 'middle');
+      subTxt.setAttribute('font-size', '10');
+      subTxt.setAttribute('font-weight', 'bold');
+      subTxt.setAttribute('fill', 'var(--warn-border)');
+      subTxt.textContent = "CHAVE";
+      svg.appendChild(subTxt);
+    }
+  }
+}
+
+function drawArray(A, keyIdx, compIdx, sortedCount, phase) {
+  const row = document.getElementById('array-row');
+  row.innerHTML = '';
+  for (let i = 1; i < A.length; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    
+    let isKey = (i === keyIdx);
+    let isComp = (i === compIdx);
+    let isSorted = (i <= sortedCount && phase !== 'done' && !isKey && !isComp) || phase === 'done';
+
+    if (isKey) cell.classList.add('cell-key');
+    else if (isComp) cell.classList.add('cell-compare');
+    else if (isSorted) cell.classList.add('cell-sorted');
+    else cell.classList.add('cell-unsorted');
+
+    const idxEl = document.createElement('div');
+    idxEl.className = 'cell-idx';
+    idxEl.textContent = i;
+    const valEl = document.createElement('div');
+    valEl.className = 'cell-val';
+    valEl.textContent = A[i];
+    
+    cell.appendChild(idxEl);
+    cell.appendChild(valEl);
+    row.appendChild(cell);
+  }
+}
+
+function render() {
+  const s = steps[cur];
+  drawVisual(s.A, s.keyIdx, s.compIdx, s.sortedCount, s.phase);
+  drawArray(s.A, s.keyIdx, s.compIdx, s.sortedCount, s.phase);
+  document.getElementById('desc-box').innerHTML = s.desc;
+
+  const phaseColors = {
+    init: 'background:var(--bg3);color:var(--text2)',
+    scan: 'background:var(--warn-bg);color:var(--warn-text)',
+    shift: 'background:var(--info-bg);color:var(--info-text)',
+    compare: 'background:var(--info-bg);color:var(--info-text)',
+    insert: 'background:var(--success-bg);color:var(--success-text)',
+    done: 'background:var(--success-bg);color:var(--success-text)'
+  };
+  
+  const phaseNames = { 
+    init: 'Início', 
+    scan: 'Nova Chave', 
+    shift: 'Deslocamento', 
+    compare: 'Comparação', 
+    insert: 'Inserção', 
+    done: 'Concluído' 
+  };
+  
+  const pb = document.getElementById('phase-label');
+  pb.style.cssText = (phaseColors[s.phase] || '') + ';padding:3px 12px;border-radius:8px;font-size:12px;font-weight:500';
+  pb.textContent = phaseNames[s.phase] || s.phase;
+
+  document.getElementById('step-counter').textContent = `Passo ${cur+1} de ${steps.length}`;
+  document.getElementById('btn-prev').disabled = cur === 0;
+  document.getElementById('btn-next').disabled = cur === steps.length - 1;
+}
+
+function step(d) { cur = Math.max(0, Math.min(steps.length-1, cur+d)); render(); }
+function reset() { cur = 0; render(); }
+
+genSteps();
+render();
+</script>
+</body>
+</html>
