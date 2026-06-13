@@ -379,7 +379,8 @@ function genSteps(){
       }
     }
 
-    snap(`Varredura do loop feita. Está na hora de tirar o pivô <b>A[${r}] (${x})</b> da ponta e encaixá-lo no meio, trocando com o <b>A[${i+1}] (${A[i+1]})</b>.`, "partition", p, r, { x, i, j: r, stage: 'before_final' });
+    // Correção: j já não é enviado com valor de 'r' para evitar que o renderizador desenhe a seta j por cima do pivô.
+    snap(`Varredura do loop feita. O ciclo terminou estritamente em r-1 (${r-1}). Está na hora de tirar o pivô <b>A[${r}] (${x})</b> da ponta e encaixá-lo no meio, trocando com o <b>A[${i+1}] (${A[i+1]})</b>.`, "partition", p, r, { x, i, stage: 'before_final' });
     
     let temp = A[i + 1];
     A[i + 1] = A[r];
@@ -388,7 +389,7 @@ function genSteps(){
     let q = i + 1;
     finalPositions.add(q); 
     
-    snap(`Perfeito! O pivô encontrou o seu lugar definitivo no índice <b>q = ${q}</b> (valor <b>${A[q]}</b>). Tudo à esquerda é menor e tudo à direita é maior.`, "partition", p, r, { x, i, q, j: q, stage: 'final' });
+    snap(`Perfeito! O pivô encontrou o seu lugar definitivo no índice <b>q = ${q}</b> (valor <b>${A[q]}</b>). Tudo à esquerda é menor e tudo à direita é maior.`, "partition", p, r, { x, i, q, stage: 'final' });
     return q;
   }
 
@@ -448,7 +449,8 @@ function drawVisual(s) {
       if (s.meta.i === idx) {
         drawPointer(svg, x + 23, y + 52, "i", "var(--text)");
       }
-      if (s.meta.j === idx) {
+      // Correção: A seta 'j' só é desenhada se s.meta.j existir (não existe no passo final de troca)
+      if (s.meta.j !== undefined && s.meta.j === idx) {
         drawPointer(svg, x + 23, y - 22, "j ↓", "var(--warn-text)");
       }
       if (s.meta.i === s.p - 1 && idx === s.p) {
