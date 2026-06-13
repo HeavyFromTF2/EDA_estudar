@@ -141,7 +141,17 @@
     margin-bottom: 1rem;
   }
 
-  /* Estilos para renderizar árvore real em SVG */
+  .info-badge {
+    background: var(--info-bg);
+    color: var(--info-text);
+    padding: 12px 16px;
+    border-radius: var(--radius);
+    font-size: 13px;
+    border: 0.5px solid var(--info-border);
+    margin-bottom: 1rem;
+    line-height: 1.5;
+  }
+
   .tree-viz {
     width: 100%;
     min-height: 380px;
@@ -150,21 +160,9 @@
     border-radius: var(--radius);
     margin-top: 1rem;
   }
-  .node circle {
-    stroke-width: 3px;
-  }
-  .node text {
-    font-family: sans-serif;
-    font-size: 14px;
-    font-weight: bold;
-    text-anchor: middle;
-    dominant-baseline: middle;
-  }
-  .link {
-    fill: none;
-    stroke: var(--text3);
-    stroke-width: 2px;
-  }
+  .node circle { stroke-width: 3px; }
+  .node text { font-family: sans-serif; font-size: 14px; font-weight: bold; text-anchor: middle; dominant-baseline: middle; }
+  .link { fill: none; stroke: var(--text3); stroke-width: 2px; }
 </style>
 </head>
 <body>
@@ -197,44 +195,76 @@
   </div>
 
   <div id="tab1" class="tab-content">
-    <h2>Rotações na Árvore (Slide 6 e 7)</h2>
-    <p>As operações de modificação (Inserção/Remoção) alteram a árvore e quebram as propriedades Red-Black. Para repor a ordem sem violar as regras de pesquisa binária (elementos à esquerda menores, à direita maiores), usamos as **Rotações Locais** que alteram os ponteiros de forma instantânea em tempo <code>O(1)</code>.</p>
+    <h2>Como Funcionam as Rotações Locais (Slides 6-7)</h2>
+    <p>Quando inserimos ou removemos nós, as propriedades Red-Black podem ser violadas. Para as corrigir, usamos <strong>Rotações</strong>. Elas alteram a estrutura de ponteiros em tempo constante <code>O(1)</code> <strong>sem alterar a propriedade de pesquisa binária</strong> (tudo à esquerda continua menor, tudo à direita continua maior).</p>
     
-    <h3>Pseudocódigo Comentado: LEFT-ROTATE(T, x) (Slide 7)</h3>
+    <div class="info-badge">
+      <strong>A Intuição Visual da Rotação à Esquerda (LEFT-ROTATE):</strong><br>
+      Imagina o nó <code>x</code> e o seu filho direito <code>y</code>. Na rotação à esquerda, <code>x</code> <strong>desce para a esquerda</strong>, tornando-se filho de <code>y</code>. Como <code>y</code> assume o topo, a antiga subárvore esquerda de <code>y</code> (os nós intermédios) é adotada por <code>x</code> como o seu novo filho direito.
+    </div>
+
+    <h3>Esquema de Transformação Visual (Preservação de Ordem: $A < x < B < y < C$)</h3>
+    <pre>
+       Pai [x]                            Pai [y]
+      /       \       LEFT-ROTATE(T,x)   /       \
+   [A]         [y]    ===============> [x]        [C]
+              /   \                   /   \
+            [B]   [C]               [A]   [B]
+    </pre>
+
+    <h3>Pseudocódigo Totalmente Comentado: LEFT-ROTATE(T, x) (Slide 7)</h3>
     <pre>
 LEFT-ROTATE(T, x)
-1  y = x.right            // Define y como o filho direito de x (y vai subir para a posição de x)
-2  x.right = y.left       // O filho esquerdo de y passa a ser o novo filho direito de x
-3  if y.left != T.nil     // Se a subárvore esquerda de y não for uma folha vazia (sentinela)...
-4      y.left.p = x       // ...atualiza o ponteiro do pai dessa subárvore para apontar para x
-5  y.p = x.p              // O pai de y passa a ser o antigo pai de x (y assume o lugar na estrutura superior)
-6  if x.p == T.nil        // Se x era a raiz original da árvore...
-7      T.root = y         // ...então y passa a ser a nova raiz oficial da árvore T
-8  else if x == x.p.left  // Caso contrário, se x era o filho esquerdo do pai...
-9      x.p.left = y       // ...y passa a ser o filho esquerdo desse pai
-10 else x.p.right = y     // Se x era o filho direito, y passa a ser o filho direito desse pai
-11 y.left = x             // x desce na árvore e fica posicionado à esquerda de y
-12 x.p = y                // Atualiza o pai de x, indicando que agora o seu novo pai é y
+1  y = x.right            // Linha 1: Identifica o filho direito 'y' (é ele quem vai subir para o lugar de x).
+2  x.right = y.left       // Linha 2: Transfere a subárvore esquerda de 'y' ([B]) para ser a nova subárvore direita de 'x'.
+3  if y.left != T.nil     // Linha 3: Verifica se essa subárvore esquerda de 'y' existe mesmo (não é a folha sentinela).
+4      y.left.p = x       // Linha 4: Se existir, atualiza o ponteiro de pai dessa subárvore para que aponte para 'x'.
+5  y.p = x.p              // Linha 5: O nó 'y' herda o pai original de 'x', assumindo o seu lugar na árvore superior.
+6  if x.p == T.nil        // Linha 6: Se 'x' era o topo absoluto da árvore (raiz)...
+7      T.root = y         // Linha 7: ...então o nó 'y' passa a ser a nova raiz oficial da árvore.
+8  else if x == x.p.left  // Linha 8: Caso contrário, se 'x' era o filho esquerdo do seu pai...
+9      x.p.left = y       // Linha 9: ...atualiza esse pai para apontar para 'y' na esquerda.
+10 else x.p.right = y     // Linha 10: Se 'x' era o filho direito, atualiza o pai para apontar para 'y' na direita.
+11 y.left = x             // Linha 11: Realiza o encaixe central: 'x' torna-se oficialmente o filho esquerdo de 'y'.
+12 x.p = y                // Linha 12: Conclui definindo que o novo pai do nó 'x' passa a ser o nó 'y'.
     </pre>
     <p>A rotação <code>RIGHT-ROTATE(T, y)</code> funciona exatamente de forma simétrica à anterior (Slide 6), invertendo as referências de esquerda e direita.</p>
   </div>
 
   <div id="tab2" class="tab-content">
     <h2>Inserção Dinâmica: RB-INSERT(T, z) (Slide 10)</h2>
-    <p>Todos os nós entram na árvore usando a lógica padrão de inserção binária, mas com duas particularidades fundamentais: o nó inserido é pintado inicialmente como <strong>RED</strong> e os seus filhos apontam para a folha sentinela universal <code>T.nil</code>.</p>
+    <p>Todo o nó entra na árvore pintado como <strong>RED (Vermelho)</strong>. Se o pai desse novo nó também for <code>RED</code>, cria-se um conflito imediato: <em>dois vermelhos seguidos (Violação da Propriedade 4)</em>. Para resolver, o algoritmo olha para a cor do <strong>TIO</strong> do nó atual <code>z</code>.</p>
     
-    <h2>O Algoritmo de Ajuste: RB-INSERT-FIXUP(T, z) (Slide 11-14)</h2>
-    <p>Se o pai do nó inserido também for <code>RED</code>, quebrou-se a Propriedade 4. O algoritmo avalia a cor do <strong>tio</strong> de <code>z</code> para decidir o que fazer. Assumindo que o pai de <code>z</code> é filho esquerdo do avô, temos 3 Casos:</p>
-    
-    <div class="interactive-box">
-      <h3 style="color:var(--danger-border)">Caso 1: O tio de z é RED (Slide 12)</h3>
-      <p><strong>Ação:</strong> Apenas recolorização. O pai e o tio passam a <code>BLACK</code>, e o avô passa a <code>RED</code>. O ponteiro <code>z</code> sobe para o avô (<code>z = z.p.p</code>) para continuar a verificação nos níveis superiores.</p>
-      
-      <h3 style="color:var(--warn-border)">Caso 2: O tio de z é BLACK e z é filho da direita (Ziguezague - Slide 13)</h3>
-      <p><strong>Ação:</strong> Aplica-se uma <code>LEFT-ROTATE(T, z.p)</code> no pai de z. Isto transforma o ziguezague numa linha reta estável, caindo imediatamente no Caso 3.</p>
-      
-      <h3 style="color:var(--info-border)">Caso 3: O tio de z é BLACK e z é filho da esquerda (Linha Reta - Slide 14)</h3>
-      <p><strong>Ação:</strong> O pai passa a <code>BLACK</code>, o avô passa a <code>RED</code> e aplica-se uma <code>RIGHT-ROTATE(T, z.p.p)</code> no avô. A árvore fica perfeitamente balanceada aqui e o ciclo termina.</p>
+    <div class="interactive-box" style="border-left: 6px solid #dc3545;">
+      <h3 style="color:#b71c1c">Caso 1: O Tio de z é RED (Inversão de Cores - Slide 12)</h3>
+      <p><strong>Cenário:</strong> Tanto o pai como o tio de <code>z</code> são vermelhos. Há muita "energia vermelha" concentrada neste nível.</p>
+      <p><strong>Resolução:</strong> Não fazemos rotações. Apenas recolorimos: o Pai e o Tio passam a <code>BLACK</code>, e o Avô passa a <code>RED</code>. Como o Avô agora ficou vermelho, o ponteiro <code>z</code> sobe para o avô (<code>z = z.p.p</code>) para verificar se ele não entrou em conflito com o bisavô no ciclo <code>while</code>.</p>
+      <pre>
+        [Avô Negro]                 [Avô Vermelho] (Novo z)
+       /           \               /            \
+  [Pai Vermelho] [Tio Vermelho] => [Pai Negro]  [Tio Negro]
+        |                               |
+    (Nó z)                            (Nó z)
+      </pre>
+    </div>
+
+    <div class="interactive-box" style="border-left: 6px solid #f59e0b;">
+      <h3 style="color:#b45309">Caso 2: O Tio de z é BLACK e z faz um "Ziguezague" (Slide 13)</h3>
+      <p><strong>Cenário:</strong> O tio é preto e os nós estão desalinhados (ex: o Pai é filho esquerdo do Avô, mas o <code>z</code> é filho direito do Pai).</p>
+      <p><strong>Resolução:</strong> Fazemos imediatamente uma <code>LEFT-ROTATE(T, z.p)</code> no pai de z. Isto alinha os nós deslocando o conflito para baixo, transformando o cenário de forma automática no **Caso 3**.</p>
+    </div>
+
+    <div class="interactive-box" style="border-left: 6px solid #3b82f6;">
+      <h3 style="color:#1d4ed8">Caso 3: O Tio de z é BLACK e z está em "Linha Reta" (Slide 14)</h3>
+      <p><strong>Cenário:</strong> O tio é preto e os nós estão todos alinhados em linha reta (ex: Pai é filho esquerdo do Avô, e <code>z</code> também é filho esquerdo do Pai). A árvore está muito pesada deste lado.</p>
+      <p><strong>Resolução:</strong> Pintamos o Pai como <code>BLACK</code>, o Avô como <code>RED</code>, e aplicamos uma <code>RIGHT-ROTATE(T, z.p.p)</code> no Avô. A árvore faz um efeito de balança e equilibra ambos os lados. O loop termina aqui porque o pai agora é preto.</p>
+      <pre>
+          [Avô Vermelho]               [Pai Negro]
+           /          \               /           \
+     [Pai Negro]    [Tio Negro] => (Nó z)     [Avô Vermelho]
+       /                                            \
+    (Nó z)                                      [Tio Negro]
+      </pre>
     </div>
   </div>
 
@@ -291,7 +321,6 @@ class RBNode {
   }
 }
 
-// Inicialização segura da folha sentinela T.nil universal do PDF
 const NIL = new RBNode(null);
 NIL.color = BLACK;
 NIL.left = NIL;
@@ -299,24 +328,16 @@ NIL.right = NIL;
 NIL.p = NIL;
 
 class RedBlackTree {
-  constructor() {
-    this.root = NIL;
-  }
+  constructor() { this.root = NIL; }
 
   leftRotate(x) {
     let y = x.right;
     x.right = y.left;
-    if (y.left !== NIL) {
-      y.left.p = x;
-    }
+    if (y.left !== NIL) y.left.p = x;
     y.p = x.p;
-    if (x.p === NIL) {
-      this.root = y;
-    } else if (x === x.p.left) {
-      x.p.left = y;
-    } else {
-      x.p.right = y;
-    }
+    if (x.p === NIL) this.root = y;
+    else if (x === x.p.left) x.p.left = y;
+    else x.p.right = y;
     y.left = x;
     x.p = y;
   }
@@ -324,49 +345,29 @@ class RedBlackTree {
   rightRotate(x) {
     let y = x.left;
     x.left = y.right;
-    if (y.right !== NIL) {
-      y.right.p = x;
-    }
+    if (y.right !== NIL) y.right.p = x;
     y.p = x.p;
-    if (x.p === NIL) {
-      this.root = y;
-    } else if (x === x.p.right) {
-      x.p.right = y;
-    } else {
-      x.p.left = y;
-    }
+    if (x.p === NIL) this.root = y;
+    else if (x === x.p.right) x.p.right = y;
+    else x.p.left = y;
     y.right = x;
     x.p = y;
   }
 
   insert(key) {
     let z = new RBNode(key);
-    z.left = NIL;
-    z.right = NIL;
-    
-    let y = NIL;
-    let x = this.root;
-    
+    z.left = NIL; z.right = NIL;
+    let y = NIL; let x = this.root;
     while (x !== NIL) {
       y = x;
-      if (z.key < x.key) {
-        x = x.left;
-      } else if (z.key > x.key) {
-        x = x.right;
-      } else {
-        return false;
-      }
+      if (z.key < x.key) x = x.left;
+      else if (z.key > x.key) x = x.right;
+      else return false;
     }
-    
     z.p = y;
-    if (y === NIL) {
-      this.root = z;
-    } else if (z.key < y.key) {
-      y.left = z;
-    } else {
-      y.right = z;
-    }
-    
+    if (y === NIL) this.root = z;
+    else if (z.key < y.key) y.left = z;
+    else y.right = z;
     this.insertFixup(z);
     return true;
   }
@@ -376,34 +377,18 @@ class RedBlackTree {
       if (z.p === z.p.p.left) {
         let y = z.p.p.right;
         if (y.color === RED) {
-          z.p.color = BLACK;
-          y.color = BLACK;
-          z.p.p.color = RED;
-          z = z.p.p;
+          z.p.color = BLACK; y.color = BLACK; z.p.p.color = RED; z = z.p.p;
         } else {
-          if (z === z.p.right) {
-            z = z.p;
-            this.leftRotate(z);
-          }
-          z.p.color = BLACK;
-          z.p.p.color = RED;
-          this.rightRotate(z.p.p);
+          if (z === z.p.right) { z = z.p; this.leftRotate(z); }
+          z.p.color = BLACK; z.p.p.color = RED; this.rightRotate(z.p.p);
         }
       } else {
         let y = z.p.p.left;
         if (y.color === RED) {
-          z.p.color = BLACK;
-          y.color = BLACK;
-          z.p.p.color = RED;
-          z = z.p.p;
+          z.p.color = BLACK; y.color = BLACK; z.p.p.color = RED; z = z.p.p;
         } else {
-          if (z === z.p.left) {
-            z = z.p;
-            this.rightRotate(z);
-          }
-          z.p.color = BLACK;
-          z.p.p.color = RED;
-          this.leftRotate(z.p.p);
+          if (z === z.p.left) { z = z.p; this.rightRotate(z); }
+          z.p.color = BLACK; z.p.p.color = RED; this.leftRotate(z.p.p);
         }
       }
     }
@@ -421,11 +406,8 @@ function triggerInsert() {
   if (isNaN(val)) return;
   
   let ok = tree.insert(val);
-  if(ok) {
-    log.innerHTML = `Inserido ${val}. Reajustes efetuados de acordo com os Casos do PDF.`;
-  } else {
-    log.innerHTML = `A chave ${val} já existe na árvore. Tenta outro número.`;
-  }
+  if(ok) log.innerHTML = `Inserido ${val}. Reajustes efetuados de acordo com os Casos do PDF.`;
+  else log.innerHTML = `A chave ${val} já existe na árvore. Tenta outro número.`;
   renderSVG();
   input.value = '';
 }
@@ -438,12 +420,9 @@ function triggerReset() {
 
 function buildLayout(node, depth, leftBound, rightBound, elements, links) {
   if (node === NIL) return;
-  
   let x = (leftBound + rightBound) / 2;
   let y = depth * 60 + 40;
-  
   elements.push({ node: node, x: x, y: y });
-  
   if (node.left !== NIL) {
     let nextX = (leftBound + x) / 2;
     let nextY = (depth + 1) * 60 + 40;
@@ -462,49 +441,32 @@ function renderSVG() {
   const svg = document.getElementById('tree-svg');
   if (!svg) return;
   svg.innerHTML = '';
-  
-  let elements = [];
-  let links = [];
-  
+  let elements = []; let links = [];
   let width = svg.getBoundingClientRect().width || 800;
   buildLayout(tree.root, 0, 20, width - 20, elements, links);
   
   links.forEach(l => {
     let line = document.createElementNS("http://www.w3.org/2000/svg", "line");
     line.setAttribute("class", "link");
-    line.setAttribute("x1", l.x1);
-    line.setAttribute("y1", l.y1);
-    line.setAttribute("x2", l.x2);
-    line.setAttribute("y2", l.y2);
+    line.setAttribute("x1", l.x1); line.setAttribute("y1", l.y1);
+    line.setAttribute("x2", l.x2); line.setAttribute("y2", l.y2);
     svg.appendChild(line);
   });
   
   elements.forEach(e => {
     let g = document.createElementNS("http://www.w3.org/2000/svg", "g");
     g.setAttribute("class", "node");
-    
     let circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-    circle.setAttribute("cx", e.x);
-    circle.setAttribute("cy", e.y);
-    circle.setAttribute("r", "18");
-    
+    circle.setAttribute("cx", e.x); circle.setAttribute("cy", e.y); circle.setAttribute("r", "18");
     if (e.node.color === RED) {
-      circle.setAttribute("fill", "#dc3545");
-      circle.setAttribute("stroke", "#b71c1c");
+      circle.setAttribute("fill", "#dc3545"); circle.setAttribute("stroke", "#b71c1c");
     } else {
-      circle.setAttribute("fill", "#212529");
-      circle.setAttribute("stroke", "#000000");
+      circle.setAttribute("fill", "#212529"); circle.setAttribute("stroke", "#000000");
     }
-    
     let text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-    text.setAttribute("x", e.x);
-    text.setAttribute("y", e.y);
-    text.setAttribute("fill", "#ffffff");
+    text.setAttribute("x", e.x); text.setAttribute("y", e.y); text.setAttribute("fill", "#ffffff");
     text.textContent = e.node.key;
-    
-    g.appendChild(circle);
-    g.appendChild(text);
-    svg.appendChild(g);
+    g.appendChild(circle); g.appendChild(text); svg.appendChild(g);
   });
 }
 
