@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Manual Completo e Interativo: Árvores de Envergadura Mínima</title>
+<title>Manual Completo: Árvores de Envergadura Mínima</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -22,12 +22,12 @@
     --warn-bg: #faeeda;
     --warn-text: #412402;
     --warn-border: #854f0b;
+    --success-bg: #eaf3de;
+    --success-text: #173404;
+    --success-border: #3b6d11;
     --danger-bg: #fdf2f2;
     --danger-text: #771d1d;
     --danger-border: #de3535;
-    --success-bg: #eaf7ed;
-    --success-text: #14532d;
-    --success-border: #22c55e;
     --radius: 8px;
     --radius-lg: 12px;
   }
@@ -48,12 +48,12 @@
       --warn-bg: #633806;
       --warn-text: #fac775;
       --warn-border: #ba7517;
+      --success-bg: #1e3d06;
+      --success-text: #d2f1b0;
+      --success-border: #55961c;
       --danger-bg: #5a1a1a;
       --danger-text: #fbcbcb;
       --danger-border: #ec5959;
-      --success-bg: #064e3b;
-      --success-text: #a7f3d0;
-      --success-border: #10b981;
     }
   }
 
@@ -78,7 +78,7 @@
   .subtitle { font-size: 15px; color: var(--text2); margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem; }
 
   h2 { font-size: 18px; font-weight: 500; margin: 1.5rem 0 0.5rem 0; color: var(--info-border); }
-  h3 { font-size: 15px; font-weight: 600; margin: 1rem 0 0.25rem 0; }
+  h3 { font-size: 15px; font-weight: 600; margin: 1rem 0 0.5rem 0; color: var(--text); }
   p { font-size: 14px; line-height: 1.6; margin-bottom: 1rem; color: var(--text); }
   
   ul { margin-left: 20px; margin-bottom: 1rem; font-size: 14px; line-height: 1.6; }
@@ -151,11 +151,18 @@
     line-height: 1.5;
   }
 
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+  @media(max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } }
+
   .graph-viz {
     width: 100%;
-    min-height: 400px;
+    min-height: 380px;
     background: var(--bg);
-    border: 1px dashed var(--text3);
+    border: 1px solid var(--border);
     border-radius: var(--radius);
     margin-top: 1rem;
   }
@@ -163,9 +170,93 @@
   .node circle { stroke-width: 2.5px; transition: fill 0.2s, stroke 0.2s; }
   .node text { font-family: sans-serif; font-size: 12px; text-anchor: middle; dominant-baseline: middle; font-weight: bold; }
   .edge { stroke-width: 2.5px; fill: none; transition: stroke 0.2s, stroke-width 0.2s; }
-  .edge-weight { font-size: 12px; font-family: monospace; font-weight: bold; fill: var(--text2); }
-  .mst-edge { stroke: var(--success-border) !important; stroke-width: 4px !important; }
-  .active-edge { stroke: #dc3545 !important; stroke-width: 4px !important; }
+  .edge-weight { font-size: 11px; font-family: monospace; font-weight: bold; fill: var(--text2); }
+  
+  .mst-edge { stroke: var(--success-border) !important; stroke-width: 4.5px !important; }
+  .active-edge { stroke: #dc3545 !important; stroke-width: 4.5px !important; }
+
+  .panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .step-counter {
+    font-size: 12px;
+    color: var(--text3);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .phase-badge {
+    font-size: 12px;
+    font-weight: 500;
+    padding: 3px 12px;
+    border-radius: var(--radius);
+    display: inline-block;
+  }
+  .desc-container {
+    background: var(--bg2);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    font-size: 14px;
+    color: var(--text);
+    min-height: 52px;
+    margin-bottom: 16px;
+    line-height: 1.6;
+    border: 0.5px solid var(--border);
+  }
+  .meta-data-line {
+    font-family: monospace;
+    font-size: 12.5px;
+    color: var(--text2);
+    background: var(--bg3);
+    padding: 6px 12px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .pseudocode-section {
+    margin-top: 2rem;
+    border-top: 1px dashed var(--border2);
+    padding-top: 1.5rem;
+  }
+  .code-container {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+    font-family: monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    overflow-x: auto;
+    margin-bottom: 1.5rem;
+  }
+  .code-line {
+    display: flex;
+    border-radius: 4px;
+    padding: 2px 6px;
+  }
+  .line-num {
+    width: 28px;
+    color: var(--text3);
+    flex-shrink: 0;
+  }
+  .line-text {
+    white-space: pre;
+    width: 290px;
+    flex-shrink: 0;
+  }
+  .line-comment {
+    color: #2b8a3e;
+    font-style: italic;
+  }
+  @media (prefers-color-scheme: dark) {
+    .line-comment { color: #69db7c; }
+  }
 </style>
 </head>
 <body>
@@ -177,108 +268,113 @@
     <button class="tab-btn active" onclick="switchTab(0)">1. Definições Gerais</button>
     <button class="tab-btn" onclick="switchTab(1)">2. Algoritmo de Kruskal</button>
     <button class="tab-btn" onclick="switchTab(2)">3. Algoritmo de Prim</button>
-    <button class="tab-btn" onclick="switchTab(3)">4. Simulador Oficial por Passos</button>
+    <button class="tab-btn" onclick="switchTab(3)">4. Simulador por Passos</button>
   </div>
 
   <div id="tab0" class="tab-content active">
     <h2>Problema da Árvore de Envergadura Mínima (Slides 2-5)</h2>
-    <p>Dado um grafo conexo não orientado <code>G = (V, E)</code>, onde cada ramo <code>(u, v) ∈ E</code> possui um peso associado <code>w(u, v)</code>, o objetivo é encontrar um subconjunto acíclico <code>T ⊆ E</code> que ligue todos os vértices e cujo peso total seja mínimo:</p>
-    <pre>w(T) = ∑ w(u, v) sobre todos os ramos em T</pre>
+    <p>Dado um grafo conexo não orientado <code>G = (V, E)</code>, onde cada ramo ou ligação <code>(u, v) ∈ E</code> possui um custo/peso associado <code>w(u, v)</code>, o objetivo principal é encontrar um subconjunto acíclico (livre de caminhos fechados) <code>T ⊆ E</code> que consiga interligar todos os vértices do grafo gastando o menor peso total possível:</p>
+    <pre>w(T) = ∑ w(u, v) sobre todos os ramos inseridos em T</pre>
     
-    <h3>Aplicações Práticas Reais (Slide 2)</h3>
+    <h3>Aplicações Práticas no Mundo Real (Slide 2)</h3>
     <ul>
-      <li>Minimização da dimensão de interconexões em circuitos eletrónicos.</li>
-      <li>Minimização da extensão de circuitos de distribuição de água ou condutas.</li>
-      <li>Construção e otimização de redes de distribuição de energia elétrica com menor custo.</li>
+      <li><strong>Circuitos Eletrónicos:</strong> Minimização do tamanho físico de pistas metálicas de interconexão em microchips.</li>
+      <li><strong>Redes de Distribuição:</strong> Planeamento e traçado de canais de condutas de água ou redes de saneamento básico.</li>
+      <li><strong>Infraestruturas Elétricas:</strong> Desenho de linhas de alta tensão ligando cidades com o menor custo de cabos possível.</li>
     </ul>
 
-    <h2>Abordagem Gulosa (Greedy) (Slide 5)</h2>
-    <p>Os algoritmos que resolvem este problema utilizam uma estratégia gulosa. Uma árvore é construída passo a passo, adicionando ramos a um conjunto estável e seguro <code>A</code> (que representa um subconjunto de uma MST válida).</p>
+    <h2>A Abordagem Gulosa / Greedy (Slide 5)</h2>
+    <p>Ambos os algoritmos estudados nesta secção utilizam uma estratégia computacional conhecida como **Gulosa (Greedy)**. A solução final é construída passo a passo, tomando sempre a decisão localmente ideal no momento (escolher o ramo mais barato disponível) com o objetivo de alcançar uma solução globalmente perfeita.</p>
     <div class="info-badge">
-      <strong>Regra do Ramo Seguro:</strong> Um ramo <code>(u, v)</code> é considerado "seguro" se, e apenas se, ao ser adicionado ao conjunto <code>A</code>, este continua a ser um subconjunto de uma árvore de envergadura mínima.
+      <strong>Regra do Ramo Seguro (Safe Edge):</strong> Uma aresta é considerada "segura" para expandir a solução atual se, ao ser adicionada ao conjunto estável acumulado, este continuar a ser um subconjunto válido de alguma árvore de envergadura mínima global.
     </div>
   </div>
 
   <div id="tab1" class="tab-content">
     <h2>Algoritmo de Kruskal (Slides 6-10)</h2>
-    <p>O algoritmo de Kruskal foca-se diretamente nos ramos do grafo. Funciona encontrando um ramo de peso mínimo absoluto que une duas árvores distintas pertencentes a uma floresta que cresce até cobrir todo o grafo.</p>
+    <p>O algoritmo de Kruskal adota uma abordagem totalmente focada nas **arestas/ramos** do grafo. Ele ignora a estrutura de nós conectados num bloco único no início; em vez disso, começa com todos os nós isolados nas suas próprias "ilhas" (componentes) e vai interligando-os usando estritamente as arestas mais baratas de todo o grafo, desde que essa ligação não crie um ciclo.</p>
     
-    <h3>Mecanismo de Conjuntos Disjuntos (Slide 6)</h3>
-    <p>Para gerir o teste de ciclos de forma altamente eficiente, utiliza-se uma estrutura de dados disjunta (<i>Union-Find</i>):</p>
+    <h3>Estrutura de Conjuntos Disjuntos / Union-Find (Slide 6)</h3>
+    <p>Para conseguir validar se a adição de uma aresta provoca ou não ciclos em tempo recorde, o algoritmo recorre a três rotinas estruturais:</p>
     <ul>
-      <li><code>MAKE-SET(v)</code>: Cria um novo conjunto cujo único membro é o vértice <code>v</code>.</li>
-      <li><code>FIND-SET(v)</code>: Devolve o representante do conjunto ao qual o vértice <code>v</code> pertence atualmente. É usado para testar se dois nós pertencem à mesma árvore (evitando a criação de ciclos).</li>
-      <li><code>UNION(u, v)</code>: Une os conjuntos que contêm os vértices <code>u</code> e <code>v</code> num único conjunto.</li>
+      <li><code>MAKE-SET(v)</code>: Aloca e cria um conjunto disjunto individual contendo apenas o nó <code>v</code>.</li>
+      <li><code>FIND-SET(v)</code>: Devolve a identidade do líder/representante único do conjunto a que o nó <code>v</code> pertence. Se dois nós tiverem o mesmo líder, significa que já estão na mesma árvore.</li>
+      <li><code>UNION(u, v)</code>: Funde permanentemente as duas componentes isoladas dos nós <code>u</code> e <code>v</code> numa só.</li>
     </ul>
 
-    <h3>Pseudocódigo Totalmente Comentado</h3>
-    <pre>
-MST-KRUSKAL(G, w)
-1  A = Ø                      // Linha 1: Inicializa o conjunto A vazio, onde guardaremos os ramos da nossa MST final.
-2  for each vertex v in G.V   // Linha 2: Loop para percorrer cada um dos vértices (V) presentes no Grafo (G).
-3       MAKE-SET(v)           // Linha 3: Cria um conjunto disjunto individual para o nó 'v'. Cada nó começa isolado na sua própria árvore.
-4  sort the edges of G.E into nondecreasing order by weight w
-                              // Linha 4: Ordena TODOS os ramos (E) do grafo por ordem crescente (não decrescente) com base nos seus pesos (w).
-5  for each edge (u, v) in G.E, taken in nondecreasing order
-                              // Linha 5: Loop principal. Avalia cada ramo (u, v) do grafo, seguindo estritamente a ordem crescente de peso.
-6       if FIND-SET(u) != FIND-SET(v)
-                              // Linha 6: TESTE DE CICLO. Se o representante do nó 'u' for diferente do representante de 'v', não há ciclo.
-7           A = A U {(u, v)}  // Linha 7: RAMO SEGURO! Como não gera ciclos, o ramo (u, v) é oficialmente adicionado ao nosso conjunto final A.
-8           UNION(u, v)       // Linha 8: Funde os dois conjuntos/árvores num só, indicando que 'u' e 'v' agora fazem parte da mesma componente.
-9  return A                   // Linha 9: Fim do algoritmo. Devolve o conjunto A contendo todas as arestas que formam a Árvore de Envergadura Mínima.
-    </pre>
-    <p><strong>Complexidade Computacional:</strong> <code>O(E log V)</code> devido à ordenação inicial dos ramos do grafo.</p>
+    <div class="pseudocode-section">
+      <h3>Pseudocódigo Comentado: MST-KRUSKAL(G, w)</h3>
+      <div class="code-container">
+        <div class="code-line"><span class="line-num">1</span><span class="line-text">A = Ø                         </span><span class="line-comment">// Inicializa o conjunto final 'A' vazio, que armazenará os ramos da MST</span></div>
+        <div class="code-line"><span class="line-num">2</span><span class="line-text">for each vertex v ∈ G.V       </span><span class="line-comment">// Inicia uma varredura por todos os vértices que existem no grafo</span></div>
+        <div class="code-line"><span class="line-num">3</span><span class="line-text">    MAKE-SET(v)               </span><span class="line-comment">// Cria um conjunto individual disjunto para cada nó. Cada nó é uma árvore</span></div>
+        <div class="code-line"><span class="line-num">4</span><span class="line-text">sort edges of G.E into ↑ order</span><span class="line-comment">// Ordena TODOS os ramos do grafo de forma crescente pelo seu peso</span></div>
+        <div class="code-line"><span class="line-num">5</span><span class="line-text">for each edge (u, v) ∈ G.E    </span><span class="line-comment">// Percorre sequencialmente a lista ordenada de ramos, do mais barato ao mais caro</span></div>
+        <div class="code-line"><span class="line-num">6</span><span class="line-text">    if FIND-SET(u) != FIND-SET(v)</span><span class="line-comment">// TESTE DE CICLO: Se os representantes diferem, estão em árvores separadas</span></div>
+        <div class="code-line"><span class="line-num">7</span><span class="line-text">        A = A U {(u, v)}      </span><span class="line-comment">// RAMO SEGURO! Adiciona formalmente a aresta à nossa árvore final</span></div>
+        <div class="code-line"><span class="line-num">8</span><span class="line-text">        UNION(u, v)           </span><span class="line-comment">// Funde os dois conjuntos das pontas num só, conectando as ilhas de vez</span></div>
+        <div class="code-line"><span class="line-num">9</span><span class="line-text">return A                      </span><span class="line-comment">// Retorna a árvore que conecta todos os nós com o menor custo: O(E log V)</span></div>
+      </div>
+    </div>
   </div>
 
   <div id="tab2" class="tab-content">
     <h2>Algoritmo de Prim (Slides 11-15)</h2>
-    <p>O algoritmo de Prim funciona por agregação sucessiva de ramos a uma **árvore única** central que começa a partir de um vértice arbitrário inicial (raiz). A árvore expande-se até capturar todos os vértices do grafo.</p>
+    <p>Ao contrário de Kruskal, o algoritmo de Prim foca-se nos **vértices** e faz crescer uma **única árvore centralizada** e contínua. Ele começa num nó raiz qualquer escolhido arbitrariamente e, a cada passo, inspeciona todas as pontes que ligam a árvore atual ao resto do grafo exterior, capturando o nó externo mais próximo (mais barato).</p>
     
-    <h3>Fila de Espera com Prioridade (Slide 11)</h3>
+    <h3>A Fila de Prioridade Mínima (Q)</h3>
     <ul>
-      <li>Todos os vértices que ainda não se encontram inseridos na árvore em crescimento são mantidos numa **fila de prioridade mínima <code>Q</code>**.</li>
-      <li>A chave (<code>v.key</code>) de cada vértice representa o peso mínimo de um ramo que liga o vértice <code>v</code> a qualquer nó que já pertença à árvore. Se não houver ligação, a chave é inicializada com <code>∞</code> (Infinito).</li>
-      <li>O atributo <code>v.π</code> guarda o progenitor (pai) do vértice na árvore final.</li>
+      <li><code>u.key</code> (Chave): Guarda o menor custo conhecido para ligar o nó <code>u</code> à árvore central. Começa como Infinito (<code>∞</code>) para todos, exceto para a raiz que começa com <code>0</code>.</li>
+      <li><code>u.π</code> (Pai/Progenitor): Regista o nó que serviu de ponte para pescar o nó <code>u</code> para dentro da árvore definitiva.</li>
     </ul>
 
-    <h3>Pseudocódigo Totalmente Comentado</h3>
-    <pre>
-MST-PRIM(G, w, r)
-1  for each u in G.V          // Linha 1: Loop para percorrer todos os vértices (V) do Grafo (G) para fazer a preparação inicial.
-2      u.key = INF            // Linha 2: Inicializa o custo/chave de cada nó com Infinito (∞), pois ainda não conhecemos nenhuma ligação à árvore.
-3      u.pi = NIL             // Linha 3: Configura o progenitor (π) de cada nó como nulo (NIL), visto que nenhum nó tem pai atribuído ainda.
-4  r.key = 0                  // Linha 4: Define a chave do nó raiz 'r' (por exemplo, o nó 'a'). Isto garante que ele será o primeiro a ser extraído.
-5  Q = G.V                    // Linha 5: Insere todos os vértices do grafo dentro de uma fila de prioridade mínima Q (onde a prioridade é o valor de 'key').
-6  while Q != Ø               // Linha 6: O algoritmo corre enquanto existirem vértices na fila Q (ou seja, nós que ainda não entraram na árvore).
-7      u = EXTRACT-MIN(Q)     // Linha 7: Retira de Q o vértice 'u' que possui a menor chave atual. Ele entra oficialmente na estrutura da árvore.
-8      for each v in G.Adj[u] // Linha 8: Loop que inspeciona cada um dos vértices vizinhos 'v' que estão adjacentes (ligados diretamente) a 'u'.
-9          if v in Q and w(u, v) < v.key
-                              // Linha 9: Condição dupla: Se o vizinho 'v' ainda estiver fora da árvore (em Q) E o peso do ramo (u, v) for menor que a chave atual de 'v'.
-10            v.pi = u        // Linha 10: ATUALIZAÇÃO DO PAI. O nó 'u' passa a ser o novo progenitor (π) oficial do vértice 'v'.
-11            v.key = w(u, v) // Linha 11: ATUALIZAÇÃO DA CHAVE. O custo de 'v' em Q é atualizado para o peso do ramo w(u, v). (Diminui a prioridade em Q).
-    </pre>
-    <p><strong>Complexidade Computacional:</strong> <code>O(E log V)</code> se implementado com uma fila de prioridade binária clássica. Pode atingir <code>O(E + V log V)</code> se recorrer a uma estrutura avançada de <i>Fibonacci Heap</i> (Slide 11).</p>
+    <div class="pseudocode-section">
+      <h3>Pseudocódigo Comentado: MST-PRIM(G, w, r)</h3>
+      <div class="code-container">
+        <div class="code-line"><span class="line-num">1</span><span class="line-text">for each u ∈ G.V              </span><span class="line-comment">// Corre uma preparação inicial por todos os nós existentes no sistema</span></div>
+        <div class="code-line"><span class="line-num">2</span><span class="line-text">    u.key = INF               </span><span class="line-comment">// Inicializa o custo de ligação de todos como Infinito (∞) por segurança</span></div>
+        <div class="code-line"><span class="line-num">3</span><span class="line-text">    u.π = NIL                 </span><span class="line-comment">// Limpa e define a ausência de um pai original para todos os vértices</span></div>
+        <div class="code-line"><span class="line-num">4</span><span class="line-text">r.key = 0                     </span><span class="line-comment">// Atribui chave zero à raiz 'r'. Isto força o algoritmo a começar por ela</span></div>
+        <div class="code-line"><span class="line-num">5</span><span class="line-text">Q = G.V                       </span><span class="line-comment">// Carrega todos os vértices do grafo para dentro da fila de prioridade mínima 'Q'</span></div>
+        <div class="code-line"><span class="line-num">6</span><span class="line-text">while Q != Ø                  </span><span class="line-comment">// Laço principal: enquanto existirem nós soltos fora da nossa árvore única...</span></div>
+        <div class="code-line"><span class="line-num">7</span><span class="line-text">    u = EXTRACT-MIN(Q)        </span><span class="line-comment">// Extrai da fila o nó 'u' com o menor valor de chave ativo. Ele entra na MST</span></div>
+        <div class="code-line"><span class="line-num">8</span><span class="line-text">    for each v ∈ G.Adj[u]     </span><span class="line-comment">// Analisa detalhadamente cada vizinho 'v' que possua uma ligação direta a 'u'</span></div>
+        <div class="code-line"><span class="line-num">9</span><span class="line-text">        if v ∈ Q and w(u,v) < v.key</span><span class="line-comment">// Validação: Se 'v' está fora da MST E o ramo (u,v) for mais barato que a key de 'v'</span></div>
+        <div class="code-line"><span class="line-num">10</span><span class="line-text">            v.π = u           </span><span class="line-comment">// Atualiza o pai: o nó 'u' passa a ser o Progenitor oficial da ligação a 'v'</span></div>
+        <div class="code-line"><span class="line-num">11</span><span class="line-text">            v.key = w(u, v)   </span><span class="line-comment">// Diminui o custo da chave de 'v' em Q para o peso do novo ramo: O(E log V)</span></div>
+      </div>
+    </div>
   </div>
 
   <div id="tab3" class="tab-content">
-    <h2>Simulador Oficial (Grafo Real dos Slides)</h2>
-    <p>Controla a execução exata dos exemplos teóricos fornecidos nos slides. Analisa o estado das variáveis de exame em tempo real:</p>
+    <h2>Simulador de Algoritmos Manual por Passos</h2>
+    <p>Escolhe o algoritmo desejado. Utiliza os botões de controlo para avançar ou recuar os passos manualmente:</p>
     
     <div class="interactive-box">
       <div class="controls">
         <label style="font-size:13px; font-weight:bold;">Algoritmo:</label>
-        <select id="algo-select" onchange="initSimulation()" style="padding:6px; border-radius:4px; border:1px solid var(--text3); background:var(--bg); color:var(--text);">
-          <option value="Kruskal">Algoritmo de Kruskal (Ordenação de Ramos)</option>
-          <option value="Prim">Algoritmo de Prim (Raiz no Nó 'a')</option>
+        <select id="algo-select" onchange="initSimulation()" style="padding:6px; border-radius:4px; border:1px solid var(--text3); background:var(--bg); color:var(--text); font-weight:500;">
+          <option value="Kruskal">Algoritmo de Kruskal (União de Ramos)</option>
+          <option value="Prim">Algoritmo de Prim (Expansão de Raiz 'a')</option>
         </select>
         
-        <button class="btn" id="btn-prev" onclick="prevStep()">← Recuar</button>
-        <button class="btn btn-primary" id="btn-next" onclick="nextStep()">Avançar →</button>
-        <button class="btn" id="btn-reset" onclick="initSimulation()">Reset</button>
+        <button class="btn btn-primary" id="btn-prev" onclick="prevStep()">← Anterior</button>
+        <button class="btn btn-primary" id="btn-next" onclick="nextStep()">Próximo →</button>
+        <button class="btn" id="btn-reset" onclick="initSimulation()">↺ Recomeçar</button>
       </div>
       
-      <div id="graph-log" style="font-family:monospace; font-size:13px; color:var(--info-border); margin-bottom:12px; min-height:55px; background:var(--bg); padding:10px; border-radius:4px; border:0.5px solid var(--border); line-height:1.4;">
-        A carregar estruturas gráficas...
+      <div id="step-panel">
+        <div class="panel-header">
+          <div class="step-counter" id="step-counter-lbl">Passo 0 de 0</div>
+          <span class="phase-badge" id="phase-label"></span>
+        </div>
+        <div class="desc-container" id="desc-box">
+          Inicializando componentes...
+        </div>
+        <div class="meta-data-line">
+          <strong>Estado das variáveis:</strong>
+          <span id="structure-lbl">[]</span>
+        </div>
       </div>
 
       <svg class="graph-viz" id="graph-svg"></svg>
@@ -293,20 +389,18 @@ function switchTab(idx) {
   if(idx === 3) initSimulation();
 }
 
-// O GRAFO REAL E OFICIAL DOS SLIDES (9 VÉRTICES: a até i)
 const nodes = [
-  { id: 'a', x: 80,  y: 200 },
-  { id: 'b', x: 220, y: 100 },
-  { id: 'c', x: 380, y: 100 },
-  { id: 'd', x: 540, y: 100 },
-  { id: 'e', x: 680, y: 200 },
-  { id: 'f', x: 540, y: 300 },
-  { id: 'g', x: 380, y: 300 },
-  { id: 'h', x: 220, y: 300 },
-  { id: 'i', x: 300, y: 200 }
+  { id: 'a', x: 80,  y: 190 },
+  { id: 'b', x: 220, y: 90 },
+  { id: 'c', x: 400, y: 90 },
+  { id: 'd', x: 580, y: 90 },
+  { id: 'e', x: 720, y: 190 },
+  { id: 'f', x: 580, y: 290 },
+  { id: 'g', x: 400, y: 290 },
+  { id: 'h', x: 220, y: 290 },
+  { id: 'i', x: 310, y: 190 }
 ];
 
-// RAMOS REAIS E VALORES DE PESO RETIRADOS DIRETAMENTE DA SEBENTA (SLIDE 7 / 12)
 const edges = [
   { from: 'a', to: 'b', weight: 4 },
   { from: 'a', to: 'h', weight: 8 },
@@ -327,6 +421,20 @@ const edges = [
 let historySteps = [];
 let currentStepIndex = 0;
 
+const phaseColors = {
+  init: 'background:var(--bg3);color:var(--text2);border:0.5px solid var(--border)',
+  scan: 'background:var(--warn-bg);color:var(--warn-text);border:0.5px solid var(--warn-border)',
+  update: 'background:var(--info-bg);color:var(--info-text);border:0.5px solid var(--info-border)',
+  done: 'background:var(--success-bg);color:var(--success-text);border:0.5px solid var(--success-border)'
+};
+
+const phaseNames = {
+  init: 'Início',
+  scan: 'Inspeção',
+  update: 'Atualização',
+  done: 'Concluído'
+};
+
 function initSimulation() {
   const algo = document.getElementById('algo-select').value;
   historySteps = [];
@@ -341,7 +449,6 @@ function initSimulation() {
   updateUI();
 }
 
-// SIMULAÇÃO DO ALGORITMO DE KRUSKAL COM OS DADOS REAIS
 function generateKruskalHistory() {
   let parentSet = {};
   nodes.forEach(n => parentSet[n.id] = n.id);
@@ -360,13 +467,15 @@ function generateKruskalHistory() {
   let sortedEdges = [...edges].sort((a, b) => a.weight - b.weight);
   let currentMST = [];
   let nodeStates = {};
-  nodes.forEach(n => nodeStates[n.id] = { info: `Conj: [${n.id}]` });
+  nodes.forEach(n => nodeStates[n.id] = { info: `Conj: [${n.id}]`, inTree: false });
 
   historySteps.push({
     mstEdges: [],
     activeEdge: null,
     nodeStates: JSON.parse(JSON.stringify(nodeStates)),
-    log: "<b>[Inicialização]</b> Cada nó forma o seu próprio conjunto independente. Ramos ordenados por peso para avaliação gulosa."
+    op: "Inicialização do algoritmo de Kruskal: cada nó começa isolado no seu próprio conjunto independente. Lista de ramos pronta a ser ordenada por peso.",
+    structure: "Conjuntos Disjuntos criados",
+    phase: 'init'
   });
 
   sortedEdges.forEach((edge) => {
@@ -377,7 +486,9 @@ function generateKruskalHistory() {
       mstEdges: [...currentMST],
       activeEdge: edge,
       nodeStates: JSON.parse(JSON.stringify(nodeStates)),
-      log: `<b>[Avaliação]</b> A testar ramo de menor peso: <b>(${edge.from} — ${edge.to})</b> com peso <b>${edge.weight}</b>.`
+      op: `Inspecionando o ramo de menor peso disponível no momento: <b>(${edge.from} — ${edge.to})</b> com peso <b>${edge.weight}</b>.`,
+      structure: `A testar ligação: ${edge.from}-${edge.to}`,
+      phase: 'scan'
     });
 
     if (rootFrom !== rootTo) {
@@ -385,23 +496,28 @@ function generateKruskalHistory() {
       currentMST.push(edge);
       
       nodes.forEach(n => {
-        nodes.forEach(n => {
-          nodeStates[n.id] = { info: `Conj: [${find(n.id)}]` };
-        });
+        nodeStates[n.id] = { 
+          info: `Conj: [${find(n.id)}]`, 
+          inTree: currentMST.some(e => e.from === n.id || e.to === n.id)
+        };
       });
 
       historySteps.push({
         mstEdges: [...currentMST],
         activeEdge: null,
         nodeStates: JSON.parse(JSON.stringify(nodeStates)),
-        log: `<b>[Ramo Seguro]</b> Componentes disjuntos (<code>FIND-SET(${edge.from}) != FIND-SET(${edge.to})</code>). Ramo <b>adicionado</b>.`
+        op: `<b>Ramo Seguro!</b> Visto que <code>FIND-SET(${edge.from}) != FIND-SET(${edge.to})</code>, os nós pertencem a árvores diferentes. O ramo foi <b>adicionado</b> e as componentes foram unificadas.`,
+        structure: `Ramos na MST = ${currentMST.length}`,
+        phase: 'update'
       });
     } else {
       historySteps.push({
         mstEdges: [...currentMST],
         activeEdge: null,
         nodeStates: JSON.parse(JSON.stringify(nodeStates)),
-        log: `<b>[Rejeitado / Ciclo]</b> Ambos pertencem ao conjunto <code>${rootFrom}</code>. Ignorado para evitar ciclos.`
+        op: `<b>Ramo Rejeitado!</b> Ambos os nós já partilham o mesmo conjunto representativo (<code>${rootFrom}</code>). Ligá-los iria criar um **ciclo fechado** redundante no grafo.`,
+        structure: "Ciclo detetado e evitado",
+        phase: 'scan'
       });
     }
   });
@@ -410,11 +526,12 @@ function generateKruskalHistory() {
     mstEdges: [...currentMST],
     activeEdge: null,
     nodeStates: JSON.parse(JSON.stringify(nodeStates)),
-    log: "<b>[Concluído]</b> Árvore de Envergadura Mínima de Kruskal gerada com sucesso!"
+    op: "<b>Concluído!</b> Todas as arestas foram processadas de forma gulosa. A Árvore de Envergadura Mínima de Kruskal foi gerada com sucesso.",
+    structure: `MST Finalizada. Custo Total = ${currentMST.reduce((acc,e)=>acc+e.weight,0)}`,
+    phase: 'done'
   });
 }
 
-// SIMULAÇÃO DO ALGORITMO DE PRIM COM OS DADOS REAIS
 function generatePrimHistory() {
   let inMST = new Set();
   let keys = {};
@@ -425,9 +542,7 @@ function generatePrimHistory() {
     pi[n.id] = 'NIL';
   });
   
-  // Raiz oficial dos slides do professor: nó 'a'
-  keys['a'] = 0;
-  
+  keys['a'] = 0; 
   let currentMSTEdges = [];
   
   function getNodeStates() {
@@ -442,11 +557,24 @@ function generatePrimHistory() {
     return states;
   }
 
+  function getQueueString() {
+    let qArr = [];
+    nodes.forEach(n => {
+      if(!inMST.has(n.id)) {
+        let kText = keys[n.id] === Infinity ? '∞' : keys[n.id];
+        qArr.push(`${n.id}(k=${kText})`);
+      }
+    });
+    return "Fila Q = [" + qArr.join(', ') + "]";
+  }
+
   historySteps.push({
     mstEdges: [],
     activeEdge: null,
     nodeStates: getNodeStates(),
-    log: "<b>[Inicialização Prim]</b> Nós com chave inicial <code>∞</code> e pai <code>NIL</code>. Raiz <b>a</b> configurada com <code>key = 0</code>."
+    op: "Inicialização do algoritmo de Prim: todos os nós iniciam com chave <code>∞</code> and pai <code>NIL</code>. O vértice de partida <b>a (raiz)</b> é configurado com custo de entrada <code>key = 0</code>.",
+    structure: getQueueString(),
+    phase: 'init'
   });
 
   while (inMST.size < nodes.length) {
@@ -475,7 +603,9 @@ function generatePrimHistory() {
       mstEdges: [...currentMSTEdges],
       activeEdge: null,
       nodeStates: getNodeStates(),
-      log: `<b>[EXTRACT-MIN]</b> Retirado nó <b>${u}</b> da fila Q por ter a menor chave. Integrado na MST.`
+      op: `Operação <b>EXTRACT-MIN</b>: O nó vértice <b>${u}</b> foi extraído da fila Q por possuir o menor custo atual na fila de prioridade. É integrado permanentemente na árvore.`,
+      structure: getQueueString(),
+      phase: 'update'
     });
 
     let adjEdges = edges.filter(e => e.from === u || e.to === u);
@@ -488,7 +618,9 @@ function generatePrimHistory() {
           mstEdges: [...currentMSTEdges],
           activeEdge: edge,
           nodeStates: getNodeStates(),
-          log: `<b>[Inspeção]</b> A avaliar adjacência <b>(${u} — ${v})</b> com peso <b>${edge.weight}</b>.`
+          op: `Inspecionando adjacência direta do nó recém-adicionado: analisando o ramo <b>(${u} — ${v})</b> com peso <b>${edge.weight}</b>.`,
+          structure: `A avaliar vizinho: ${v}`,
+          phase: 'scan'
         });
 
         if (edge.weight < keys[v]) {
@@ -499,14 +631,18 @@ function generatePrimHistory() {
             mstEdges: [...currentMSTEdges],
             activeEdge: null,
             nodeStates: getNodeStates(),
-            log: `<b>[Atualização]</b> O peso ${edge.weight} é inferior à chave de <b>${v}</b>. Nova key = <code>${edge.weight}</code>, π = <code>${u}</code>.`
+            op: `<b>Atualização realizada!</b> O peso da aresta (${edge.weight}) é inferior ao custo anterior registrado no nó <b>${v}</b>. Nova key = <code>${edge.weight}</code> e progenitor atualizado para π = <code>${u}</code>.`,
+            structure: getQueueString(),
+            phase: 'update'
           });
         } else {
           historySteps.push({
             mstEdges: [...currentMSTEdges],
             activeEdge: null,
             nodeStates: getNodeStates(),
-            log: `<b>[Sem Alteração]</b> O peso ${edge.weight} não supera a chave atual de <b>${v}</b> (<code>${keys[v]}</code>).`
+            op: `Sem alteração no nó <b>${v}</b>. O peso deste ramo (${edge.weight}) não é melhor do que a chave de custo mínimo que o nó já possui atualmente (<code>${keys[v]}</code>).`,
+            structure: getQueueString(),
+            phase: 'scan'
           });
         }
       }
@@ -517,7 +653,9 @@ function generatePrimHistory() {
     mstEdges: [...currentMSTEdges],
     activeEdge: null,
     nodeStates: getNodeStates(),
-    log: "<b>[Concluído]</b> Todos os vértices capturados pela árvore única de Prim!"
+    op: "<b>Concluído!</b> Todos os vértices do grafo foram capturados com sucesso pela árvore central de Prim. Árvore de Envergadura Mínima perfeitamente montada.",
+    structure: "Fila Q = [Vazia]",
+    phase: 'done'
   });
 }
 
@@ -539,7 +677,15 @@ function updateUI() {
   const currentSnapshot = historySteps[currentStepIndex];
   if (!currentSnapshot) return;
   
-  document.getElementById('graph-log').innerHTML = `Passo [${currentStepIndex + 1} / ${historySteps.length}]: ${currentSnapshot.log}`;
+  document.getElementById('step-counter-lbl').textContent = `Passo ${currentStepIndex + 1} de ${historySteps.length}`;
+  
+  const pb = document.getElementById('phase-label');
+  pb.style.cssText = (phaseColors[currentSnapshot.phase] || '') + ';padding:3px 12px;border-radius:8px;font-size:12px;font-weight:500';
+  pb.textContent = phaseNames[currentSnapshot.phase] || currentSnapshot.phase;
+  
+  document.getElementById('desc-box').innerHTML = currentSnapshot.op;
+  document.getElementById('structure-lbl').innerHTML = currentSnapshot.structure;
+  
   document.getElementById('btn-prev').disabled = (currentStepIndex === 0);
   document.getElementById('btn-next').disabled = (currentStepIndex === historySteps.length - 1);
   
@@ -596,8 +742,8 @@ function renderGraphSVG(mstEdges, activeEdge, nodeStates) {
     let nState = nodeStates[node.id] || { info: '', inTree: false };
     
     if (nState.inTree) {
-      circle.setAttribute("fill", "var(--success-bg)");
-      circle.setAttribute("stroke", "var(--success-border)");
+      circle.setAttribute("fill", "#212529");
+      circle.setAttribute("stroke", "#000000");
     } else {
       circle.setAttribute("fill", "var(--bg)");
       circle.setAttribute("stroke", "var(--text)");
@@ -606,7 +752,7 @@ function renderGraphSVG(mstEdges, activeEdge, nodeStates) {
     const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
     text.setAttribute("x", node.x);
     text.setAttribute("y", node.y);
-    text.setAttribute("fill", "var(--text)");
+    text.setAttribute("fill", nState.inTree ? "#ffffff" : "var(--text)");
     text.textContent = node.id;
 
     const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
