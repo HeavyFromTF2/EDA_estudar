@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Manual Completo e Interativo: Teoria e Algoritmos de Grafos</title>
+<title>Manual Completo: Teoria e Algoritmos de Grafos</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -22,6 +22,9 @@
     --warn-bg: #faeeda;
     --warn-text: #412402;
     --warn-border: #854f0b;
+    --success-bg: #eaf3de;
+    --success-text: #173404;
+    --success-border: #3b6d11;
     --danger-bg: #fdf2f2;
     --danger-text: #771d1d;
     --danger-border: #de3535;
@@ -45,6 +48,9 @@
       --warn-bg: #633806;
       --warn-text: #fac775;
       --warn-border: #ba7517;
+      --success-bg: #1e3d06;
+      --success-text: #d2f1b0;
+      --success-border: #55961c;
       --danger-bg: #5a1a1a;
       --danger-text: #fbcbcb;
       --danger-border: #ec5959;
@@ -72,7 +78,7 @@
   .subtitle { font-size: 15px; color: var(--text2); margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem; }
 
   h2 { font-size: 18px; font-weight: 500; margin: 1.5rem 0 0.5rem 0; color: var(--info-border); }
-  h3 { font-size: 15px; font-weight: 600; margin: 1rem 0 0.25rem 0; }
+  h3 { font-size: 15px; font-weight: 600; margin: 1rem 0 0.5rem 0; color: var(--text); }
   p { font-size: 14px; line-height: 1.6; margin-bottom: 1rem; color: var(--text); }
   
   ul { margin-left: 20px; margin-bottom: 1rem; font-size: 14px; line-height: 1.6; }
@@ -156,7 +162,7 @@
     width: 100%;
     min-height: 320px;
     background: var(--bg);
-    border: 1px dashed var(--text3);
+    border: 1px solid var(--border);
     border-radius: var(--radius);
     margin-top: 1rem;
   }
@@ -165,6 +171,90 @@
   .node text { font-family: sans-serif; font-size: 12px; text-anchor: middle; dominant-baseline: middle; font-weight: bold; }
   .edge { stroke-width: 2.5px; fill: none; transition: stroke 0.2s; }
   .edge-label { font-size: 11px; font-family: monospace; font-weight: bold; }
+
+  /* COMPONENTES DE PASSOS ESTETICAMENTE IGUAIS AO INSERTION SORT */
+  .panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .step-counter {
+    font-size: 12px;
+    color: var(--text3);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .phase-badge {
+    font-size: 12px;
+    font-weight: 500;
+    padding: 3px 12px;
+    border-radius: var(--radius);
+    display: inline-block;
+  }
+  .desc-container {
+    background: var(--bg2);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    font-size: 14px;
+    color: var(--text);
+    min-height: 52px;
+    margin-bottom: 16px;
+    line-height: 1.6;
+    border: 0.5px solid var(--border);
+  }
+  .meta-data-line {
+    font-family: monospace;
+    font-size: 12.5px;
+    color: var(--text2);
+    background: var(--bg3);
+    padding: 6px 12px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  /* ESTILOS DO PSEUDOCÓDIGO COMENTADO A VERDE (IGUAL AO INSERTION SORT) */
+  .pseudocode-section {
+    margin-top: 2rem;
+    border-top: 1px dashed var(--border2);
+    padding-top: 1.5rem;
+  }
+  .code-container {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+    font-family: monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    overflow-x: auto;
+    margin-bottom: 1.5rem;
+  }
+  .code-line {
+    display: flex;
+    border-radius: 4px;
+    padding: 2px 6px;
+  }
+  .line-num {
+    width: 28px;
+    color: var(--text3);
+    flex-shrink: 0;
+  }
+  .line-text {
+    white-space: pre;
+    flex-grow: 1;
+  }
+  .line-comment {
+    color: #2b8a3e;
+    font-style: italic;
+  }
+  @media (prefers-color-scheme: dark) {
+    .line-comment { color: #69db7c; }
+  }
 </style>
 </head>
 <body>
@@ -177,161 +267,177 @@
     <button class="tab-btn" onclick="switchTab(1)">2. Pesquisa em Largura (BFS)</button>
     <button class="tab-btn" onclick="switchTab(2)">3. Pesquisa em Profundidade (DFS)</button>
     <button class="tab-btn" onclick="switchTab(3)">4. Ordenação & Componentes</button>
-    <button class="tab-btn" onclick="switchTab(4)">5. Simulador Manual por Passos</button>
+    <button class="tab-btn" onclick="switchTab(4)">5. Simulador por Passos</button>
   </div>
 
   <div id="tab0" class="tab-content active">
     <h2>Representação Estrutural de Grafos (Slides 4-9)</h2>
-    <p>Um grafo é composto por um conjunto de vértices <code>V</code> e ramos <code>E</code>, designado por <code>G = (V, E)</code>. Existem duas formas padronizadas universais para o seu armazenamento computacional:</p>
+    <p>Um grafo é composto por um conjunto de vértices <code>V</code> e ramos/arestas <code>E</code> que estabelecem as ligações entre eles, sendo formalmente designado por <code>G = (V, E)</code>. Existem duas formas padronizadas universais de o representar em memória:</p>
     
     <div class="grid-2">
       <div class="interactive-box">
         <h3>1. Listas de Adjacência (Slides 4, 7)</h3>
-        <p>Uma tabela <code>Adj</code> com <code>|V|</code> listas ligadas. Para cada vértice <code>u</code>, a lista contém os seus vizinhos diretos.</p>
+        <p>Consiste num array contendo <code>|V|</code> posições indexadas. Cada entrada <code>Adj[u]</code> aponta para uma lista ligada que armazena os vizinhos diretos do vértice <code>u</code>.</p>
         <ul>
-          <li><strong>Espaço em Memória:</strong> <code>O(V + E)</code>.</li>
-          <li><strong>Ideal para:</strong> Grafos <strong>Esparsos</strong> (onde <code>|E| &lt;&lt; |V|²</code>).</li>
-          <li><strong>Grafos Ponderados:</strong> O peso <code>w(u, v)</code> é guardado diretamente no nó da lista adjacente.</li>
+          <li><strong>Espaço em Memória:</strong> Ocupa estritamente <code>O(V + E)</code>.</li>
+          <li><strong>Ideal para:</strong> Grafos <strong>Esparsos</strong>, nos quais o número real de ramos é muito inferior ao teto máximo teórico (<code>|E| &lt;&lt; |V|²</code>).</li>
+          <li><strong>Grafos Ponderados:</strong> O custo ou peso do ramo <code>w(u, v)</code> é guardado diretamente como um campo adicional dentro do nó da lista ligada.</li>
         </ul>
       </div>
       <div class="interactive-box">
         <h3>2. Matrizes de Adjacência (Slide 8)</h3>
-        <p>Uma matriz quadrada bidimensional <code>A</code> de tamanho <code>|V| × |V|</code>.</p>
+        <p>Consiste numa matriz quadrada de dimensão fixa <code>|V| × |V|</code>, onde as linhas representam os nós de origem e as colunas os nós de destino.</p>
         <ul>
-          <li><strong>Espaço em Memória:</strong> Estrito <code>Θ(V²)</code>.</li>
-          <li><strong>Ideal para:</strong> Grafos <strong>Densos</strong> (onde <code>|E| ≈ |V|²</code>).</li>
-          <li><strong>Regra de Atribuição:</strong> <code>A[i][j] = 1</code> (ou o peso <code>w</code>) se existir o ramo <code>(i, j)</code>, e <code>0</code> caso contrário.</li>
+          <li><strong>Espaço em Memória:</strong> Requer um espaço fixo de <code>Θ(V²)</code>.</li>
+          <li><strong>Ideal para:</strong> Grafos <strong>Densos</strong> (<code>|E| ≈ |V|²</code>) ou quando se exige uma verificação instantânea em tempo constante <code>O(1)</code> sobre a existência de ligação entre dois nós.</li>
+          <li><strong>Regra de Atribuição:</strong> <code>A[i][j] = 1</code> caso exista o ramo orientado <code>(i, j)</code>, e <code>0</code> caso não exista. Para grafos não orientados, a matriz resultante é simétrica em relação à sua diagonal principal.</li>
         </ul>
       </div>
     </div>
 
     <h2>Matriz de Incidência (Slide 9)</h2>
-    <p>Se o grafo não contiver auto-ciclos (loops no próprio vértice), pode ser representado por uma matriz <code>B</code> de dimensão <code>|V| × |E|</code>:</p>
+    <p>Caso o grafo seja orientado e livre de auto-ciclos, este pode ser mapeado através de uma matriz retangular <code>B</code> de dimensões <code>|V| × |E|</code>:</p>
     <pre>
-B[i][j] = -1  -> Se o ramo j parte do vértice i
-B[i][j] =  1  -> Se o ramo j chega ao vértice i
-B[i][j] =  0  -> Caso contrário
+B[i][j] = -1  <span style="color:var(--success-border); font-style:italic;">// Indica que o ramo j emerge/parte do vértice i</span>
+B[i][j] =  1  <span style="color:var(--success-border); font-style:italic;">// Indica que o ramo j incide/chega ao vértice i</span>
+B[i][j] =  0  <span style="color:var(--success-border); font-style:italic;">// Indica que o vértice i não faz parte do trajeto do ramo j</span>
     </pre>
   </div>
 
   <div id="tab1" class="tab-content">
     <h2>Pesquisa com Prioridade à Largura — BFS (Slides 10-14)</h2>
-    <p>A partir de um vértice fonte <code>s</code>, a BFS explora sistematicamente os ramos para descobrir todos os vértices alcançáveis, calculando de forma exata a **distância mais curta** (menor número de ramos) entre <code>s</code> e os restantes nós. Funciona em grafos orientados e não orientados com complexidade **O(V + E)**.</p>
+    <p>A partir de um vértice inicial fonte (<code>s</code>), o algoritmo de Pesquisa em Largura (BFS) expande a sua pesquisa em ondas concêntricas. Ele descobre sistematicamente os nós alcancáveis e garante computar a <strong>distância mais curta</strong> (número mínimo de ramos) a partir de <code>s</code>. Opera com complexidade temporal linear de <strong>O(V + E)</strong>.</p>
     
     <h3>O Mecanismo de Cores e Estados</h3>
-    <p>Para evitar ciclos e repetições, o algoritmo atribui três cores conceituais aos nós durante a execução:</p>
     <ul>
-      <li><code>WHITE</code>: Nó ainda não descoberto.</li>
-      <li><code>GRAY</code>: Nó descoberto mas cujos vizinhos ainda não foram totalmente explorados (está na Fila).</li>
-      <li><code>BLACK</code>: Nó totalmente processado e fechado.</li>
+      <li><code>WHITE</code> (Branco): O nó ainda não foi descoberto ou visitado pelo algoritmo.</li>
+      <li><code>GRAY</code> (Cinzento): O nó já foi descoberto. Representa a fronteira da pesquisa e encontra-se na Fila de espera.</li>
+      <li><code>BLACK</code> (Preto): O nó e a sua lista de adjacências foram totalmente processados e esgotados.</li>
     </ul>
 
-    <h3>Pseudocódigo Padrão de Exame: BFS(G, s)</h3>
-    <pre>
-BFS(G, s)
-1  for each vertex u in G.V - {s}
-2      u.color = WHITE
-3      u.d = INF
-4      u.pi = NIL
-5  s.color = GRAY
-6  s.d = 0
-7  s.pi = NIL
-8  Q = Ø
-9  ENQUEUE(Q, s)
-10 while Q != Ø
-11     u = DEQUEUE(Q)
-12     for each v in G.Adj[u]
-13         if v.color == WHITE
-14             v.color = GRAY
-15             v.d = u.d + 1
-16             v.pi = u
-17             ENQUEUE(Q, v)
-18     u.color = BLACK
-    </pre>
+    <div class="pseudocode-section">
+      <h3>Pseudocódigo Comentado: BFS(G, s)</h3>
+      <div class="code-container">
+        <div class="code-line"><span class="line-num">1</span><span class="line-text">for each vertex u ∈ G.V - {s}</span><span class="line-comment">// Inicializa todos os vértices do grafo exceto a fonte.</span></div>
+        <div class="code-line"><span class="line-num">2</span><span class="line-text">    u.color = WHITE</span><span class="line-comment">// WHITE: Vértice limpo, por descobrir.</span></div>
+        <div class="code-line"><span class="line-num">3</span><span class="line-text">    u.d = INF</span><span class="line-comment">// Define a distância inicial como infinita.</span></div>
+        <div class="code-line"><span class="line-num">4</span><span class="line-text">    u.π = NIL</span><span class="line-comment">// Define o antecessor/pai na árvore como nulo.</span></div>
+        <div class="code-line"><span class="line-num">5</span><span class="line-text">s.color = GRAY</span><span class="line-comment">// A fonte 's' é descoberta: passa para a fronteira (GRAY).</span></div>
+        <div class="code-line"><span class="line-num">6</span><span class="line-text">s.d = 0</span><span class="line-comment">// A distância da fonte para ela própria é zero.</span></div>
+        <div class="code-line"><span class="line-num">7</span><span class="line-text">s.π = NIL</span><span class="line-comment">// A raiz da árvore BFS não tem predecessor.</span></div>
+        <div class="code-line"><span class="line-num">8</span><span class="line-text">Q = Ø</span><span class="line-comment">// Cria uma estrutura de Fila FIFO vazia.</span></div>
+        <div class="code-line"><span class="line-num">9</span><span class="line-text">ENQUEUE(Q, s)</span><span class="line-comment">// Insere o vértice fonte no fim da fila.</span></div>
+        <div class="code-line"><span class="line-num">10</span><span class="line-text">while Q != Ø</span><span class="line-comment">// Enquanto existirem nós cinzentos na fila de processamento...</span></div>
+        <div class="code-line"><span class="line-num">11</span><span class="line-text">    u = DEQUEUE(Q)</span><span class="line-comment">// Extrai o vértice 'u' da frente da fila.</span></div>
+        <div class="code-line"><span class="line-num">12</span><span class="line-text">    for each v ∈ G.Adj[u]</span><span class="line-comment">// Varre e inspeciona cada vizinho 'v' na lista de adjacências de 'u'.</span></div>
+        <div class="code-line"><span class="line-num">13</span><span class="line-text">        if v.color == WHITE</span><span class="line-comment">// Se o vizinho estiver intocado (WHITE)...</span></div>
+        <div class="code-line"><span class="line-num">14</span><span class="line-text">            v.color = GRAY</span><span class="line-comment">// Descobre o nó, marcando-o imediatamente a GRAY.</span></div>
+        <div class="code-line"><span class="line-num">15</span><span class="line-text">            v.d = u.d + 1</span><span class="line-comment">// A sua distância será a distância do pai mais um nível.</span></div>
+        <div class="code-line"><span class="line-num">16</span><span class="line-text">            v.π = u</span><span class="line-comment">// Regista 'u' como o pai deste nó na árvore de caminhos.</span></div>
+        <div class="code-line"><span class="line-num">17</span><span class="line-text">            ENQUEUE(Q, v)</span><span class="line-comment">// Insere o vizinho no fim da fila para posterior expansão.</span></div>
+        <div class="code-line"><span class="line-num">18</span><span class="line-text">    u.color = BLACK</span><span class="line-comment">// BLACK: Todos os vizinhos de 'u' foram avaliados de forma definitiva.</span></div>
+      </div>
+    </div>
   </div>
 
   <div id="tab2" class="tab-content">
     <h2>Pesquisa com Prioridade à Profundidade — DFS (Slides 15-22)</h2>
-    <p>A DFS pesquisa o grafo "mergulhando" o mais fundo possível num caminho antes de efetuar o <i>backtracking</i>. Produz uma floresta de árvores de pesquisa com ordem de crescimento **Θ(V + E)**.</p>
+    <p>A Pesquisa em Profundidade (DFS) avança pelos ramos do grafo, "mergulhando" o mais profundamente possível ao longo de caminhos lineares antes de efetuar o mecanismo de retrocesso (<i>backtracking</i>). A sua arquitetura interna baseia-se num comportamento de <strong>Pilha (LIFO)</strong> via recursividade. A sua complexidade temporal é de <strong>Θ(V + E)</strong>.</p>
     
-    <h3>Timestamps Cruciais: d e f</h3>
-    <p>Cada vértice <code>u</code> guarda dois registos de tempo fundamentais:</p>
+    <h3>Timestamps de Execução: d e f</h3>
     <ul>
-      <li><code>u.d</code> (Discovery): O instante em que o nó passa de <code>WHITE</code> para <code>GRAY</code>.</li>
-      <li><code>u.f</code> (Finishing): O instante em que o nó passa de <code>GRAY</code> para <code>BLACK</code> após todos os seus vizinhos estarem esgotados.</li>
+      <li><code>u.d</code> (Discovery Time): O instante exato em que o nó é descoberto e transita de <code>WHITE</code> para <code>GRAY</code>.</li>
+      <li><code>u.f</code> (Finishing Time): O instante em que a exploração dos seus vizinhos termina e o nó transita de <code>GRAY</code> para <code>BLACK</code>.</li>
     </ul>
 
     <div class="info-badge">
-      <strong>Teorema dos Parênteses (Slide 19):</strong> Numa DFS, para quaisquer dois nós <code>u</code> e <code>v</code>, os seus intervalos de tempo <code>[u.d, u.f]</code> e <code>[v.d, v.f]</code> ou são **completamente disjuntos** (sem parentesco), ou estão **totalmente contidos um dentro do outro** (o que estiver contido é descendente direto ou indireto na árvore gerada).
+      <strong>Teorema dos Parênteses (Slide 19):</strong> Numa execução de DFS, os intervalos de tempo <code>[u.d, u.f]</code> encontram-se estruturalmente aninhados. Para quaisquer dois nós distintos <code>u</code> e <code>v</code>, os seus intervalos ou são totalmente disjuntos ou encontram-se totalmente contidos um dentro do outro.
     </div>
 
-    <h3>Pseudocódigo Estrutural da DFS</h3>
-    <pre>
-DFS(G)
-1  for each vertex u in G.V
-2      u.color = WHITE
-3      u.pi = NIL
-4  time = 0
-5  for each vertex u in G.V
-6      if u.color == WHITE
-7          DFS-VISIT(G, u)
-
-DFS-VISIT(G, u)
-1  time = time + 1
-2  u.d = time
-3  u.color = GRAY
-4  for each v in G.Adj[u]
-5      if v.color == WHITE
-6          v.pi = u
-7          DFS-VISIT(G, v)
-8  u.color = BLACK
-9  time = time + 1
-10 u.f = time
-    </pre>
+    <div class="pseudocode-section">
+      <h3>Pseudocódigo Comentado: DFS(G) e DFS-VISIT(G, u)</h3>
+      <div class="code-container">
+        <div class="code-line"><span class="line-num">1</span><span class="line-text">procedure DFS(G)</span><span class="line-comment">// Ponto de entrada que garante a varredura completa do Grafo.</span></div>
+        <div class="code-line"><span class="line-num">2</span><span class="line-text">    for each vertex u ∈ G.V</span><span class="line-comment">// Laço de inicialização global do estado dos nós.</span></div>
+        <div class="code-line"><span class="line-num">3</span><span class="line-text">        u.color = WHITE</span><span class="line-comment">// Configura o estado de partida de todos os nós como WHITE.</span></div>
+        <div class="code-line"><span class="line-num">4</span><span class="line-text">        u.π = NIL</span><span class="line-comment">// Zera qualquer ligação prévia de ancestralidade.</span></div>
+        <div class="code-line"><span class="line-num">5</span><span class="line-text">    time = 0</span><span class="line-comment">// Relógio global para controlar os timestamps fixos.</span></div>
+        <div class="code-line"><span class="line-num">6</span><span class="line-text">    for each vertex u ∈ G.V</span><span class="line-comment">// Garante a cobertura de componentes desconexos ou ilhas isoladas.</span></div>
+        <div class="code-line"><span class="line-num">7</span><span class="line-text">        if u.color == WHITE</span><span class="line-comment">// Se um nó ainda não foi tocado, assume-se como nova raiz.</span></div>
+        <div class="code-line"><span class="line-num">8</span><span class="line-text">            DFS-VISIT(G, u)</span><span class="line-comment">// Dispara a travessia em profundidade na subárvore.</span></div>
+        <div class="code-line"><br></div>
+        <div class="code-line"><span class="line-num">9</span><span class="line-text">procedure DFS-VISIT(G, u)</span><span class="line-comment">// Função recursiva de descida profunda.</span></div>
+        <div class="code-line"><span class="line-num">10</span><span class="line-text">    time = time + 1</span><span class="line-comment">// Incrementa o contador global de tempo no evento de entrada.</span></div>
+        <div class="code-line"><span class="line-num">11</span><span class="line-text">    u.d = time</span><span class="line-comment">// Regista o carimbo temporal de descoberta (u.d).</span></div>
+        <div class="code-line"><span class="line-num">12</span><span class="line-text">    u.color = GRAY</span><span class="line-comment">// Altera a cor para GRAY (fronteira ativa na pilha de recursão).</span></div>
+        <div class="code-line"><span class="line-num">13</span><span class="line-text">    for each v ∈ G.Adj[u]</span><span class="line-comment">// Inspeciona linearmente cada vizinho 'v' na lista do nó ativo.</span></div>
+        <div class="code-line"><span class="line-num">14</span><span class="line-text">        if v.color == WHITE</span><span class="line-comment">// Ramo de Árvore encontrado (Tree Edge). Vizinho está livre.</span></div>
+        <div class="code-line"><span class="line-num">15</span><span class="line-text">            v.π = u</span><span class="line-comment">// Vincula o vértice 'u' como predecessor direto de 'v'.</span></div>
+        <div class="code-line"><span class="line-num">16</span><span class="line-text">            DFS-VISIT(G, v)</span><span class="line-comment">// Efetua o salto recursivo avançando na profundidade.</span></div>
+        <div class="code-line"><span class="line-num">17</span><span class="line-text">    u.color = BLACK</span><span class="line-comment">// Retrocesso (Backtracking): caminhos de saída esgotados. Nó fecha.</span></div>
+        <div class="code-line"><span class="line-num">18</span><span class="line-text">    time = time + 1</span><span class="line-comment">// Incrementa o contador de tempo no evento de fecho.</span></div>
+        <div class="code-line"><span class="line-num">19</span><span class="line-text">    u.f = time</span><span class="line-comment">// Regista de forma permanente o timestamp de finalização (u.f).</span></div>
+      </div>
+    </div>
   </div>
 
   <div id="tab3" class="tab-content">
-    <h2>Ordenação Topológica (Slides 23-26)</h2>
-    <p>A ordenação topológica de um **DAG (Grafo Orientado Acíclico)** consiste numa ordenação linear de todos os seus vértices de forma a que, se existir um ramo <code>(u, v)</code>, então <code>u</code> aparece obrigatoriamente antes de <code>v</code> na sequência.</p>
-    
-    <div class="info-badge">
-      <strong>Algoritmo Prático de Exame (Slide 23):</strong> <br>
-      1. Executa-se a rotina <code>DFS(G)</code> para computar os tempos de finalização <code>v.f</code> de cada nó.<br>
-      2. À medida que cada nó termina o seu processamento (fica <code>BLACK</code>), é inserido na **frente de uma lista ligada**.<br>
-      3. A lista resultante final é a ordenação topológica exata. Custo: <strong>Θ(V + E)</strong>.
+    <h2>Ordenação Topológica e Componentes (Slides 23-32)</h2>
+    <p>Conceitos avançados estruturados sobre a execução e propriedades da Pesquisa em Profundidade (DFS).</p>
+
+    <div class="pseudocode-section">
+      <h3>3. Ordenação Topológica (Slides 23-26)</h3>
+      <p>Aplicável estritamente em <strong>DAGs (Grafos Orientados Acíclicos)</strong>. Ordena linearmente os nós de forma a respeitar precedências de tarefas.</p>
+      <div class="code-container">
+        <div class="code-line"><span class="line-num">1</span><span class="line-text">procedure TOPOLOGICAL-SORT(G)</span><span class="line-comment">// Requer que o grafo de entrada seja orientado e acíclico.</span></div>
+        <div class="code-line"><span class="line-num">2</span><span class="line-text">    call DFS(G)</span><span class="line-comment">// Executa uma DFS padrão para computar os tempos de finalização u.f de todos os nós.</span></div>
+        <div class="code-line"><span class="line-num">3</span><span class="line-text">    // as each vertex is finished, insert it onto the front of a linked list</span><span class="line-comment">// No momento exato em que um nó fica BLACK, insere-o na cabeça de uma lista ligada.</span></div>
+        <div class="code-line"><span class="line-num">4</span><span class="line-text">    return the linked list of vertices</span><span class="line-comment">// A lista encadeada resultante expõe a ordenação topológica válida.</span></div>
+      </div>
     </div>
 
-    <h2>Componentes Fortemente Conexos — SCC (Slides 27-32)</h2>
-    <p>Um Componente Fortemente Conexo de um grafo orientado é um subconjunto máximo de vértices <code>C ⊆ V</code> onde, para qualquer par <code>(u, v) ∈ C</code>, existem caminhos bidirecionais de <code>u</code> para <code>v</code> e de <code>v</code> para <code>u</code>.</p>
-    
-    <h3>Algoritmo de Kosaraju (Slide 27):</h3>
-    <ul>
-      <li>Executa a <code>DFS(G)</code> para obter os tempos <code>u.f</code>.</li>
-      <li>Calcula o **Grafo Transposto** <code>Gᵀ</code>, invertendo o sentido de todas as setas (Complexidade <code>O(V + E)</code> usando listas).</li>
-      <li>Executa a <code>DFS(Gᵀ)</code>, mas processa os nós no ciclo principal por **ordem decrescente de u.f** calculados na primeira etapa.</li>
-      <li>Cada árvore da floresta gerada nesta segunda DFS constitui um Componente Fortemente Conexo individual. Custo total: <strong>Θ(V + E)</strong>.</li>
-    </ul>
+    <div class="pseudocode-section">
+      <h3>4. Componentes Fortemente Conexos — SCC (Slides 27-32)</h3>
+      <p>Subconjuntos maximais de vértices numa estrutura orientada onde todos os pares conseguem transitar mutuamente entre si (há caminho de ida e volta).</p>
+      <div class="code-container">
+        <div class="code-line"><span class="line-num">1</span><span class="line-text">procedure STRONGLY-CONNECTED-COMPONENTS(G)</span><span class="line-comment">// Algoritmo de Kosaraju para identificação de SCCs isolados.</span></div>
+        <div class="code-line"><span class="line-num">2</span><span class="line-text">    call DFS(G)</span><span class="line-comment">// Executa a primeira DFS para obter os carimbos temporais u.f regulares.</span></div>
+        <div class="code-line"><span class="line-num">3</span><span class="line-text">    compute G^T</span><span class="line-comment">// Constrói o Grafo Transposto G^T, invertendo a direção de todas as setas.</span></div>
+        <div class="code-line"><span class="line-num">4</span><span class="line-text">    call DFS(G^T)</span><span class="line-comment">// Corre uma DFS em G^T, mas processando as raízes em ordem DECRESCENTE de u.f.</span></div>
+        <div class="code-line"><span class="line-num">5</span><span class="line-text">    // output the vertices of each tree in the DFS forest as a separate SCC</span><span class="line-comment">// Cada árvore independente gerada na floresta final constitui um SCC completo.</span></div>
+      </div>
+    </div>
   </div>
 
   <div id="tab4" class="tab-content">
     <h2>Simulador de Algoritmos Manual por Passos</h2>
-    <p>Escolhe o algoritmo desejado. Utiliza os botões de controlo para **avançar** ou **recuar** os passos manualmente, permitindo analisar detalhadamente a alteração de estruturas e metadados:</p>
+    <p>Escolhe o algoritmo desejado. Utiliza os botões de controlo para avançar ou recuar os passos manualmente:</p>
     
     <div class="interactive-box">
       <div class="controls">
         <label style="font-size:13px; font-weight:bold;">Algoritmo:</label>
-        <select id="algo-select" onchange="initSimulation()" style="padding:6px; border-radius:4px; border:1px solid var(--text3); background:var(--bg); color:var(--text);">
+        <select id="algo-select" onchange="initSimulation()" style="padding:6px; border-radius:4px; border:1px solid var(--text3); background:var(--bg); color:var(--text); font-weight:500;">
           <option value="BFS">Pesquisa em Largura (BFS)</option>
           <option value="DFS">Pesquisa em Profundidade (DFS)</option>
         </select>
         
-        <button class="btn" id="btn-prev" onclick="prevStep()">← Recuar Passo</button>
-        <button class="btn btn-primary" id="btn-next" onclick="nextStep()">Avançar Passo →</button>
-        <button class="btn" id="btn-reset" onclick="initSimulation()">Resetar Algoritmo</button>
+        <button class="btn btn-primary" id="btn-prev" onclick="prevStep()">← Anterior</button>
+        <button class="btn btn-primary" id="btn-next" onclick="nextStep()">Próximo →</button>
+        <button class="btn" id="btn-reset" onclick="initSimulation()">↺ Recomeçar</button>
       </div>
       
-      <div id="graph-log" style="font-family:monospace; font-size:13px; color:var(--info-border); margin-bottom:12px; min-height:50px; background:var(--bg); padding:10px; border-radius:4px; border:0.5px solid var(--border); line-height:1.4;">
-        Inicializando o sistema...
+      <div id="step-panel">
+        <div class="panel-header">
+          <div class="step-counter" id="step-counter-lbl">Passo 0 de 0</div>
+          <span class="phase-badge" id="phase-label"></span>
+        </div>
+        <div class="desc-container" id="desc-box">
+          Inicializando componentes...
+        </div>
+        <div class="meta-data-line">
+          <strong>Estrutura ativa:</strong>
+          <span id="structure-lbl">[]</span>
+        </div>
       </div>
 
       <svg class="graph-viz" id="graph-svg"></svg>
@@ -346,7 +452,6 @@ function switchTab(idx) {
   if(idx === 4) initSimulation();
 }
 
-// DEFINIÇÃO DO GRAFO (NÓS E EDGES ORIENTADOS DO CADERNO DO PROFESSOR)
 const nodes = [
   { id: 'A', x: 100, y: 150 },
   { id: 'B', x: 250, y: 80 },
@@ -366,9 +471,23 @@ const edges = [
   { from: 'B', to: 'E' }
 ];
 
-// MOTOR DE ESTADOS DA SIMULAÇÃO MANUAL
 let historySteps = [];
 let currentStepIndex = 0;
+
+// Configuração exata das fases e mapeamento de estilos herdados do Insertion Sort
+const phaseColors = {
+  init: 'background:var(--bg3);color:var(--text2);border:0.5px solid var(--border)',
+  scan: 'background:var(--warn-bg);color:var(--warn-text);border:0.5px solid var(--warn-border)',
+  update: 'background:var(--info-bg);color:var(--info-text);border:0.5px solid var(--info-border)',
+  done: 'background:var(--success-bg);color:var(--success-text);border:0.5px solid var(--success-border)'
+};
+
+const phaseNames = {
+  init: 'Início',
+  scan: 'Inspeção',
+  update: 'Atualização',
+  done: 'Concluído'
+};
 
 function initSimulation() {
   const algo = document.getElementById('algo-select').value;
@@ -384,24 +503,25 @@ function initSimulation() {
   updateUI();
 }
 
-// COMPUTAÇÃO COMPLETA DA BFS PARA O HISTÓRICO DE PASSOS
 function generateBFSHistory() {
   let states = {};
   nodes.forEach(n => states[n.id] = { color: 'WHITE', info: 'd=INF, π=NIL' });
   
-  // Passo 0: Inicialização completa de exame
   historySteps.push({
     states: JSON.parse(JSON.stringify(states)),
-    log: "<b>[Inicialização]</b> Todos os nós definidos como WHITE, d=INF, π=NIL. Origem configurada no nó A.",
+    op: "Inicialização do algoritmo: todos os nós do grafo são marcados como não descobertos (WHITE).",
+    structure: "Fila Q = []",
+    phase: 'init',
     activeEdge: null
   });
   
-  // Passo 1: Descobrir a raiz
   states['A'] = { color: 'GRAY', info: 'd=0, π=NIL' };
   let queue = ['A'];
   historySteps.push({
     states: JSON.parse(JSON.stringify(states)),
-    log: "<b>[Origem]</b> Nó A descoberto (GRAY). Distância d=0. Adicionado à Fila: Q = [A].",
+    op: "O nó inicial <b>A</b> é descoberto: passa a cinzento (GRAY), distância d=0 e é adicionado à fila.",
+    structure: "Fila Q = [A]",
+    phase: 'update',
     activeEdge: null
   });
   
@@ -410,11 +530,12 @@ function generateBFSHistory() {
     let currentQStr = queue.join(', ') || 'Vazia';
     historySteps.push({
       states: JSON.parse(JSON.stringify(states)),
-      log: `<b>[Processar]</b> Retirado o nó <b>${u}</b> da Fila para explorar vizinhos. Fila atual: Q = [${currentQStr}].`,
+      op: `Remover o nó da frente da fila <b>${u}</b> para expandir a pesquisa sobre a sua lista de vizinhos adjacentes.`,
+      structure: `Fila Q = [${currentQStr}]`,
+      phase: 'scan',
       activeEdge: null
     });
     
-    // Obter vizinhos diretos por ordem alfabética estrita
     let adj = edges.filter(e => e.from === u).map(e => e.to).sort();
     
     for(let v of adj) {
@@ -424,39 +545,44 @@ function generateBFSHistory() {
         states[v].info = `d=${dist}, π=${u}`;
         queue.push(v);
         
-        let qStr = queue.join(', ');
         historySteps.push({
           states: JSON.parse(JSON.stringify(states)),
-          log: `<b>[Descoberta]</b> Ramo (${u} → ${v}): Vizinho <b>${v}</b> está WHITE! Fica GRAY, d=u.d+1 = ${dist}, pai π=${u}. Inserido na Fila: Q = [${qStr}].`,
+          op: `Acedendo ao ramo (${u} → ${v}): O vértice vizinho <b>${v}</b> está WHITE. Fica GRAY, recebe distância d = ${dist} e pai π = ${u}. É inserido na fila.`,
+          structure: `Fila Q = [${queue.join(', ')}]`,
+          phase: 'update',
           activeEdge: { from: u, to: v }
         });
       } else {
         historySteps.push({
           states: JSON.parse(JSON.stringify(states)),
-          log: `<b>[Ignorado]</b> Ramo (${u} → ${v}): Vizinho <b>${v}</b> já foi descoberto (não está WHITE). Nenhuma ação necessária.`,
+          op: `Acedendo ao ramo (${u} → ${v}): O vértice vizinho <b>${v}</b> já não está branco. Ligação ignorada.`,
+          structure: `Fila Q = [${queue.join(', ') || 'Vazia'}]`,
+          phase: 'scan',
           activeEdge: { from: u, to: v }
         });
       }
     }
     
     states[u].color = 'BLACK';
-    let finalQStr = queue.join(', ') || 'Vazia';
     historySteps.push({
       states: JSON.parse(JSON.stringify(states)),
-      log: `<b>[Fecho]</b> Todos os vizinhos de <b>${u}</b> foram verificados. O nó passa a <b>BLACK</b>. Fila atual: Q = [${finalQStr}].`,
+      op: `Todas as adjacências de <b>${u}</b> foram completamente esgotadas. O nó passa a definitivo (BLACK).`,
+      structure: `Fila Q = [${queue.join(', ') || 'Vazia'}]`,
+      phase: 'done',
       activeEdge: null
     });
   }
 }
 
-// COMPUTAÇÃO COMPLETA DA DFS PARA O HISTÓRICO DE PASSOS
 function generateDFSHistory() {
   let states = {};
   nodes.forEach(n => states[n.id] = { color: 'WHITE', info: 'π=NIL' });
   
   historySteps.push({
     states: JSON.parse(JSON.stringify(states)),
-    log: "<b>[Inicialização DFS]</b> Todos os vértices marcados como WHITE. Contador global de tempo = 0.",
+    op: "Inicialização DFS: todos os nós limpos como WHITE. Contador global de tempo = 0.",
+    structure: "Pilha: [Vazia]",
+    phase: 'init',
     activeEdge: null
   });
   
@@ -464,16 +590,20 @@ function generateDFSHistory() {
   let pi = {};
   let d = {};
   let f = {};
+  let currentStack = [];
   
   function dfsVisit(u) {
     time++;
     d[u] = time;
     states[u].color = 'GRAY';
     states[u].info = `d=${d[u]}, π=${pi[u] || 'NIL'}`;
+    currentStack.push(u);
     
     historySteps.push({
       states: JSON.parse(JSON.stringify(states)),
-      log: `<b>[DFS-VISIT]</b> Entrada no nó <b>${u}</b>. Passa a GRAY e recebe carimbo de descoberta <b>d=${d[u]}</b>.`,
+      op: `Entrada na rotina recursiva para o vértice <b>${u}</b>. Passa a GRAY. Tempo de descoberta registado: <b>d = ${d[u]}</b>.`,
+      structure: `Pilha: [${currentStack.join(' → ')}]`,
+      phase: 'update',
       activeEdge: null
     });
     
@@ -483,14 +613,18 @@ function generateDFSHistory() {
         pi[v] = u;
         historySteps.push({
           states: JSON.parse(JSON.stringify(states)),
-          log: `<b>[Explorar]</b> Ramo (${u} → ${v}): Nó ${v} está WHITE. Definindo pai π=${u} e avançando recursivamente.`,
+          op: `Ramo de exploração (${u} → ${v}): O vizinho <b>${v}</b> está WHITE. Define-se o seu antecessor π = ${u} e avança-se recursivamente.`,
+          structure: `Pilha: [${currentStack.join(' → ')}]`,
+          phase: 'scan',
           activeEdge: { from: u, to: v }
         });
         dfsVisit(v);
       } else {
         historySteps.push({
           states: JSON.parse(JSON.stringify(states)),
-          log: `<b>[Retorno/Ciclo]</b> Ramo (${u} → ${v}): Nó ${v} já se encontra visitado (estado: ${states[v].color}).`,
+          op: `Análise do ramo (${u} → ${v}): O vizinho <b>${v}</b> já se encontra visitado ou fechado. Retroceder caminho.`,
+          structure: `Pilha: [${currentStack.join(' → ')}]`,
+          phase: 'scan',
           activeEdge: { from: u, to: v }
         });
       }
@@ -500,10 +634,13 @@ function generateDFSHistory() {
     f[u] = time;
     states[u].color = 'BLACK';
     states[u].info = `d=${d[u]}/f=${f[u]}, π=${pi[u] || 'NIL'}`;
+    currentStack.pop();
     
     historySteps.push({
       states: JSON.parse(JSON.stringify(states)),
-      log: `<b>[Finalização]</b> Backtracking completo em <b>${u}</b>. Passa a <b>BLACK</b> com tempo de fecho <b>f=${f[u]}</b>.`,
+      op: `Concluída a pesquisa profunda no nó <b>${u}</b>. Passa a BLACK. Tempo de finalização registado: <b>f = ${f[u]}</b>.`,
+      structure: `Pilha: [${currentStack.join(' → ') || 'Vazia'}]`,
+      phase: 'done',
       activeEdge: null
     });
   }
@@ -512,7 +649,9 @@ function generateDFSHistory() {
     if(states[n].color === 'WHITE') {
       historySteps.push({
         states: JSON.parse(JSON.stringify(states)),
-        log: `<b>[Ciclo Principal]</b> Vértice raiz <b>${n}</b> está WHITE. Disparando varrimento em profundidade.`,
+        op: `Ciclo Principal DFS: Encontrada raiz não visitada <b>${n}</b>. Iniciando travessia.`,
+        structure: `Pilha: [Vazia]`,
+        phase: 'init',
         activeEdge: null
       });
       dfsVisit(n);
@@ -520,7 +659,6 @@ function generateDFSHistory() {
   }
 }
 
-// CONTROLADORES DE PASSOS DA INTERFACE (MECÂNICA IGUAL ÀS SEBENTAS ANTIGAS)
 function nextStep() {
   if (currentStepIndex < historySteps.length - 1) {
     currentStepIndex++;
@@ -539,22 +677,29 @@ function updateUI() {
   const currentSnapshot = historySteps[currentStepIndex];
   if (!currentSnapshot) return;
   
-  // Atualizar Log Informativo superior
-  document.getElementById('graph-log').innerHTML = `Passo [${currentStepIndex + 1} / ${historySteps.length}]: ${currentSnapshot.log}`;
+  // Atualizar contadores
+  document.getElementById('step-counter-lbl').textContent = `Passo ${currentStepIndex + 1} de ${historySteps.length}`;
   
-  // Bloqueio inteligente de botões nas extremidades
+  // Aplicar o estilo da fase de forma idêntica ao Insertion Sort
+  const pb = document.getElementById('phase-label');
+  pb.style.cssText = (phaseColors[currentSnapshot.phase] || '') + ';padding:3px 12px;border-radius:8px;font-size:12px;font-weight:500';
+  pb.textContent = phaseNames[currentSnapshot.phase] || currentSnapshot.phase;
+  
+  document.getElementById('desc-box').innerHTML = currentSnapshot.op;
+  document.getElementById('structure-lbl').innerHTML = currentSnapshot.structure;
+  
+  // Ativação lógica dos botões
   document.getElementById('btn-prev').disabled = (currentStepIndex === 0);
   document.getElementById('btn-next').disabled = (currentStepIndex === historySteps.length - 1);
   
   renderGraphSVG(currentSnapshot.states, currentSnapshot.activeEdge);
 }
 
-// RENDERIZADOR DINÂMICO DO GRAFO ORIENTADO VIA SVG
 function renderGraphSVG(currentNodeStates, activeEdge) {
   const svg = document.getElementById('graph-svg');
   svg.innerHTML = '';
   
-  // Desenhar todas as linhas de ligação (Ramos/Edges)
+  // Renderizar arestas direcionadas e setas
   edges.forEach(edge => {
     const src = nodes.find(n => n.id === edge.from);
     const dst = nodes.find(n => n.id === edge.to);
@@ -572,14 +717,12 @@ function renderGraphSVG(currentNodeStates, activeEdge) {
     line.setAttribute("x2", x2);
     line.setAttribute("y2", y2);
     
-    // Altera a cor se for o ramo sob análise do algoritmo neste passo
     if (activeEdge && activeEdge.from === edge.from && activeEdge.to === edge.to) {
-      line.setAttribute("stroke", "#dc3545"); // Vermelho vivo para destaque
+      line.setAttribute("stroke", "#dc3545");
+      line.setAttribute("stroke-width", "3px");
     } else {
       line.setAttribute("stroke", "var(--text3)");
     }
-    
-    // Adicionar ponta de seta orientada (básica e nativa em coordenadas)
     svg.appendChild(line);
     
     let arrX = x2 - 8 * Math.cos(angle - Math.PI/6);
@@ -592,7 +735,7 @@ function renderGraphSVG(currentNodeStates, activeEdge) {
     svg.appendChild(arrowLine1);
   });
 
-  // Desenhar as esferas dos Vértices e os rótulos de dados
+  // Renderizar os vértices do grafo
   nodes.forEach(node => {
     const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
     g.setAttribute("class", "node");
@@ -604,7 +747,6 @@ function renderGraphSVG(currentNodeStates, activeEdge) {
     
     let nState = currentNodeStates[node.id] || { color: 'WHITE', info: '' };
     
-    // Cores de estado da convenção do livro/slides do professor
     if (nState.color === 'BLACK') {
       circle.setAttribute("fill", "#212529");
       circle.setAttribute("stroke", "#000000");
@@ -622,7 +764,6 @@ function renderGraphSVG(currentNodeStates, activeEdge) {
     text.setAttribute("fill", nState.color === 'WHITE' ? "var(--text)" : "#ffffff");
     text.textContent = node.id;
 
-    // Rótulo metadados inferior do nó (d, f, pi)
     const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
     label.setAttribute("x", node.x);
     label.setAttribute("y", node.y + 32);
@@ -638,7 +779,6 @@ function renderGraphSVG(currentNodeStates, activeEdge) {
   });
 }
 
-// Inicializar na primeira abertura de janela
 window.onload = () => { initSimulation(); };
 </script>
 </body>
