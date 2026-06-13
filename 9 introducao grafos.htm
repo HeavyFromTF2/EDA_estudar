@@ -172,7 +172,6 @@
   .edge { stroke-width: 2.5px; fill: none; transition: stroke 0.2s; }
   .edge-label { font-size: 11px; font-family: monospace; font-weight: bold; }
 
-  /* COMPONENTES DE PASSOS ESTETICAMENTE IGUAIS AO INSERTION SORT */
   .panel-header {
     display: flex;
     align-items: center;
@@ -217,11 +216,18 @@
     margin-bottom: 12px;
   }
 
-  /* ESTILOS DO PSEUDOCÓDIGO COMENTADO A VERDE (IGUAL AO INSERTION SORT) */
   .pseudocode-section {
     margin-top: 2rem;
     border-top: 1px dashed var(--border2);
     padding-top: 1.5rem;
+  }
+  .pseudocode-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text3);
+    margin-bottom: 8px;
+    font-weight: 700;
   }
   .code-container {
     background: var(--bg2);
@@ -246,7 +252,8 @@
   }
   .line-text {
     white-space: pre;
-    flex-grow: 1;
+    width: 290px;
+    flex-shrink: 0;
   }
   .line-comment {
     color: #2b8a3e;
@@ -316,26 +323,27 @@ B[i][j] =  0  <span style="color:var(--success-border); font-style:italic;">// I
     </ul>
 
     <div class="pseudocode-section">
+      <div class="pseudocode-title">Algoritmo de Pesquisa</div>
       <h3>Pseudocódigo Comentado: BFS(G, s)</h3>
       <div class="code-container">
-        <div class="code-line"><span class="line-num">1</span><span class="line-text">for each vertex u ∈ G.V - {s}</span><span class="line-comment">// Inicializa todos os vértices do grafo exceto a fonte.</span></div>
-        <div class="code-line"><span class="line-num">2</span><span class="line-text">    u.color = WHITE</span><span class="line-comment">// WHITE: Vértice limpo, por descobrir.</span></div>
-        <div class="code-line"><span class="line-num">3</span><span class="line-text">    u.d = INF</span><span class="line-comment">// Define a distância inicial como infinita.</span></div>
-        <div class="code-line"><span class="line-num">4</span><span class="line-text">    u.π = NIL</span><span class="line-comment">// Define o antecessor/pai na árvore como nulo.</span></div>
-        <div class="code-line"><span class="line-num">5</span><span class="line-text">s.color = GRAY</span><span class="line-comment">// A fonte 's' é descoberta: passa para a fronteira (GRAY).</span></div>
-        <div class="code-line"><span class="line-num">6</span><span class="line-text">s.d = 0</span><span class="line-comment">// A distância da fonte para ela própria é zero.</span></div>
-        <div class="code-line"><span class="line-num">7</span><span class="line-text">s.π = NIL</span><span class="line-comment">// A raiz da árvore BFS não tem predecessor.</span></div>
-        <div class="code-line"><span class="line-num">8</span><span class="line-text">Q = Ø</span><span class="line-comment">// Cria uma estrutura de Fila FIFO vazia.</span></div>
-        <div class="code-line"><span class="line-num">9</span><span class="line-text">ENQUEUE(Q, s)</span><span class="line-comment">// Insere o vértice fonte no fim da fila.</span></div>
-        <div class="code-line"><span class="line-num">10</span><span class="line-text">while Q != Ø</span><span class="line-comment">// Enquanto existirem nós cinzentos na fila de processamento...</span></div>
-        <div class="code-line"><span class="line-num">11</span><span class="line-text">    u = DEQUEUE(Q)</span><span class="line-comment">// Extrai o vértice 'u' da frente da fila.</span></div>
-        <div class="code-line"><span class="line-num">12</span><span class="line-text">    for each v ∈ G.Adj[u]</span><span class="line-comment">// Varre e inspeciona cada vizinho 'v' na lista de adjacências de 'u'.</span></div>
-        <div class="code-line"><span class="line-num">13</span><span class="line-text">        if v.color == WHITE</span><span class="line-comment">// Se o vizinho estiver intocado (WHITE)...</span></div>
-        <div class="code-line"><span class="line-num">14</span><span class="line-text">            v.color = GRAY</span><span class="line-comment">// Descobre o nó, marcando-o imediatamente a GRAY.</span></div>
-        <div class="code-line"><span class="line-num">15</span><span class="line-text">            v.d = u.d + 1</span><span class="line-comment">// A sua distância será a distância do pai mais um nível.</span></div>
-        <div class="code-line"><span class="line-num">16</span><span class="line-text">            v.π = u</span><span class="line-comment">// Regista 'u' como o pai deste nó na árvore de caminhos.</span></div>
-        <div class="code-line"><span class="line-num">17</span><span class="line-text">            ENQUEUE(Q, v)</span><span class="line-comment">// Insere o vizinho no fim da fila para posterior expansão.</span></div>
-        <div class="code-line"><span class="line-num">18</span><span class="line-text">    u.color = BLACK</span><span class="line-comment">// BLACK: Todos os vizinhos de 'u' foram avaliados de forma definitiva.</span></div>
+        <div class="code-line"><span class="line-num">1</span><span class="line-text">for each vertex u ∈ G.V - {s}  </span><span class="line-comment">// Loop para limpar e resetar todos os nós do grafo exceto a origem</span></div>
+        <div class="code-line"><span class="line-num">2</span><span class="line-text">    u.color = WHITE           </span><span class="line-comment">// Define o estado como "não visitado" (Branco)</span></div>
+        <div class="code-line"><span class="line-num">3</span><span class="line-text">    u.d = INF                 </span><span class="line-comment">// Define a distância inicial do nó como Infinita</span></div>
+        <div class="code-line"><span class="line-num">4</span><span class="line-text">    u.π = NIL                 </span><span class="line-comment">// Define o nó pai/antecessor como nulo</span></div>
+        <div class="code-line"><span class="line-num">5</span><span class="line-text">s.color = GRAY                </span><span class="line-comment">// Marca o nó de origem 's' como descoberto (Cinzento)</span></div>
+        <div class="code-line"><span class="line-num">6</span><span class="line-text">s.d = 0                       </span><span class="line-comment">// A distância do nó de origem para ele próprio é zero</span></div>
+        <div class="code-line"><span class="line-num">7</span><span class="line-text">s.π = NIL                     </span><span class="line-comment">// O nó de origem é a raiz, logo não tem pai</span></div>
+        <div class="code-line"><span class="line-num">8</span><span class="line-text">Q = Ø                         </span><span class="line-comment">// Cria e inicializa uma fila FIFO (primeiro a entrar, primeiro a sair) vazia</span></div>
+        <div class="code-line"><span class="line-num">9</span><span class="line-text">ENQUEUE(Q, s)                 </span><span class="line-comment">// Coloca o nó inicial 's' no fim da fila para ser processado</span></div>
+        <div class="code-line"><span class="line-num">10</span><span class="line-text">while Q != Ø                  </span><span class="line-comment">// Enquanto a fila contiver nós para expandir</span></div>
+        <div class="code-line"><span class="line-num">11</span><span class="line-text">    u = DEQUEUE(Q)            </span><span class="line-comment">// Retira o nó 'u' que está na frente da fila</span></div>
+        <div class="code-line"><span class="line-num">12</span><span class="line-text">    for each v ∈ G.Adj[u]     </span><span class="line-comment">// Percorre um a um os nós vizinhos diretamente ligados a 'u'</span></div>
+        <div class="code-line"><span class="line-num">13</span><span class="line-text">        if v.color == WHITE   </span><span class="line-comment">// Se o vizinho 'v' ainda estiver Branco (nunca visitado)</span></div>
+        <div class="code-line"><span class="line-num">14</span><span class="line-text">            v.color = GRAY    </span><span class="line-comment">// Descobre o nó vizinho marcando-o a Cinzento</span></div>
+        <div class="code-line"><span class="line-num">15</span><span class="line-text">            v.d = u.d + 1     </span><span class="line-comment">// Atualiza a distância: é a distância do pai + 1 aresta</span></div>
+        <div class="code-line"><span class="line-num">16</span><span class="line-text">            v.π = u           </span><span class="line-comment">// Regista que o nó 'u' é o pai do nó 'v'</span></div>
+        <div class="code-line"><span class="line-num">17</span><span class="line-text">            ENQUEUE(Q, v)     </span><span class="line-comment">// Insere este vizinho na fila para analisar os vizinhos dele mais tarde</span></div>
+        <div class="code-line"><span class="line-num">18</span><span class="line-text">    u.color = BLACK           </span><span class="line-comment">// Todos os vizinhos de 'u' foram vistos. Fecha o nó a Preto</span></div>
       </div>
     </div>
   </div>
@@ -351,32 +359,33 @@ B[i][j] =  0  <span style="color:var(--success-border); font-style:italic;">// I
     </ul>
 
     <div class="info-badge">
-      <strong>Teorema dos Parênteses (Slide 19):</strong> Numa execução de DFS, os intervalos de tempo <code>[u.d, u.f]</code> encontram-se estruturalmente aninhados. Para quaisquer dois nós distintos <code>u</code> e <code>v</code>, os seus intervalos ou são totalmente disjuntos ou encontram-se totalmente contidos um dentro do outro.
+      <strong>Teorema dos Parênteses (Slide 19):</strong> Numa execução de DFS, os intervals de tempo <code>[u.d, u.f]</code> encontram-se estruturalmente aninhados. Para quaisquer dois nós distintos <code>u</code> e <code>v</code>, os seus intervals ou são totalmente disjuntos ou encontram-se totalmente contidos um dentro do outro.
     </div>
 
     <div class="pseudocode-section">
+      <div class="pseudocode-title">Travessia em Profundidade</div>
       <h3>Pseudocódigo Comentado: DFS(G) e DFS-VISIT(G, u)</h3>
       <div class="code-container">
-        <div class="code-line"><span class="line-num">1</span><span class="line-text">procedure DFS(G)</span><span class="line-comment">// Ponto de entrada que garante a varredura completa do Grafo.</span></div>
-        <div class="code-line"><span class="line-num">2</span><span class="line-text">    for each vertex u ∈ G.V</span><span class="line-comment">// Laço de inicialização global do estado dos nós.</span></div>
-        <div class="code-line"><span class="line-num">3</span><span class="line-text">        u.color = WHITE</span><span class="line-comment">// Configura o estado de partida de todos os nós como WHITE.</span></div>
-        <div class="code-line"><span class="line-num">4</span><span class="line-text">        u.π = NIL</span><span class="line-comment">// Zera qualquer ligação prévia de ancestralidade.</span></div>
-        <div class="code-line"><span class="line-num">5</span><span class="line-text">    time = 0</span><span class="line-comment">// Relógio global para controlar os timestamps fixos.</span></div>
-        <div class="code-line"><span class="line-num">6</span><span class="line-text">    for each vertex u ∈ G.V</span><span class="line-comment">// Garante a cobertura de componentes desconexos ou ilhas isoladas.</span></div>
-        <div class="code-line"><span class="line-num">7</span><span class="line-text">        if u.color == WHITE</span><span class="line-comment">// Se um nó ainda não foi tocado, assume-se como nova raiz.</span></div>
-        <div class="code-line"><span class="line-num">8</span><span class="line-text">            DFS-VISIT(G, u)</span><span class="line-comment">// Dispara a travessia em profundidade na subárvore.</span></div>
+        <div class="code-line"><span class="line-num">1</span><span class="line-text">procedure DFS(G)              </span><span class="line-comment">// Procedimento principal para varrer todo o grafo</span></div>
+        <div class="code-line"><span class="line-num">2</span><span class="line-text">    for each vertex u ∈ G.V   </span><span class="line-comment">// Loop para inicializar todos os vértices do sistema</span></div>
+        <div class="code-line"><span class="line-num">3</span><span class="line-text">        u.color = WHITE       </span><span class="line-comment">// Reseta o estado inicial de todos para Branco</span></div>
+        <div class="code-line"><span class="line-num">4</span><span class="line-text">        u.π = NIL             </span><span class="line-comment">// Limpa as ligações de parentesco (sem antecessor)</span></div>
+        <div class="code-line"><span class="line-num">5</span><span class="line-text">    time = 0                  </span><span class="line-comment">// Inicializa o relógio global que conta os passos do algoritmo</span></div>
+        <div class="code-line"><span class="line-num">6</span><span class="line-text">    for each vertex u ∈ G.V   </span><span class="line-comment">// Loop para garantir que mesmo nós isolados ou ilhas são visitados</span></div>
+        <div class="code-line"><span class="line-num">7</span><span class="line-text">        if u.color == WHITE   </span><span class="line-comment">// Se encontrar um nó intocado, inicia uma busca profunda ali</span></div>
+        <div class="code-line"><span class="line-num">8</span><span class="line-text">            DFS-VISIT(G, u)   </span><span class="line-comment">// Dispara a exploração em profundidade a partir desse nó</span></div>
         <div class="code-line"><br></div>
-        <div class="code-line"><span class="line-num">9</span><span class="line-text">procedure DFS-VISIT(G, u)</span><span class="line-comment">// Função recursiva de descida profunda.</span></div>
-        <div class="code-line"><span class="line-num">10</span><span class="line-text">    time = time + 1</span><span class="line-comment">// Incrementa o contador global de tempo no evento de entrada.</span></div>
-        <div class="code-line"><span class="line-num">11</span><span class="line-text">    u.d = time</span><span class="line-comment">// Regista o carimbo temporal de descoberta (u.d).</span></div>
-        <div class="code-line"><span class="line-num">12</span><span class="line-text">    u.color = GRAY</span><span class="line-comment">// Altera a cor para GRAY (fronteira ativa na pilha de recursão).</span></div>
-        <div class="code-line"><span class="line-num">13</span><span class="line-text">    for each v ∈ G.Adj[u]</span><span class="line-comment">// Inspeciona linearmente cada vizinho 'v' na lista do nó ativo.</span></div>
-        <div class="code-line"><span class="line-num">14</span><span class="line-text">        if v.color == WHITE</span><span class="line-comment">// Ramo de Árvore encontrado (Tree Edge). Vizinho está livre.</span></div>
-        <div class="code-line"><span class="line-num">15</span><span class="line-text">            v.π = u</span><span class="line-comment">// Vincula o vértice 'u' como predecessor direto de 'v'.</span></div>
-        <div class="code-line"><span class="line-num">16</span><span class="line-text">            DFS-VISIT(G, v)</span><span class="line-comment">// Efetua o salto recursivo avançando na profundidade.</span></div>
-        <div class="code-line"><span class="line-num">17</span><span class="line-text">    u.color = BLACK</span><span class="line-comment">// Retrocesso (Backtracking): caminhos de saída esgotados. Nó fecha.</span></div>
-        <div class="code-line"><span class="line-num">18</span><span class="line-text">    time = time + 1</span><span class="line-comment">// Incrementa o contador de tempo no evento de fecho.</span></div>
-        <div class="code-line"><span class="line-num">19</span><span class="line-text">    u.f = time</span><span class="line-comment">// Regista de forma permanente o timestamp de finalização (u.f).</span></div>
+        <div class="code-line"><span class="line-num">9</span><span class="line-text">procedure DFS-VISIT(G, u)     </span><span class="line-comment">// Rotina recursiva que penetra profundamente no caminho</span></div>
+        <div class="code-line"><span class="line-num">10</span><span class="line-text">    time = time + 1           </span><span class="line-comment">// Avança o relógio global porque um novo nó foi achado</span></div>
+        <div class="code-line"><span class="line-num">11</span><span class="line-text">    u.d = time                </span><span class="line-comment">// Guarda o tempo de descoberta/entrada no nó 'u'</span></div>
+        <div class="code-line"><span class="line-num">12</span><span class="line-text">    u.color = GRAY            </span><span class="line-comment">// Altera o estado do nó para Cinzento (em exploração)</span></div>
+        <div class="code-line"><span class="line-num">13</span><span class="line-text">    for each v ∈ G.Adj[u]     </span><span class="line-comment">// Examina cada vizinho 'v' que está na lista de adjacências de 'u'</span></div>
+        <div class="code-line"><span class="line-num">14</span><span class="line-text">        if v.color == WHITE   </span><span class="line-comment">// Se o vizinho 'v' for Branco, significa que descobrimos um ramo de árvore</span></div>
+        <div class="code-line"><span class="line-num">15</span><span class="line-text">            v.π = u           </span><span class="line-comment">// Define que o nó 'u' foi o responsável por descobrir o nó 'v'</span></div>
+        <div class="code-line"><span class="line-num">16</span><span class="line-text">            DFS-VISIT(G, v)   </span><span class="line-comment">// Faz uma chamada recursiva (salto) para explorar logo o vizinho 'v'</span></div>
+        <div class="code-line"><span class="line-num">17</span><span class="line-text">    u.color = BLACK           </span><span class="line-comment">// Caminhos esgotados e beco sem saída alcançado. Finaliza o nó</span></div>
+        <div class="code-line"><span class="line-num">18</span><span class="line-text">    time = time + 1           </span><span class="line-comment">// Avança o relógio global no fecho do nó</span></div>
+        <div class="code-line"><span class="line-num">19</span><span class="line-text">    u.f = time                </span><span class="line-comment">// Regista o tempo de finalização/saída definitiva de 'u'</span></div>
       </div>
     </div>
   </div>
@@ -386,25 +395,27 @@ B[i][j] =  0  <span style="color:var(--success-border); font-style:italic;">// I
     <p>Conceitos avançados estruturados sobre a execução e propriedades da Pesquisa em Profundidade (DFS).</p>
 
     <div class="pseudocode-section">
+      <div class="pseudocode-title">Ordenação Linear</div>
       <h3>3. Ordenação Topológica (Slides 23-26)</h3>
       <p>Aplicável estritamente em <strong>DAGs (Grafos Orientados Acíclicos)</strong>. Ordena linearmente os nós de forma a respeitar precedências de tarefas.</p>
       <div class="code-container">
-        <div class="code-line"><span class="line-num">1</span><span class="line-text">procedure TOPOLOGICAL-SORT(G)</span><span class="line-comment">// Requer que o grafo de entrada seja orientado e acíclico.</span></div>
-        <div class="code-line"><span class="line-num">2</span><span class="line-text">    call DFS(G)</span><span class="line-comment">// Executa uma DFS padrão para computar os tempos de finalização u.f de todos os nós.</span></div>
-        <div class="code-line"><span class="line-num">3</span><span class="line-text">    // as each vertex is finished, insert it onto the front of a linked list</span><span class="line-comment">// No momento exato em que um nó fica BLACK, insere-o na cabeça de uma lista ligada.</span></div>
-        <div class="code-line"><span class="line-num">4</span><span class="line-text">    return the linked list of vertices</span><span class="line-comment">// A lista encadeada resultante expõe a ordenação topológica válida.</span></div>
+        <div class="code-line"><span class="line-num">1</span><span class="line-text">procedure TOPOLOGICAL-SORT(G) </span><span class="line-comment">// Algoritmo para ordenar tarefas por ordem de precedência</span></div>
+        <div class="code-line"><span class="line-num">2</span><span class="line-text">    call DFS(G)               </span><span class="line-comment">// Executa o DFS padrão para calcular os tempos de finalização (u.f)</span></div>
+        <div class="code-line"><span class="line-num">3</span><span class="line-text">    // insert into front of list</span><span class="line-comment">// À medida que cada nó for fechado (Preto), insere-o na frente de uma lista</span></div>
+        <div class="code-line"><span class="line-num">4</span><span class="line-text">    return the linked list    </span><span class="line-comment">// Retorna a lista ligada ordenada (representa a sequência correta de execução)</span></div>
       </div>
     </div>
 
     <div class="pseudocode-section">
+      <div class="pseudocode-title">Componentes Fortes</div>
       <h3>4. Componentes Fortemente Conexos — SCC (Slides 27-32)</h3>
       <p>Subconjuntos maximais de vértices numa estrutura orientada onde todos os pares conseguem transitar mutuamente entre si (há caminho de ida e volta).</p>
       <div class="code-container">
-        <div class="code-line"><span class="line-num">1</span><span class="line-text">procedure STRONGLY-CONNECTED-COMPONENTS(G)</span><span class="line-comment">// Algoritmo de Kosaraju para identificação de SCCs isolados.</span></div>
-        <div class="code-line"><span class="line-num">2</span><span class="line-text">    call DFS(G)</span><span class="line-comment">// Executa a primeira DFS para obter os carimbos temporais u.f regulares.</span></div>
-        <div class="code-line"><span class="line-num">3</span><span class="line-text">    compute G^T</span><span class="line-comment">// Constrói o Grafo Transposto G^T, invertendo a direção de todas as setas.</span></div>
-        <div class="code-line"><span class="line-num">4</span><span class="line-text">    call DFS(G^T)</span><span class="line-comment">// Corre uma DFS em G^T, mas processando as raízes em ordem DECRESCENTE de u.f.</span></div>
-        <div class="code-line"><span class="line-num">5</span><span class="line-text">    // output the vertices of each tree in the DFS forest as a separate SCC</span><span class="line-comment">// Cada árvore independente gerada na floresta final constitui um SCC completo.</span></div>
+        <div class="code-line"><span class="line-num">1</span><span class="line-text">procedure STRONGLY-CONNECTED-COMPONENTS(G) </span><span class="line-comment">// Algoritmo de Kosaraju para achar ilhas isoladas com caminhos bidirecionais</span></div>
+        <div class="code-line"><span class="line-num">2</span><span class="line-text">    call DFS(G)               </span><span class="line-comment">// 1ª Etapa: Corre DFS no grafo original para mapear a topologia global</span></div>
+        <div class="code-line"><span class="line-num">3</span><span class="line-text">    compute G^T               </span><span class="line-comment">// 2ª Etapa: Cria o grafo transposto, invertendo o sentido de todas as setas</span></div>
+        <div class="code-line"><span class="line-num">4</span><span class="line-text">    call DFS(G^T)             </span><span class="line-comment">// 3ª Etapa: Corre DFS no grafo invertido, mas processando os nós por ordem decrescente de u.f</span></div>
+        <div class="code-line"><span class="line-num">5</span><span class="line-text">    // output each tree       </span><span class="line-comment">// Cada árvore independente gerada nesta segunda DFS forma um componente forte (SCC)</span></div>
       </div>
     </div>
   </div>
@@ -435,7 +446,7 @@ B[i][j] =  0  <span style="color:var(--success-border); font-style:italic;">// I
           Inicializando componentes...
         </div>
         <div class="meta-data-line">
-          <strong>Estrutura ativa:</strong>
+          <strong>Estrutura activa:</strong>
           <span id="structure-lbl">[]</span>
         </div>
       </div>
@@ -474,7 +485,6 @@ const edges = [
 let historySteps = [];
 let currentStepIndex = 0;
 
-// Configuração exata das fases e mapeamento de estilos herdados do Insertion Sort
 const phaseColors = {
   init: 'background:var(--bg3);color:var(--text2);border:0.5px solid var(--border)',
   scan: 'background:var(--warn-bg);color:var(--warn-text);border:0.5px solid var(--warn-border)',
@@ -677,10 +687,8 @@ function updateUI() {
   const currentSnapshot = historySteps[currentStepIndex];
   if (!currentSnapshot) return;
   
-  // Atualizar contadores
   document.getElementById('step-counter-lbl').textContent = `Passo ${currentStepIndex + 1} de ${historySteps.length}`;
   
-  // Aplicar o estilo da fase de forma idêntica ao Insertion Sort
   const pb = document.getElementById('phase-label');
   pb.style.cssText = (phaseColors[currentSnapshot.phase] || '') + ';padding:3px 12px;border-radius:8px;font-size:12px;font-weight:500';
   pb.textContent = phaseNames[currentSnapshot.phase] || currentSnapshot.phase;
@@ -688,7 +696,6 @@ function updateUI() {
   document.getElementById('desc-box').innerHTML = currentSnapshot.op;
   document.getElementById('structure-lbl').innerHTML = currentSnapshot.structure;
   
-  // Ativação lógica dos botões
   document.getElementById('btn-prev').disabled = (currentStepIndex === 0);
   document.getElementById('btn-next').disabled = (currentStepIndex === historySteps.length - 1);
   
@@ -699,7 +706,6 @@ function renderGraphSVG(currentNodeStates, activeEdge) {
   const svg = document.getElementById('graph-svg');
   svg.innerHTML = '';
   
-  // Renderizar arestas direcionadas e setas
   edges.forEach(edge => {
     const src = nodes.find(n => n.id === edge.from);
     const dst = nodes.find(n => n.id === edge.to);
@@ -735,7 +741,6 @@ function renderGraphSVG(currentNodeStates, activeEdge) {
     svg.appendChild(arrowLine1);
   });
 
-  // Renderizar os vértices do grafo
   nodes.forEach(node => {
     const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
     g.setAttribute("class", "node");
