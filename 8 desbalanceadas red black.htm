@@ -179,10 +179,10 @@
     overflow-x: auto;
     margin-bottom: 1.5rem;
   }
-  .code-line { display: flex; }
-  .line-num { width: 30px; color: var(--text3); flex-shrink: 0; }
-  .line-text { white-space: pre; flex-grow: 1; }
-  .line-comment { color: #2b8a3e; font-style: italic; }
+  .code-line { display: block; white-space: nowrap; }
+  .line-num { display: inline-block; width: 30px; color: var(--text3); }
+  .line-text { display: inline-block; white-space: pre; }
+  .line-comment { display: inline-block; color: #2b8a3e; font-style: italic; margin-left: 12px; }
   @media (prefers-color-scheme: dark) {
     .line-comment { color: #69db7c; }
   }
@@ -250,7 +250,7 @@
       Imagina o nó <code>x</code> e o seu filho direito <code>y</code>. Na rotação à esquerda, <code>x</code> <strong>desce para a esquerda</strong>, tornando-se filho de <code>y</code>. Como <code>y</code> assume o topo, a antiga subárvore esquerda de <code>y</code> (os nós intermédios) é adotada por <code>x</code> como o seu novo filho direito.
     </div>
 
-    <h3>Esquema de Transformação Visual (Preservação de Ordem: $A < x < B < y < C$)</h3>
+    <h3>Esquema de Transformação Visual (Preservação de Ordem: A &lt; x &lt; B &lt; y &lt; C)</h3>
     <pre>
        Pai [x]                            Pai [y]
       /       \       LEFT-ROTATE(T,x)   /       \
@@ -312,7 +312,7 @@
     
     <div class="interactive-box" style="border-left: 6px solid #dc3545;">
       <h3 style="color:#b71c1c">Caso 1: O Tio de z é RED (Inversão de Cores - Slide 12)</h3>
-      <p><strong>Cenário:</strong> Tanto o pai como o tio de <code>z</code> são vermelhos. Há muita "energia vermelha" concentrada neste nível.</p>
+      <p><strong>Cenário:</strong> Tanto o pai como o tio de <code>z</code> são vermelhos. É preciso diluir a cor vermelha.</p>
       <p><strong>Resolução:</strong> Não fazemos rotações. Apenas recolorimos: o Pai e o Tio passam a <code>BLACK</code>, e o Avô passa a <code>RED</code>. Como o Avô agora ficou vermelho, o ponteiro <code>z</code> sobe para o avô (<code>z = z.p.p</code>) para verificar se ele não entrou em conflito com o bisavô no ciclo <code>while</code>.</p>
       <pre>
         [Avô Negro]                 [Avô Vermelho] (Novo z)
@@ -393,7 +393,7 @@
     <p>O nó substituto <code>x</code> ganha a propriedade conceitual de ser "Preto Extra" (Double-Black). O algoritmo analisa o seu **irmão** <code>w</code> para descarregar este peso preto:</p>
     <ul>
       <li><strong>Caso 1:</strong> O irmão <code>w</code> é <code>RED</code>. Troca-se a cor do pai com <code>w</code>, faz-se uma rotação no pai e o irmão muda, caindo num dos casos seguintes.</li>
-      <li><strong>Caso 2:</strong> O irmão <code>w</code> é <code>BLACK</code> e ambos os seus filhos são <code>BLACK</code>. Retira-se o peso preto de <code>w</code> (passa a <code>RED</code>) e o problem do preto extra sobe para o pai (<code>x = x.p</code>).</li>
+      <li><strong>Caso 2:</strong> O irmão <code>w</code> é <code>BLACK</code> e ambos os seus filhos são <code>BLACK</code>. Retira-se o peso preto de <code>w</code> (passa a <code>RED</code>) e o problema do preto extra sobe para o pai (<code>x = x.p</code>).</li>
       <li><strong>Caso 3:</strong> O irmão <code>w</code> é <code>BLACK</code>, o filho esquerdo de <code>w</code> é <code>RED</code> e o direito é <code>BLACK</code>. Faz-se rotação local em <code>w</code> para transformá-lo no Caso 4.</li>
       <li><strong>Caso 4:</strong> O irmão <code>w</code> é <code>BLACK</code> e o seu filho direito é <code>RED</code>. Ajustam-se as cores finais, executa-se uma rotação no pai e o preto extra é absorvido com sucesso, terminando o algoritmo.</li>
     </ul>
@@ -501,7 +501,7 @@ function genRotationSteps() {
 
   // Passo 3: Encaixe Final
   rotSteps.push({
-    desc: "<b>Linhas 5-12: Encaixe Central Concluído</b><br>O nó <b>y</b> assume o topo e herda a filiação superior. O nó <b>x</b> desce tornando-se o novo filho esquerdo de y. Repara como a ordenação foi preservada: $8 < 12 < 14 < 18 < 22$.",
+    desc: "<b>Linhas 5-12: Encaixe Central Concluído</b><br>O nó <b>y</b> assume o topo e herda a filiação superior. O nó <b>x</b> desce tornando-se o novo filho esquerdo de y. Repara como a ordenação foi preservada: 8 &lt; 12 &lt; 14 &lt; 18 &lt; 22.",
     phase: "Concluído",
     nodes: [
       { key: 18, x: 380, y: 60, col: '#212529', str: '#000', txt: '#fff', lbl: 'y (raiz)' },
