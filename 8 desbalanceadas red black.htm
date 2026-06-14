@@ -118,6 +118,7 @@
     gap: 10px;
     margin-bottom: 1rem;
     align-items: center;
+    flex-wrap: wrap;
   }
   .btn {
     cursor: pointer;
@@ -127,8 +128,10 @@
     background: var(--bg);
     color: var(--text);
     font-size: 13px;
+    font-family: inherit;
   }
   .btn:hover { background: var(--bg3); }
+  .btn:disabled { opacity: 0.4; cursor: default; }
   .btn-primary { background: var(--info-bg); color: var(--info-text); border-color: var(--info-border); }
 
   .danger-badge {
@@ -163,6 +166,50 @@
   .node circle { stroke-width: 3px; }
   .node text { font-family: sans-serif; font-size: 14px; font-weight: bold; text-anchor: middle; dominant-baseline: middle; }
   .link { fill: none; stroke: var(--text3); stroke-width: 2px; }
+  .link-label { font-size: 11px; fill: var(--text2); font-family: sans-serif; }
+
+  .code-block {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px;
+    font-family: monospace;
+    font-size: 12.5px;
+    line-height: 1.6;
+    overflow-x: auto;
+    margin-bottom: 1.5rem;
+  }
+  .code-line { display: flex; }
+  .line-num { width: 30px; color: var(--text3); flex-shrink: 0; }
+  .line-text { white-space: pre; flex-grow: 1; }
+  .line-comment { color: #2b8a3e; font-style: italic; }
+  @media (prefers-color-scheme: dark) {
+    .line-comment { color: #69db7c; }
+  }
+
+  .desc-box {
+    background: var(--bg2);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    font-size: 14px;
+    color: var(--text);
+    min-height: 54px;
+    margin-bottom: 16px;
+    line-height: 1.6;
+    border: 0.5px solid var(--border);
+  }
+  .phase-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: var(--radius);
+    font-size: 12px;
+    font-weight: 500;
+  }
+  .step-counter {
+    font-size: 12px;
+    color: var(--text3);
+    margin-top: 6px;
+  }
 </style>
 </head>
 <body>
@@ -180,7 +227,7 @@
 
   <div id="tab0" class="tab-content active">
     <h2>Porquê Árvores Red-Black? (Slide 2)</h2>
-    <p>As operações básicas numa Árvore de Pesquisa Binária normal demoram <code>O(h)</code>, onde <code>h</code> é a altura. Se os dados forem inseridos ordenados, a árvore degenera numa lista ligada gigante com <code>h = n</code>, estragando a eficiência. As árvores **Red-Black** resolvem isto forçando um balanceamento através de atribuição de cores, garantindo tempo <strong>O(log n)</strong> no pior cenário possível.</p>
+    <p>As operações básicas numa Árvore de Pesquisa Binária normal demoram <code>O(h)</code>, onde <code>h</code> é a altura. Se os dados forem inseridos ordenados, a árvore degenera numa lista ligada gigante com <code>h = n</code>, estragando a eficiência. As árvores **Red-Black** resolvem isto forçando um balanceamento através de atribuição de cores, ganhando tempo <strong>O(log n)</strong> no pior cenário possível.</p>
     
     <h2>As 5 Propriedades Invioláveis (Slide 4)</h2>
     <p>Uma árvore de pesquisa binária é uma Árvore Red-Black se satisfizer as seguintes propriedades:</p>
@@ -212,22 +259,50 @@
             [B]   [C]               [A]   [B]
     </pre>
 
+    <h3>Demonstração Controlada Interativa (Passos da Rotação)</h3>
+    <div class="controls">
+      <button class="btn btn-primary" id="btn-rot-prev" onclick="stepRot(-1)">← Anterior</button>
+      <button class="btn btn-primary" id="btn-rot-next" onclick="stepRot(1)">Próximo →</button>
+      <button class="btn" onclick="resetRot()">↺ Recomeçar</button>
+      <span id="rot-phase-label" class="phase-badge"></span>
+    </div>
+
+    <div class="desc-box" id="rot-desc-box"></div>
+
+    <svg class="tree-viz" id="rot-svg" viewBox="0 0 800 250" style="min-height: 250px; margin-bottom:1rem;"></svg>
+    <div class="step-counter" id="rot-step-counter" style="margin-bottom: 1.5rem;"></div>
+
     <h3>Pseudocódigo Totalmente Comentado: LEFT-ROTATE(T, x) (Slide 7)</h3>
-    <pre>
-LEFT-ROTATE(T, x)
-1  y = x.right            // Linha 1: Identifica o filho direito 'y' (é ele quem vai subir para o lugar de x).
-2  x.right = y.left       // Linha 2: Transfere a subárvore esquerda de 'y' ([B]) para ser a nova subárvore direita de 'x'.
-3  if y.left != T.nil     // Linha 3: Verifica se essa subárvore esquerda de 'y' existe mesmo (não é a folha sentinela).
-4      y.left.p = x       // Linha 4: Se existir, atualiza o ponteiro de pai dessa subárvore para que aponte para 'x'.
-5  y.p = x.p              // Linha 5: O nó 'y' herda o pai original de 'x', assumindo o seu lugar na árvore superior.
-6  if x.p == T.nil        // Linha 6: Se 'x' era o topo absoluto da árvore (raiz)...
-7      T.root = y         // Linha 7: ...então o nó 'y' passa a ser a nova raiz oficial da árvore.
-8  else if x == x.p.left  // Linha 8: Caso contrário, se 'x' era o filho esquerdo do seu pai...
-9      x.p.left = y       // Linha 9: ...atualiza esse pai para apontar para 'y' na esquerda.
-10 else x.p.right = y     // Linha 10: Se 'x' era o filho direito, atualiza o pai para apontar para 'y' na direita.
-11 y.left = x             // Linha 11: Realiza o encaixe central: 'x' torna-se oficialmente o filho esquerdo de 'y'.
-12 x.p = y                // Linha 12: Conclui definindo que o novo pai do nó 'x' passa a ser o nó 'y'.
-    </pre>
+    <div class="code-block">
+      <div class="code-line"><span class="line-num">1</span><span class="line-text">y = x.right</span><span class="line-comment">// Define o ponteiro y como o filho direito de x.</span></div>
+      <div class="code-line"><span class="line-num">2</span><span class="line-text">x.right = y.left</span><span class="line-comment">// Transfere a subárvore esquerda de y para a direita de x.</span></div>
+      <div class="code-line"><span class="line-num">3</span><span class="line-text">if y.left != T.nil</span><span class="line-comment">// Se a subárvore esquerda de y existir e não for sentinela...</span></div>
+      <div class="code-line"><span class="line-num">4</span><span class="line-text">    y.left.p = x</span><span class="line-comment">// ...atualiza o pai daquela subárvore apontando-o de volta para x.</span></div>
+      <div class="code-line"><span class="line-num">5</span><span class="line-text">y.p = x.p</span><span class="line-comment">// O nó y assume o ponteiro de pai que pertencia a x.</span></div>
+      <div class="code-line"><span class="line-num">6</span><span class="line-text">if x.p == T.nil</span><span class="line-comment">// Se x era o topo máximo absoluto (raiz da árvore)...</span></div>
+      <div class="code-line"><span class="line-num">7</span><span class="line-text">    T.root = y</span><span class="line-comment">// ...y passa a ser designado como a nova raiz oficial.</span></div>
+      <div class="code-line"><span class="line-num">8</span><span class="line-text">else if x == x.p.left</span><span class="line-comment">// Caso contrário, se x era filho esquerdo do seu pai...</span></div>
+      <div class="code-line"><span class="line-num">9</span><span class="line-text">    x.p.left = y</span><span class="line-comment">// ...atualiza o pai superior para apontar y à esquerda.</span></div>
+      <div class="code-line"><span class="line-num">10</span><span class="line-text">else x.p.right = y</span><span class="line-comment">// Se era filho direito, atualiza o pai superior para a direita.</span></div>
+      <div class="code-line"><span class="line-num">11</span><span class="line-text">y.left = x</span><span class="line-comment">// Liga x como o novo filho esquerdo de y.</span></div>
+      <div class="code-line"><span class="line-num">12</span><span class="line-text">x.p = y</span><span class="line-comment">// Define o pai de x como sendo o nó y.</span></div>
+    </div>
+
+    <h3>Pseudocódigo Totalmente Comentado: RIGHT-ROTATE(T, y) (Slide 6)</h3>
+    <div class="code-block">
+      <div class="code-line"><span class="line-num">1</span><span class="line-text">x = y.left</span><span class="line-comment">// Define o ponteiro x como o filho esquerdo de y.</span></div>
+      <div class="code-line"><span class="line-num">2</span><span class="line-text">y.left = x.right</span><span class="line-comment">// Transfere a subárvore direita de x para o braço esquerdo de y.</span></div>
+      <div class="code-line"><span class="line-num">3</span><span class="line-text">if x.right != T.nil</span><span class="line-comment">// Se a subárvore direita de x existir de facto...</span></div>
+      <div class="code-line"><span class="line-num">4</span><span class="line-text">    x.right.p = y</span><span class="line-comment">// ...vincula o pai dessa subárvore de volta a y.</span></div>
+      <div class="code-line"><span class="line-num">5</span><span class="line-text">x.p = y.p</span><span class="line-comment">// O nó x herda a referência de pai superior de y.</span></div>
+      <div class="code-line"><span class="line-num">6</span><span class="line-text">if y.p == T.nil</span><span class="line-comment">// Se y era a raiz máxima absoluta da árvore...</span></div>
+      <div class="code-line"><span class="line-num">7</span><span class="line-text">    T.root = x</span><span class="line-comment">// ...x assume o estatuto de nova raiz da árvore.</span></div>
+      <div class="code-line"><span class="line-num">8</span><span class="line-text">else if y == y.p.right</span><span class="line-comment">// Se y era o filho direito do seu pai...</span></div>
+      <div class="code-line"><span class="line-num">9</span><span class="line-text">    y.p.right = x</span><span class="line-comment">// ...redireciona esse pai superior para x à direita.</span></div>
+      <div class="code-line"><span class="line-num">10</span><span class="line-text">else y.p.left = x</span><span class="line-comment">// Se era filho esquerdo, redireciona esse pai à esquerda.</span></div>
+      <div class="code-line"><span class="line-num">11</span><span class="line-text">x.right = y</span><span class="line-comment">// Transforma y no filho direito do recém-subido x.</span></div>
+      <div class="code-line"><span class="line-num">12</span><span class="line-text">y.p = x</span><span class="line-comment">// Fecha a amarração definindo o pai de y como x.</span></div>
+    </div>
     <p>A rotação <code>RIGHT-ROTATE(T, y)</code> funciona exatamente de forma simétrica à anterior (Slide 6), invertendo as referências de esquerda e direita.</p>
   </div>
 
@@ -266,6 +341,48 @@ LEFT-ROTATE(T, x)
     (Nó z)                                      [Tio Negro]
       </pre>
     </div>
+
+    <h3>Pseudocódigo Totalmente Comentado: RB-INSERT(T, z)</h3>
+    <div class="code-block">
+      <div class="code-line"><span class="line-num">1</span><span class="line-text">y = T.nil</span><span class="line-comment">// Inicia y como a folha sentinela, servirá para guardar o futuro pai de z.</span></div>
+      <div class="code-line"><span class="line-num">2</span><span class="line-text">x = T.root</span><span class="line-comment">// Começa o cursor x no topo absoluto da raiz da árvore.</span></div>
+      <div class="code-line"><span class="line-num">3</span><span class="line-text">while x != T.nil</span><span class="line-comment">// Percorre a árvore para encontrar o local correto de inserção binária.</span></div>
+      <div class="code-line"><span class="line-num">4</span><span class="line-text">    y = x</span><span class="line-comment">// Atualiza y para manter a referência do último nó válido percorrido.</span></div>
+      <div class="code-line"><span class="line-num">5</span><span class="line-text">    if z.key &lt; x.key</span><span class="line-comment">// Se a chave do novo nó for menor que a chave do nó atual...</span></div>
+      <div class="code-line"><span class="line-num">6</span><span class="line-text">        x = x.left</span><span class="line-comment">// ...avança a pesquisa para a subárvore esquerda.</span></div>
+      <div class="code-line"><span class="line-num">7</span><span class="line-text">    else x = x.right</span><span class="line-comment">// Caso contrário, avança a pesquisa para a subárvore direita.</span></div>
+      <div class="code-line"><span class="line-num">8</span><span class="line-text">z.p = y</span><span class="line-comment">// Assinala oficialmente o nó y como o pai do novo elemento inserido z.</span></div>
+      <div class="code-line"><span class="line-num">9</span><span class="line-text">if y == T.nil</span><span class="line-comment">// Se a árvore se encontrava vazia (y continua na sentinela inicial)...</span></div>
+      <div class="code-line"><span class="line-num">10</span><span class="line-text">    T.root = z</span><span class="line-comment">// ...o novo nó z passa a ser a própria raiz principal.</span></div>
+      <div class="code-line"><span class="line-num">11</span><span class="line-text">else if z.key &lt; y.key</span><span class="line-comment">// Se a árvore não for vazia e z for menor que o seu pai y...</span></div>
+      <div class="code-line"><span class="line-num">12</span><span class="line-text">    y.left = z</span><span class="line-comment">// ...anexa z como o filho esquerdo do nó pai y.</span></div>
+      <div class="code-line"><span class="line-num">13</span><span class="line-text">else y.right = z</span><span class="line-comment">// Caso contrário, anexa z como o filho direito do nó pai y.</span></div>
+      <div class="code-line"><span class="line-num">14</span><span class="line-text">z.left = T.nil</span><span class="line-comment">// Define que o braço esquerdo de z aponta para a folha sentinela.</span></div>
+      <div class="code-line"><span class="line-num">15</span><span class="line-text">z.right = T.nil</span><span class="line-comment">// Define que o braço direito de z aponta para a folha sentinela.</span></div>
+      <div class="code-line"><span class="line-num">16</span><span class="line-text">z.color = RED</span><span class="line-comment">// Pinta obrigatoriamente o novo nó de VERMELHO conforme as regras.</span></div>
+      <div class="code-line"><span class="line-num">17</span><span class="line-text">RB-INSERT-FIXUP(T, z)</span><span class="line-comment">// Invoca os algoritmos de ajuste para rebalancear e corrigir as cores.</span></div>
+    </div>
+
+    <h3>Pseudocódigo Totalmente Comentado: RB-INSERT-FIXUP(T, z)</h3>
+    <div class="code-block">
+      <div class="code-line"><span class="line-num">1</span><span class="line-text">while z.p.color == RED</span><span class="line-comment">// O ciclo corre enquanto houver violação de dois nós vermelhos seguidos.</span></div>
+      <div class="code-line"><span class="line-num">2</span><span class="line-text">    if z.p == z.p.p.left</span><span class="line-comment">// Se o pai de z for o filho esquerdo do avô...</span></div>
+      <div class="code-line"><span class="line-num">3</span><span class="line-text">        y = z.p.p.right</span><span class="line-comment">// ...atribui o nó y como sendo o tio de z (filho direito do avô).</span></div>
+      <div class="code-line"><span class="line-num">4</span><span class="line-text">        if y.color == RED</span><span class="line-comment">// [CASO 1]: O tio y é VERMELHO. Faz-se recolorização simples.</span></div>
+      <div class="code-line"><span class="line-num">5</span><span class="line-text">            z.p.color = BLACK</span><span class="line-comment">// Pinta o pai de z com a cor PRETA.</span></div>
+      <div class="code-line"><span class="line-num">6</span><span class="line-text">            y.color = BLACK</span><span class="line-comment">// Pinta o tio y com a cor PRETA.</span></div>
+      <div class="code-line"><span class="line-num">7</span><span class="line-text">            z.p.p.color = RED</span><span class="line-comment">// Pinta o avô de z com a cor VERMELHA.</span></div>
+      <div class="code-line"><span class="line-num">8</span><span class="line-text">            z = z.p.p</span><span class="line-comment">// Atualiza o ponteiro de foco z para o avô para continuar os testes.</span></div>
+      <div class="code-line"><span class="line-num">9</span><span class="line-text">        else</span><span class="line-comment">// Se o tio for PRETO, caímos nos casos que requerem rotações físicas.</span></div>
+      <div class="code-line"><span class="line-num">10</span><span class="line-text">            if z == z.p.right</span><span class="line-comment">// [CASO 2]: Formato Ziguezague (z é filho direito e pai é esquerdo).</span></div>
+      <div class="code-line"><span class="line-num">11</span><span class="line-text">                z = z.p</span><span class="line-comment">// Passa o ponteiro z para o nó pai.</span></div>
+      <div class="code-line"><span class="line-num">12</span><span class="line-text">                LEFT-ROTATE(T, z)</span><span class="line-comment">// Executa rotação à esquerda no nó para alinhar em linha reta.</span></div>
+      <div class="code-line"><span class="line-num">13</span><span class="line-text">            z.p.color = BLACK</span><span class="line-comment">// [CASO 3]: Formato Linha Reta. Altera a cor do pai para PRETO.</span></div>
+      <div class="code-line"><span class="line-num">14</span><span class="line-text">            z.p.p.color = RED</span><span class="line-comment">// Altera a cor do avô para VERMELHA.</span></div>
+      <div class="code-line"><span class="line-num">15</span><span class="line-text">            RIGHT-ROTATE(T, z.p.p)</span><span class="line-comment">// Realiza uma rotação à direita aplicada diretamente no avô.</span></div>
+      <div class="code-line"><span class="line-num">16</span><span class="line-text">    else (simétrico)</span><span class="line-comment">// Bloco espelhado para quando o pai é filho direito do avô.</span></div>
+      <div class="code-line"><span class="line-num">17</span><span class="line-text">T.root.color = BLACK</span><span class="line-comment">// Garante rigorosamente que a raiz principal da árvore permanece preta.</span></div>
+    </div>
   </div>
 
   <div id="tab3" class="tab-content">
@@ -276,10 +393,38 @@ LEFT-ROTATE(T, x)
     <p>O nó substituto <code>x</code> ganha a propriedade conceitual de ser "Preto Extra" (Double-Black). O algoritmo analisa o seu **irmão** <code>w</code> para descarregar este peso preto:</p>
     <ul>
       <li><strong>Caso 1:</strong> O irmão <code>w</code> é <code>RED</code>. Troca-se a cor do pai com <code>w</code>, faz-se uma rotação no pai e o irmão muda, caindo num dos casos seguintes.</li>
-      <li><strong>Caso 2:</strong> O irmão <code>w</code> é <code>BLACK</code> e ambos os seus filhos são <code>BLACK</code>. Retira-se o peso preto de <code>w</code> (passa a <code>RED</code>) e o problema do preto extra sobe para o pai (<code>x = x.p</code>).</li>
+      <li><strong>Caso 2:</strong> O irmão <code>w</code> é <code>BLACK</code> e ambos os seus filhos são <code>BLACK</code>. Retira-se o peso preto de <code>w</code> (passa a <code>RED</code>) e o problem do preto extra sobe para o pai (<code>x = x.p</code>).</li>
       <li><strong>Caso 3:</strong> O irmão <code>w</code> é <code>BLACK</code>, o filho esquerdo de <code>w</code> é <code>RED</code> e o direito é <code>BLACK</code>. Faz-se rotação local em <code>w</code> para transformá-lo no Caso 4.</li>
       <li><strong>Caso 4:</strong> O irmão <code>w</code> é <code>BLACK</code> e o seu filho direito é <code>RED</code>. Ajustam-se as cores finais, executa-se uma rotação no pai e o preto extra é absorvido com sucesso, terminando o algoritmo.</li>
     </ul>
+
+    <h3>Pseudocódigo Totalmente Comentado: RB-DELETE-FIXUP(T, x)</h3>
+    <div class="code-block">
+      <div class="code-line"><span class="line-num">1</span><span class="line-text">while x != T.root and x.color == BLACK</span><span class="line-comment">// Executa enquanto o cursor x não atingir a raiz e continuar duplo-preto.</span></div>
+      <div class="code-line"><span class="line-num">2</span><span class="line-text">    if x == x.p.left</span><span class="line-comment">// Se o nó x for classificado como o filho esquerdo do seu pai...</span></div>
+      <div class="code-line"><span class="line-num">3</span><span class="line-text">        w = x.p.right</span><span class="line-comment">// ...atribui a variável w como o irmão de x localizado na direita.</span></div>
+      <div class="code-line"><span class="line-num">4</span><span class="line-text">        if w.color == RED</span><span class="line-comment">// [CASO 1]: O irmão w tem a cor VERMELHA.</span></div>
+      <div class="code-line"><span class="line-num">5</span><span class="line-text">            w.color = BLACK</span><span class="line-comment">// Altera a cor do irmão w para PRETO.</span></div>
+      <div class="code-line"><span class="line-num">6</span><span class="line-text">            x.p.color = RED</span><span class="line-comment">// Altera a cor do pai do nó x para VERMELHO.</span></div>
+      <div class="code-line"><span class="line-num">7</span><span class="line-text">            LEFT-ROTATE(T, x.p)</span><span class="line-comment">// Realiza uma rotação à esquerda em torno do pai de x.</span></div>
+      <div class="code-line"><span class="line-num">8</span><span class="line-text">            w = x.p.right</span><span class="line-comment">// Atualiza a nova referência do irmão w após a rotação efetuada.</span></div>
+      <div class="code-line"><span class="line-num">9</span><span class="line-text">        if w.left.color == BLACK and w.right.color == BLACK</span><span class="line-comment">// [CASO 2]: O irmão w é preto e ambos os seus filhos são pretos.</span></div>
+      <div class="code-line"><span class="line-num">10</span><span class="line-text">            w.color = RED</span><span class="line-comment">// Retira um nível de preto do irmão alterando a sua cor para VERMELHO.</span></div>
+      <div class="code-line"><span class="line-num">11</span><span class="line-text">            x = x.p</span><span class="line-comment">// Passa o ponteiro e encargo de duplo-preto para cima, para o nó pai.</span></div>
+      <div class="code-line"><span class="line-num">12</span><span class="line-text">        else</span><span class="line-comment">// Se os filhos do irmão w não forem ambos pretos...</span></div>
+      <div class="code-line"><span class="line-num">13</span><span class="line-text">            if w.right.color == BLACK</span><span class="line-comment">// [CASO 3]: O filho direito de w é preto e o esquerdo é vermelho.</span></div>
+      <div class="code-line"><span class="line-num">14</span><span class="line-text">                w.left.color = BLACK</span><span class="line-comment">// Modifica a cor do filho esquerdo de w para PRETO.</span></div>
+      <div class="code-line"><span class="line-num">15</span><span class="line-text">                w.color = RED</span><span class="line-comment">// Modifica a cor do próprio irmão w para VERMELHO.</span></div>
+      <div class="code-line"><span class="line-num">16</span><span class="line-text">                RIGHT-ROTATE(T, w)</span><span class="line-comment">// Efetua uma rotação local para a direita em torno do irmão w.</span></div>
+      <div class="code-line"><span class="line-num">17</span><span class="line-text">                w = x.p.right</span><span class="line-comment">// Reajusta a referência de w que agora cai obrigatoriamente no Caso 4.</span></div>
+      <div class="code-line"><span class="line-num">18</span><span class="line-text">            w.color = x.p.color</span><span class="line-comment">// [CASO 4]: O irmão w herda de forma direta a cor atual do pai.</span></div>
+      <div class="code-line"><span class="line-num">19</span><span class="line-text">            x.p.color = BLACK</span><span class="line-comment">// Força a cor do pai para PRETO.</span></div>
+      <div class="code-line"><span class="line-num">20</span><span class="line-text">            w.right.color = BLACK</span><span class="line-comment">// Pinta o filho direito de w com a cor PRETA.</span></div>
+      <div class="code-line"><span class="line-num">21</span><span class="line-text">            LEFT-ROTATE(T, x.p)</span><span class="line-comment">// Remove a discrepância aplicando uma rotação esquerda no pai.</span></div>
+      <div class="code-line"><span class="line-num">22</span><span class="line-text">            x = T.root</span><span class="line-comment">// Define x como a raiz para quebrar o ciclo while instantaneamente.</span></div>
+      <div class="code-line"><span class="line-num">23</span><span class="line-text">    else (simétrico)</span><span class="line-comment">// Bloco de código idêntico invertendo left por right de forma espelhada.</span></div>
+      <div class="code-line"><span class="line-num">24</span><span class="line-text">x.color = BLACK</span><span class="line-comment">// Garante por segurança final que o nó terminal x é pintado de PRETO.</span></div>
+    </div>
   </div>
 
   <div id="tab4" class="tab-content">
@@ -300,14 +445,147 @@ LEFT-ROTATE(T, x)
 </div>
 
 <script>
+// CONTROLO DE ABAS
 function switchTab(idx) {
   document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
   document.querySelectorAll('.tab-content').forEach((c, i) => c.classList.toggle('active', i === idx));
+  if (idx === 1) resetRot();
   if (idx === 4) {
     setTimeout(renderSVG, 50);
   }
 }
 
+// ARRAYS DA DEMONSTRAÇÃO DE ROTAÇÃO PRE-FEITA (ABA 2)
+let rotSteps = [];
+let curRot = 0;
+
+function genRotationSteps() {
+  rotSteps = [];
+  
+  // Passo 1: Inicial antes da rotação
+  rotSteps.push({
+    desc: "<b>Cenário Inicial</b>: Foco no nó <b>x (Chave 12)</b> e seu filho direito <b>y (Chave 18)</b>. A árvore está pendida à direita. Vamos executar <code>LEFT-ROTATE(T, x)</code> para equilibrar.",
+    phase: "Pronto",
+    nodes: [
+      { key: 12, x: 280, y: 60, col: 'var(--info-bg)', str: 'var(--info-border)', txt: 'var(--info-text)', lbl: 'x' },
+      { key: 8,  x: 180, y: 130, col: '#212529', str: '#000', txt: '#fff', lbl: 'α (A)' },
+      { key: 18, x: 380, y: 130, col: 'var(--warn-bg)', str: 'var(--warn-border)', txt: 'var(--warn-text)', lbl: 'y' },
+      { key: 14, x: 320, y: 200, col: '#dc3545', str: '#b71c1c', txt: '#fff', lbl: 'β (B)' },
+      { key: 22, x: 440, y: 200, col: '#212529', str: '#000', txt: '#fff', lbl: 'γ (C)' }
+    ],
+    links: [
+      { x1: 280, y1: 60, x2: 180, y2: 130, t: 'left' },
+      { x1: 280, y1: 60, x2: 380, y2: 130, t: 'right' },
+      { x1: 380, y1: 130, x2: 320, y2: 200, t: 'left' },
+      { x1: 380, y1: 130, x2: 440, y2: 200, t: 'right' }
+    ]
+  });
+
+  // Passo 2: Execução das linhas 2 a 4
+  rotSteps.push({
+    desc: "<b>Linhas 2-4: Transferência do Filho Esquerdo</b><br>O braço direito de x é desligado de y e passa a adotar o filho esquerdo de y, ou seja, a subárvore <b>&beta; (Chave 14)</b> passa a ser o filho direito de x.",
+    phase: "Ligações Intermédias",
+    nodes: [
+      { key: 12, x: 280, y: 60, col: 'var(--info-bg)', str: 'var(--info-border)', txt: 'var(--info-text)', lbl: 'x' },
+      { key: 8,  x: 180, y: 130, col: '#212529', str: '#000', txt: '#fff', lbl: 'α (A)' },
+      { key: 18, x: 460, y: 90,  col: 'var(--warn-bg)', str: 'var(--warn-border)', txt: 'var(--warn-text)', lbl: 'y' },
+      { key: 14, x: 340, y: 140, col: '#dc3545', str: '#b71c1c', txt: '#fff', lbl: 'β (B)' },
+      { key: 22, x: 520, y: 160, col: '#212529', str: '#000', txt: '#fff', lbl: 'γ (C)' }
+    ],
+    links: [
+      { x1: 280, y1: 60, x2: 180, y2: 130, t: 'left' },
+      { x1: 280, y1: 60, x2: 340, y2: 140, t: 'x.right' },
+      { x1: 460, y1: 90, x2: 520, y2: 160, t: 'right' }
+    ]
+  });
+
+  // Passo 3: Encaixe Final
+  rotSteps.push({
+    desc: "<b>Linhas 5-12: Encaixe Central Concluído</b><br>O nó <b>y</b> assume o topo e herda a filiação superior. O nó <b>x</b> desce tornando-se o novo filho esquerdo de y. Repara como a ordenação foi preservada: $8 < 12 < 14 < 18 < 22$.",
+    phase: "Concluído",
+    nodes: [
+      { key: 18, x: 380, y: 60, col: '#212529', str: '#000', txt: '#fff', lbl: 'y (raiz)' },
+      { key: 12, x: 280, y: 130, col: '#dc3545', str: '#b71c1c', txt: '#fff', lbl: 'x' },
+      { key: 22, x: 480, y: 130, col: '#212529', str: '#000', txt: '#fff', lbl: 'γ (C)' },
+      { key: 8,  x: 220, y: 200, col: '#212529', str: '#000', txt: '#fff', lbl: 'α (A)' },
+      { key: 14, x: 330, y: 200, col: '#dc3545', str: '#b71c1c', txt: '#fff', lbl: 'β (B)' }
+    ],
+    links: [
+      { x1: 380, y1: 60, x2: 280, y2: 130, t: 'y.left' },
+      { x1: 380, y1: 60, x2: 480, y2: 130, t: 'right' },
+      { x1: 280, y1: 130, x2: 220, y2: 200, t: 'left' },
+      { x1: 280, y1: 130, x2: 330, y2: 200, t: 'right' }
+    ]
+  });
+}
+
+function drawRotStep() {
+  const s = rotSteps[curRot];
+  const svg = document.getElementById('rot-svg');
+  if(!svg) return;
+  svg.innerHTML = '';
+
+  s.links.forEach(l => {
+    let line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    line.setAttribute("class", "link");
+    line.setAttribute("x1", l.x1); line.setAttribute("y1", l.y1);
+    line.setAttribute("x2", l.x2); line.setAttribute("y2", l.y2);
+    svg.appendChild(line);
+
+    if(l.t) {
+      let txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      txt.setAttribute("x", (l.x1 + l.x2)/2 + 6);
+      txt.setAttribute("y", (l.y1 + l.y2)/2 - 4);
+      txt.setAttribute("class", "link-label");
+      txt.textContent = l.t;
+      svg.appendChild(txt);
+    }
+  });
+
+  s.nodes.forEach(n => {
+    let g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    g.setAttribute("class", "node");
+
+    let circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    circle.setAttribute("cx", n.x); circle.setAttribute("cy", n.y); circle.setAttribute("r", "18");
+    circle.setAttribute("fill", n.col);
+    circle.setAttribute("stroke", n.str);
+    g.appendChild(circle);
+
+    let text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    text.setAttribute("x", n.x); text.setAttribute("y", n.y);
+    text.setAttribute("fill", n.txt);
+    text.textContent = n.key;
+    g.appendChild(text);
+
+    let lbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    lbl.setAttribute("x", n.x); lbl.setAttribute("y", n.y - 25);
+    lbl.setAttribute("text-anchor", 'middle');
+    lbl.setAttribute("font-size", '11');
+    lbl.setAttribute("fill", 'var(--text2)');
+    lbl.textContent = n.lbl;
+    g.appendChild(lbl);
+
+    svg.appendChild(g);
+  });
+
+  document.getElementById('rot-desc-box').innerHTML = s.desc;
+  const badg = document.getElementById('rot-phase-label');
+  badg.textContent = s.phase;
+  if(s.phase === "Concluído") badg.style.cssText = "background:var(--success-bg); color:var(--success-text);";
+  else if(s.phase === "Pronto") badg.style.cssText = "background:var(--bg3); color:var(--text2);";
+  else badg.style.cssText = "background:var(--warn-bg); color:var(--warn-text);";
+
+  document.getElementById('rot-step-counter').textContent = `Passo ${curRot+1} de ${rotSteps.length}`;
+  document.getElementById('btn-rot-prev').disabled = curRot === 0;
+  document.getElementById('btn-rot-next').disabled = curRot === rotSteps.length - 1;
+}
+
+function stepRot(d) { curRot = Math.max(0, Math.min(rotSteps.length-1, curRot+d)); drawRotStep(); }
+function resetRot() { curRot = 0; drawRotStep(); }
+
+
+// LÓGICA E MOTOR COMPLETO DA ÁRVORE REAL (ABA 5 INTACTA)
 const RED = 0;
 const BLACK = 1;
 
@@ -470,8 +748,8 @@ function renderSVG() {
   });
 }
 
-window.addEventListener('resize', renderSVG);
-window.onload = () => { renderSVG(); };
+window.addEventListener('resize', () => { renderSVG(); drawRotStep(); });
+window.onload = () => { genRotationSteps(); resetRot(); renderSVG(); };
 </script>
 </body>
 </html>
