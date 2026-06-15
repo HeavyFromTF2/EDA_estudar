@@ -193,7 +193,7 @@
     color: var(--text);
     white-space: pre;
   }
-  .code-comment { color: #2b8a3e; font-style: italic; }
+  .code-comment { color: #2b8a3e; font-style: italic; padding-left: 2em; }
   @media (prefers-color-scheme: dark) { .code-comment { color: #69db7c; } }
 </style>
 </head>
@@ -244,7 +244,7 @@
     <div class="grid-layout">
       <div class="code-container">
         <strong>INORDER-TREE-WALK(x) (Slide 6)</strong>
-        <pre><code class="pseudocode">1  if x != NIL
+        <pre><code class="pseudocode">1  if x != NIL <span class="code-comment">// Caso base: se chegar a NIL, para a recursão</span>
 2      INORDER-TREE-WALK(x.left)  <span class="code-comment">// Visita toda a subárvore esquerda</span>
 3      print x.key                <span class="code-comment">// Imprime a chave do nó atual</span>
 4      INORDER-TREE-WALK(x.right) <span class="code-comment">// Visita toda a subárvore direita</span>
@@ -253,24 +253,24 @@
 
       <div class="code-container">
         <strong>TREE-SEARCH(x, k) (Slide 7)</strong>
-        <pre><code class="pseudocode">1  if x == NIL or k == x.key
+        <pre><code class="pseudocode">1  if x == NIL or k == x.key <span class="code-comment">// Caso base: chegou ao fim ou achou a chave</span>
 2      return x                 <span class="code-comment">// Para se não achar ou se encontrar</span>
-3  if k < x.key
+3  if k < x.key <span class="code-comment">// Chave procurada é menor: descer à esquerda</span>
 4      return TREE-SEARCH(x.left, k)  <span class="code-comment">// Chave menor: vai p/ esquerda</span>
-5  else
+5  else <span class="code-comment">// Chave procurada é maior: descer à direita</span>
 6      return TREE-SEARCH(x.right, k) <span class="code-comment">// Chave maior: vai p/ direita</span></code></pre>
       </div>
 
       <div class="code-container">
         <strong>TREE-MINIMUM(x) (Slide 11)</strong>
-        <pre><code class="pseudocode">1  while x.left != NIL
+        <pre><code class="pseudocode">1  while x.left != NIL <span class="code-comment">// Desce enquanto houver filho esquerdo</span>
 2      x = x.left  <span class="code-comment">// Desce o máximo possível para a esquerda</span>
 3  return x        <span class="code-comment">// O nó mais à esquerda é o menor valor</span></code></pre>
       </div>
 
       <div class="code-container">
         <strong>TREE-MAXIMUM(x) (Slide 11)</strong>
-        <pre><code class="pseudocode">1  while x.right != NIL
+        <pre><code class="pseudocode">1  while x.right != NIL <span class="code-comment">// Desce enquanto houver filho direito</span>
 2      x = x.right <span class="code-comment">// Desce o máximo possível para a direita</span>
 3  return x        <span class="code-comment">// O nó mais à direita é o maior valor</span></code></pre>
       </div>
@@ -295,16 +295,16 @@
 2  x = T.root      <span class="code-comment">// Começamos a varredura a partir da raiz da árvore</span>
 3  while x != NIL  <span class="code-comment">// Descemos pela árvore até bater em NIL (folha)</span>
 4      y = x       <span class="code-comment">// Guarda a posição atual de x antes dele descer</span>
-5      if z.key < x.key
+5      if z.key < x.key <span class="code-comment">// Chave menor: caminha para a esquerda</span>
 6          x = x.left   <span class="code-comment">// Se a nova chave for menor, caminha para a esquerda</span>
-7      else 
+7      else <span class="code-comment">// Chave maior ou igual: caminha para a direita</span>
 8          x = x.right  <span class="code-comment">// Se for maior ou igual, caminha para a direita</span>
 9  z.p = y         <span class="code-comment">// Definimos o pai de z como sendo o y encontrado</span>
-10 if y == NIL
+10 if y == NIL <span class="code-comment">// A árvore estava completamente vazia</span>
 11     T.root = z  <span class="code-comment">// Se a árvore estava vazia, z torna-se a própria raiz</span>
-12 else if z.key < y.key
+12 else if z.key < y.key <span class="code-comment">// z é menor que o pai encontrado: encaixa à esquerda</span>
 13     y.left = z  <span class="code-comment">// Encaixa z como filho esquerdo do pai</span>
-14 else 
+14 else <span class="code-comment">// z é maior ou igual: encaixa à direita</span>
 15     y.right = z <span class="code-comment">// Encaixa z como filho direito do pai</span></code></pre>
     </div>
   </div>
@@ -324,23 +324,23 @@
     <div class="grid-layout">
       <div class="code-container">
         <strong>TRANSPLANT(T, u, v) (Slide 18)</strong>
-        <pre><code class="pseudocode">1  if u.p == NIL
+        <pre><code class="pseudocode">1  if u.p == NIL <span class="code-comment">// Se u não tem pai, é a raiz da árvore</span>
 2      T.root = v      <span class="code-comment">// Se u era a raiz, v passa a ser a nova raiz</span>
-3  else if u == u.p.left
+3  else if u == u.p.left <span class="code-comment">// u era filho esquerdo do seu pai</span>
 4      u.p.left = v    <span class="code-comment">// Se u era filho esquerdo, substitui pelo v</span>
-5  else 
+5  else <span class="code-comment">// u era filho direito do seu pai</span>
 6      u.p.right = v   <span class="code-comment">// Se u era filho direito, substitui pelo v</span>
-7  if v != NIL
+7  if v != NIL <span class="code-comment">// Só atualiza o pai de v se v não for NIL</span>
 8      v.p = u.p       <span class="code-comment">// Atualiza o ponteiro do pai de v para o pai de u</span></code></pre>
       </div>
 
       <div class="code-container">
         <strong>TREE-DELETE(T, z) (Slide 19)</strong>
-        <pre><code class="pseudocode">1  if z.left == NIL
+        <pre><code class="pseudocode">1  if z.left == NIL <span class="code-comment">// Cenário A: z não tem filho esquerdo</span>
 2      TRANSPLANT(T, z, z.right) <span class="code-comment">// Cenário A/B: só tem filho direito</span>
-3  else if z.right == NIL
+3  else if z.right == NIL <span class="code-comment">// Cenário B: z tem só filho esquerdo</span>
 4      TRANSPLANT(T, z, z.left)  <span class="code-comment">// Cenário B: só tem filho esquerdo</span>
-5  else
+5  else <span class="code-comment">// Cenário C: z tem dois filhos</span>
 6      y = TREE-MINIMUM(z.right) <span class="code-comment">// Cenário C: Acha sucessor y no lado direito</span>
 7      if y.p != z               <span class="code-comment">// Se o sucessor não for filho direto de z</span>
 8          TRANSPLANT(T, y, y.right) <span class="code-comment">// y liberta-se da sua posição antiga</span>
