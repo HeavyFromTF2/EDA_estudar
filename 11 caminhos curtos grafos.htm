@@ -9,55 +9,60 @@
 
   :root {
     --bg: #ffffff;
-    --bg2: #f8f9fa;
-    --bg3: #f1f3f5;
-    --text: #212529;
-    --text2: #495057;
-    --text3: #adb5bd;
-    --border: rgba(0,0,0,0.1);
-    --border2: rgba(0,0,0,0.2);
-    --info-bg: #e7f5ff;
-    --info-text: #0b7285;
-    --info-border: #1098ad;
-    --warn-bg: #fff9db;
-    --warn-text: #f08c00;
-    --warn-border: #f59f00;
-    --success-bg: #ebfbee;
-    --success-text: #2b8a3e;
-    --success-border: #40c057;
+    --bg2: #f5f5f3;
+    --bg3: #ededea;
+    --text: #1a1a18;
+    --text2: #5f5e5a;
+    --text3: #88877f;
+    --border: rgba(0,0,0,0.12);
+    --border2: rgba(0,0,0,0.22);
+    --info-bg: #e6f1fb;
+    --info-text: #042c53;
+    --info-border: #185fa5;
+    --warn-bg: #faeeda;
+    --warn-text: #412402;
+    --warn-border: #854f0b;
+    --success-bg: #eaf3de;
+    --success-text: #173404;
+    --success-border: #3b6d11;
+    --danger-bg: #fdf2f2;
+    --danger-text: #771d1d;
+    --danger-border: #de3535;
     --radius: 8px;
     --radius-lg: 12px;
   }
 
   @media (prefers-color-scheme: dark) {
     :root {
-      --bg: #1a1b1e;
-      --bg2: #25262b;
-      --bg3: #2c2e33;
-      --text: #c1c2c5;
-      --text2: #909296;
-      --text3: #5c5f66;
-      --border: rgba(255,255,255,0.08);
-      --border2: rgba(255,255,255,0.15);
-      --info-bg: #141517;
-      --info-text: #3bc9db;
-      --info-border: #22b8cf;
-      --warn-bg: #141517;
-      --warn-text: #ffd43b;
-      --warn-border: #fab005;
-      --success-bg: #141517;
-      --success-text: #69db7c;
-      --success-border: #40c057;
+      --bg: #1c1c1a;
+      --bg2: #252523;
+      --bg3: #2e2e2b;
+      --text: #e8e6de;
+      --text2: #a8a69e;
+      --text3: #6e6c66;
+      --border: rgba(255,255,255,0.1);
+      --border2: rgba(255,255,255,0.2);
+      --info-bg: #0c447c;
+      --info-text: #b5d4f4;
+      --info-border: #378add;
+      --warn-bg: #633806;
+      --warn-text: #fac775;
+      --warn-border: #ba7517;
+      --success-bg: #1e3d06;
+      --success-text: #d2f1b0;
+      --success-border: #55961c;
+      --danger-bg: #5a1a1a;
+      --danger-text: #fbcbcb;
+      --danger-border: #ec5959;
     }
   }
 
   body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
     background: var(--bg3);
     color: var(--text);
     min-height: 100vh;
     padding: 2rem 1rem;
-    line-height: 1.5;
   }
 
   .container {
@@ -65,28 +70,30 @@
     margin: 0 auto;
     background: var(--bg);
     border-radius: var(--radius-lg);
-    border: 1px solid var(--border);
+    border: 0.5px solid var(--border);
     padding: 2.5rem;
-    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
   }
 
-  h1 { font-size: 26px; font-weight: 700; margin-bottom: 6px; }
-  .subtitle { font-size: 14px; color: var(--text2); margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem; }
+  h1 { font-size: 24px; font-weight: 600; margin-bottom: 6px; }
+  .subtitle { font-size: 15px; color: var(--text2); margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem; }
 
-  h2 { font-size: 18px; font-weight: 600; margin: 1.5rem 0 0.75rem 0; color: var(--info-border); }
-  h3 { font-size: 15px; font-weight: 600; margin: 1.25rem 0 0.5rem 0; }
-  p { font-size: 14px; margin-bottom: 1rem; color: var(--text); }
+  h2 { font-size: 18px; font-weight: 500; margin: 1.5rem 0 0.5rem 0; color: var(--info-border); }
+  h3 { font-size: 15px; font-weight: 600; margin: 1rem 0 0.5rem 0; color: var(--text); }
+  p { font-size: 14px; line-height: 1.6; margin-bottom: 1rem; color: var(--text); }
   
-  ul { margin-left: 22px; margin-bottom: 1rem; font-size: 14px; }
-  li { margin-bottom: 6px; }
-  code { background: var(--bg3); padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 13px; }
-  pre { background: var(--bg2); padding: 1rem; border-radius: var(--radius); border: 1px solid var(--border); overflow-x: auto; font-family: monospace; font-size: 13px; line-height: 1.5; margin-bottom: 1rem; }
+  ul { margin-left: 20px; margin-bottom: 1rem; font-size: 14px; line-height: 1.6; }
+  li { margin-bottom: 4px; }
+  code { background: var(--bg2); padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 13px; }
+  pre { background: var(--bg2); padding: 1rem; border-radius: var(--radius); border: 1px solid var(--border); overflow-x: auto; font-family: monospace; font-size: 12.5px; line-height: 1.5; margin-bottom: 1rem; }
+  .code-comment { color: #2b8a3e; font-style: italic; padding-left: 2em; }
+  @media (prefers-color-scheme: dark) { .code-comment { color: #69db7c; } }
 
   .nav-tabs {
     display: flex;
-    gap: 4px;
+    gap: 8px;
     border-bottom: 1px solid var(--border);
     margin-bottom: 1.5rem;
+    flex-wrap: wrap;
   }
   .tab-btn {
     padding: 10px 16px;
@@ -97,13 +104,10 @@
     font-size: 14px;
     font-weight: 500;
     border-bottom: 2px solid transparent;
-    transition: all 0.2s;
   }
-  .tab-btn:hover { color: var(--text); }
   .tab-btn.active {
     color: var(--info-border);
     border-bottom-color: var(--info-border);
-    font-weight: 600;
   }
 
   .tab-content { display: none; }
@@ -114,21 +118,21 @@
     border: 1px solid var(--border);
     border-radius: var(--radius);
     padding: 1.5rem;
-    margin-top: 1rem;
+    margin-bottom: 1.5rem;
   }
 
   .controls {
     display: flex;
-    gap: 12px;
-    margin-bottom: 1.25rem;
+    gap: 10px;
+    margin-bottom: 1rem;
     align-items: center;
     flex-wrap: wrap;
   }
-  
+
   select {
     padding: 8px 12px;
     border-radius: var(--radius);
-    border: 1px solid var(--text3);
+    border: 0.5px solid var(--border2);
     background: var(--bg);
     color: var(--text);
     font-size: 13px;
@@ -137,27 +141,80 @@
   .btn {
     cursor: pointer;
     padding: 8px 16px;
-    border: 1px solid var(--text3);
+    border: 0.5px solid var(--border2);
     border-radius: var(--radius);
     background: var(--bg);
     color: var(--text);
     font-size: 13px;
     font-weight: 500;
-    transition: background 0.2s;
   }
-  .btn:hover:not(:disabled) { background: var(--bg3); }
-  .btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  .btn:hover { background: var(--bg3); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
   .btn-primary { background: var(--info-bg); color: var(--info-text); border-color: var(--info-border); }
-  .btn-primary:hover:not(:disabled) { filter: brightness(0.95); }
 
-  .block-info {
+  .info-badge {
     background: var(--info-bg);
     color: var(--info-text);
-    padding: 1rem;
+    padding: 12px 16px;
     border-radius: var(--radius);
+    font-size: 13px;
+    border: 0.5px solid var(--info-border);
+    margin-bottom: 1rem;
+    line-height: 1.5;
+  }
+
+  .warn-badge {
+    background: var(--warn-bg);
+    color: var(--warn-text);
+    padding: 12px 16px;
+    border-radius: var(--radius);
+    font-size: 13px;
+    border: 0.5px solid var(--warn-border);
+    margin-bottom: 1rem;
+    line-height: 1.5;
+  }
+
+  .danger-badge {
+    background: var(--danger-bg);
+    color: var(--danger-text);
+    padding: 12px 16px;
+    border-radius: var(--radius);
+    font-size: 13px;
+    border: 0.5px solid var(--danger-border);
+    margin-bottom: 1rem;
+    line-height: 1.5;
+  }
+
+  .panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .step-counter {
+    font-size: 12px;
+    color: var(--text3);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .phase-badge {
+    font-size: 12px;
+    font-weight: 500;
+    padding: 3px 12px;
+    border-radius: var(--radius);
+    display: inline-block;
+  }
+  .desc-container {
+    background: var(--bg2);
+    border-radius: var(--radius);
+    padding: 12px 16px;
     font-size: 14px;
-    border-left: 4px solid var(--info-border);
-    margin-bottom: 1.25rem;
+    color: var(--text);
+    min-height: 52px;
+    margin-bottom: 16px;
+    line-height: 1.6;
+    border: 0.5px solid var(--border);
   }
 
   .graph-viz {
@@ -166,16 +223,17 @@
     background: var(--bg);
     border: 1px solid var(--border);
     border-radius: var(--radius);
+    margin-top: 1rem;
   }
   
-  .node circle { stroke-width: 2px; transition: fill 0.2s, stroke 0.2s; }
-  .node text { font-family: sans-serif; font-size: 13px; text-anchor: middle; dominant-baseline: middle; font-weight: 600; }
-  .edge { stroke-width: 2px; fill: none; transition: stroke 0.2s, stroke-width 0.2s; }
-  .edge-weight { font-size: 12px; font-family: monospace; font-weight: bold; fill: var(--text2); }
+  .node circle { stroke-width: 2.5px; transition: fill 0.2s, stroke 0.2s; }
+  .node text { font-family: sans-serif; font-size: 12px; text-anchor: middle; dominant-baseline: middle; font-weight: bold; }
+  .edge { stroke-width: 2.5px; fill: none; transition: stroke 0.2s; }
+  .edge-weight { font-size: 11px; font-family: monospace; font-weight: bold; fill: var(--text2); }
 
   marker { fill: var(--text3); }
   marker.relaxed { fill: var(--success-border); }
-  marker.active { fill: #e03131; }
+  marker.active { fill: var(--danger-border); }
 </style>
 </head>
 <body>
@@ -198,7 +256,7 @@
       <li><code>v.π</code>: O nó <b>antecessor imediato</b> (progenitor) que nos levou até lá pelo caminho mais barato descoberto até ao momento.</li>
     </ul>
 
-    <div class="block-info">
+    <div class="info-badge">
       <strong>O Bloco de Decisão Executável:</strong><br>
       Quando avaliamos uma aresta que sai de <code>u</code> em direção a <code>v</code> com peso <code>w</code>, fazemos uma pergunta matemática:<br>
       <span style="font-family: monospace; display:block; margin-top:5px;">
@@ -211,17 +269,17 @@
     <p>Antes de aplicar qualquer um dos algoritmos, o grafo tem obrigatoriamente de correr uma rotina para limpar dados antigos (<code>INITIALIZE-SINGLE-SOURCE</code>):</p>
     <pre>
 INITIALIZE-SINGLE-SOURCE(G, s)
-1  for each vertex v in G.V
-2      v.d = INFINITY
-3      v.π = NIL
-4  s.d = 0   // A origem custa zero para chegar a ela própria!</pre>
+1  for each vertex v in G.V <span class="code-comment">// Percorre todos os vértices do grafo</span>
+2      v.d = INFINITY <span class="code-comment">// Estimativa inicial infinita: ainda não conhecemos o custo</span>
+3      v.π = NIL <span class="code-comment">// Sem antecessor definido no início</span>
+4  s.d = 0   <span class="code-comment">// A origem custa zero para chegar a ela própria!</span></pre>
   </div>
 
   <div id="tab1" class="tab-content">
     <h2>Algoritmo de Dijkstra (Slides 21-24)</h2>
     <p>É um algoritmo <b>guloso (greedy)</b>. Ele escolhe sempre o nó em aberto que tem a menor estimativa de distância acumulada.</p>
     
-    <div class="block-info" style="background:#fff5f5; color:#c92a2a; border-left-color:#e03131;">
+    <div class="danger-badge">
       <strong>Restrição Crítica de Exame:</strong> Dijkstra assume obrigatoriamente que as ponderações de todas as arestas são <b>não-negativas</b> (<code>w(u, v) ≥ 0</code>). Se o grafo tiver um peso negativo, o algoritmo falha porque fecha os nós permanentemente impossibilitando a sua reavaliação.<br><br>
       <strong>Nota sobre esta simulação:</strong> Observe como o Dijkstra falha academicamente neste grafo ao tentar processar as arestas com pesos negativos. Ele fecha o nó <code>T</code> prematuramente e não consegue encontrar o caminho mais curto real que passa por <code>Y</code>.
     </div>
@@ -229,14 +287,14 @@ INITIALIZE-SINGLE-SOURCE(G, s)
     <h3>Pseudocódigo Padrão</h3>
     <pre>
 DIJKSTRA(G, w, s)
-1  INITIALIZE-SINGLE-SOURCE(G, s)
-2  S = Ø          // Conjunto de nós com caminho final definitivo fechado
-3  Q = G.V        // Fila de prioridade com todos os nós do grafo
-4  while Q != Ø
-5      u = EXTRACT-MIN(Q)  // Tira o nó com o menor 'd' atual
-6      S = S U {u}
-7      for each vertex v in G.Adj[u]
-8          RELAX(u, v, w)  // Tenta otimizar os vizinhos diretos</pre>
+1  INITIALIZE-SINGLE-SOURCE(G, s) <span class="code-comment">// Prepara todos os nós com d=∞ e π=NIL</span>
+2  S = Ø          <span class="code-comment">// Conjunto de nós com caminho final definitivo fechado</span>
+3  Q = G.V        <span class="code-comment">// Fila de prioridade com todos os nós do grafo</span>
+4  while Q != Ø <span class="code-comment">// Continua enquanto houver nós por fechar</span>
+5      u = EXTRACT-MIN(Q)  <span class="code-comment">// Tira o nó com o menor 'd' atual</span>
+6      S = S U {u} <span class="code-comment">// Fecha u: o seu caminho mínimo está definitivo</span>
+7      for each vertex v in G.Adj[u] <span class="code-comment">// Examina cada vizinho direto de u</span>
+8          RELAX(u, v, w)  <span class="code-comment">// Tenta otimizar os vizinhos diretos</span></pre>
   </div>
 
   <div id="tab2" class="tab-content">
@@ -250,14 +308,14 @@ DIJKSTRA(G, w, s)
     <p>No final das passagens, o algoritmo faz um último varrimento de validação. Se encontrar alguma aresta que **ainda permita reduzir o custo**, significa que existe um ciclo infinito de perda de peso (um ciclo negativo), tornando impossível determinar uma solução estável.</p>
     <pre>
 BELLMAN-FORD(G, w, s)
-1  INITIALIZE-SINGLE-SOURCE(G, s)
-2  for i = 1 to |G.V| - 1
-3      for each edge (u, v) in G.E
-4          RELAX(u, v, w)
-5  for each edge (u, v) in G.E
-6      if v.d > u.d + w(u, v)
-7          return FALSE  // Detetou Ciclo Negativo! Solução instável.
-8  return TRUE</pre>
+1  INITIALIZE-SINGLE-SOURCE(G, s) <span class="code-comment">// Prepara todos os nós com d=∞ e π=NIL</span>
+2  for i = 1 to |G.V| - 1 <span class="code-comment">// Repete |V|-1 vezes: caminho mais longo tem |V|-1 arestas</span>
+3      for each edge (u, v) in G.E <span class="code-comment">// Percorre todas as arestas do grafo</span>
+4          RELAX(u, v, w) <span class="code-comment">// Tenta reduzir o custo do vizinho v</span>
+5  for each edge (u, v) in G.E <span class="code-comment">// Varrimento final para detetar ciclos negativos</span>
+6      if v.d > u.d + w(u, v) <span class="code-comment">// Se ainda é possível reduzir, há ciclo negativo</span>
+7          return FALSE  <span class="code-comment">// Detetou Ciclo Negativo! Solução instável.</span>
+8  return TRUE <span class="code-comment">// Sem ciclos negativos: solução estável e fiável</span></pre>
   </div>
 
   <div id="tab3" class="tab-content">
