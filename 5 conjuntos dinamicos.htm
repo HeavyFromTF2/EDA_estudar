@@ -133,7 +133,7 @@
     line-height: 1.5;
     color: var(--text);
   }
-  .code-comment { color: #2b8a3e; font-style: italic; }
+  .code-comment { color: #2b8a3e; font-style: italic; padding-left: 2em; }
   @media (prefers-color-scheme: dark) { .code-comment { color: #69db7c; } }
 
   .visual-array {
@@ -290,21 +290,21 @@
       <div class="grid-layout">
         <div class="code-static">
           <strong>STACK-EMPTY(S)</strong><br>
-          1  if S.top == 0<br>
-          2      return true<br>
-          3  else return false
+          1  if S.top == 0 <span class="code-comment">// Verifica se o ponteiro de topo está em zero (pilha vazia)</span><br>
+          2      return true <span class="code-comment">// Se sim, confirma que está vazia</span><br>
+          3  else return false <span class="code-comment">// Caso contrário, ainda há elementos dentro</span>
         </div>
         <div class="code-static">
           <strong>PUSH(S, x)</strong><br>
-          1  S.top = S.top + 1<br>
+          1  S.top = S.top + 1 <span class="code-comment">// Avança o ponteiro de topo para abrir espaço</span><br>
           2  S[S.top] = x <span class="code-comment">// Guarda na nova posição</span>
         </div>
         <div class="code-static" style="grid-column: 1 / -1;">
           <strong>POP(S)</strong><br>
-          1  if STACK-EMPTY(S)<br>
-          2      error "underflow"<br>
-          3  else S.top = S.top - 1<br>
-          4      return S[S.top + 1]
+          1  if STACK-EMPTY(S) <span class="code-comment">// Verifica se a pilha está vazia antes de tentar retirar</span><br>
+          2      error "underflow" <span class="code-comment">// Não há nada para retirar: erro de underflow</span><br>
+          3  else S.top = S.top - 1 <span class="code-comment">// Recua o ponteiro, descartando o elemento do topo</span><br>
+          4      return S[S.top + 1] <span class="code-comment">// Devolve o elemento que estava no topo</span>
         </div>
       </div>
     </div>
@@ -343,18 +343,18 @@
       <div class="grid-layout">
         <div class="code-static">
           <strong>ENQUEUE(Q, x)</strong><br>
-          1  Q[Q.tail] = x<br>
-          2  if Q.tail == Q.length<br>
-          3      Q.tail = 1<br>
-          4  else Q.tail = Q.tail + 1
+          1  Q[Q.tail] = x <span class="code-comment">// Guarda o novo elemento na posição de cauda atual</span><br>
+          2  if Q.tail == Q.length <span class="code-comment">// Chegou ao fim do array: precisa de dar a volta</span><br>
+          3      Q.tail = 1 <span class="code-comment">// Volta ao início (comportamento circular)</span><br>
+          4  else Q.tail = Q.tail + 1 <span class="code-comment">// Avança normalmente para a próxima posição</span>
         </div>
         <div class="code-static">
           <strong>DEQUEUE(Q)</strong><br>
-          1  x = Q[Q.head]<br>
-          2  if Q.head == Q.length<br>
-          3      Q.head = 1<br>
-          4  else Q.head = Q.head + 1<br>
-          5  return x
+          1  x = Q[Q.head] <span class="code-comment">// Guarda o elemento da cabeça para devolver</span><br>
+          2  if Q.head == Q.length <span class="code-comment">// Chegou ao fim do array: precisa de dar a volta</span><br>
+          3      Q.head = 1 <span class="code-comment">// Volta ao início (comportamento circular)</span><br>
+          4  else Q.head = Q.head + 1 <span class="code-comment">// Avança normalmente para a próxima posição</span><br>
+          5  return x <span class="code-comment">// Devolve o elemento removido</span>
         </div>
       </div>
     </div>
