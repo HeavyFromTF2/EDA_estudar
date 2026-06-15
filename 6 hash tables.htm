@@ -149,7 +149,7 @@
     color: var(--text);
     white-space: pre;
   }
-  .code-comment { color: #2b8a3e; font-style: italic; }
+  .code-comment { color: #2b8a3e; font-style: italic; padding-left: 2em; }
   @media (prefers-color-scheme: dark) { .code-comment { color: #69db7c; } }
 
   .grid-table {
@@ -376,12 +376,12 @@
         <div class="code-container">
           <strong>HASH-INSERT(T, k)</strong>
           <pre><code class="pseudocode">1  i = 0  <span class="code-comment">// Começamos na tentativa zero</span>
-2  repeat
+2  repeat <span class="code-comment">// Ciclo de tentativas até inserir ou encher</span>
 3      q = h(k, i)  <span class="code-comment">// Calcula o índice p/ a chave e nº da tentativa</span>
 4      if T[q] == NIL  <span class="code-comment">// Se a célula [q] estiver vazia...</span>
 5          T[q] = k  <span class="code-comment">// ...guardamos lá a chave com sucesso!</span>
 6          return q  <span class="code-comment">// Devolvemos o índice onde ficou guardada</span>
-7      else 
+7      else <span class="code-comment">// A posição está ocupada: colisão!</span>
 8          i = i + 1  <span class="code-comment">// Colisão: passamos à próxima tentativa</span>
 9  until i == m  <span class="code-comment">// Repete até esgotar o tamanho da tabela</span>
 10 error "hash table overflow"  <span class="code-comment">// Tabela cheia sem vagas</span></code></pre>
@@ -390,7 +390,7 @@
         <div class="code-container">
           <strong>HASH-SEARCH(T, k)</strong>
           <pre><code class="pseudocode">1  i = 0  <span class="code-comment">// Iniciamos a busca na tentativa zero</span>
-2  repeat
+2  repeat <span class="code-comment">// Ciclo de tentativas seguindo a mesma sonda de inserção</span>
 3      q = h(k, i)  <span class="code-comment">// Calcula o índice esperado nesta tentativa</span>
 4      if T[q] == k  <span class="code-comment">// Encontrámos a chave na tabela!</span>
 5          return q  <span class="code-comment">// Devolvemos a posição atual dela</span>
