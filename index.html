@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EDA - Estruturas de Dados e Algoritmos · IPBeja</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:       #f5f4f0;
+    --surface:  #ffffff;
+    --border:   rgba(0,0,0,0.09);
+    --border2:  rgba(0,0,0,0.15);
+    --text:     #1a1a18;
+    --text2:    #5c5b57;
+    --text3:    #9c9a92;
+    --blue:     #1a5fb4;
+    --blue-bg:  #e6f1fb;
+    --radius:   10px;
+    --card-shadow: 0 1px 3px rgba(0,0,0,0.07), 0 4px 16px rgba(0,0,0,0.05);
+    --card-shadow-hover: 0 2px 8px rgba(0,0,0,0.10), 0 8px 28px rgba(0,0,0,0.08);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:       #111110;
+      --surface:  #1c1c1a;
+      --border:   rgba(255,255,255,0.08);
+      --border2:  rgba(255,255,255,0.14);
+      --text:     #e8e6de;
+      --text2:    #a09e96;
+      --text3:    #5e5c56;
+      --blue:     #5b9bd5;
+      --blue-bg:  #0c2c4a;
+      --card-shadow: 0 1px 3px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.2);
+      --card-shadow-hover: 0 2px 8px rgba(0,0,0,0.4), 0 8px 28px rgba(0,0,0,0.3);
+    }
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    min-height: 100vh;
+    padding: 0 0 4rem;
+  }
+
+  .hero {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 4rem 1.5rem 2.5rem;
+  }
+
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--blue);
+    background: var(--blue-bg);
+    padding: 4px 10px;
+    border-radius: 20px;
+    margin-bottom: 1.2rem;
+  }
+
+  .hero-eyebrow::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--blue);
+    flex-shrink: 0;
+  }
+
+  .hero h1 {
+    font-size: clamp(26px, 5vw, 40px);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    margin-bottom: 0.75rem;
+  }
+
+  .hero-sub {
+    font-size: 15px;
+    color: var(--text2);
+    line-height: 1.6;
+    max-width: 520px;
+  }
+
+  .hero-meta {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .meta-item {
+    font-size: 12px;
+    color: var(--text3);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .meta-item strong { color: var(--text2); font-weight: 500; }
+
+  .divider {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .groups { max-width: 860px; margin: 0 auto; padding: 0 1.5rem; }
+
+  .group { padding-top: 2.5rem; }
+
+  .group-header {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 1rem;
+  }
+
+  .group-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--text3);
+    white-space: nowrap;
+  }
+
+  .group-line { flex: 1; height: 1px; background: var(--border); }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 12px;
+  }
+
+  .card {
+    display: block;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 20px 20px;
+    text-decoration: none;
+    color: inherit;
+    box-shadow: var(--card-shadow);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--blue);
+    opacity: 0;
+    transition: opacity 0.15s ease;
+  }
+
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--card-shadow-hover);
+    border-color: var(--border2);
+  }
+
+  .card:hover::after { opacity: 1; }
+
+  .card-num {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text3);
+    font-variant-numeric: tabular-nums;
+    margin-bottom: 8px;
+    letter-spacing: 0.04em;
+  }
+
+  .card-title {
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.3;
+    margin-bottom: 5px;
+  }
+
+  .card-sub {
+    font-size: 12px;
+    color: var(--text3);
+    line-height: 1.5;
+    padding-right: 20px;
+  }
+
+  .card-arrow {
+    position: absolute;
+    bottom: 16px; right: 18px;
+    font-size: 14px;
+    color: var(--text3);
+    opacity: 0;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+  }
+
+  .card:hover .card-arrow { opacity: 1; transform: translateX(3px); }
+
+  .cheat-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--card-shadow);
+    overflow: hidden;
+  }
+
+  .cheat-item {
+    display: flex;
+    gap: 16px;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    align-items: baseline;
+  }
+  .cheat-item:last-child { border-bottom: none; }
+
+  .cheat-term {
+    flex: 0 0 190px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--blue);
+  }
+
+  .cheat-desc {
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.55;
+  }
+
+  .cheat-desc code {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  @media (max-width: 640px) {
+    .cheat-item { flex-direction: column; gap: 4px; }
+    .cheat-term { flex: none; }
+  }
+
+  .footer {
+    max-width: 860px;
+    margin: 3.5rem auto 0;
+    padding: 1.5rem 1.5rem 0;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--text3);
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-eyebrow">IPBeja · 2025/2026</div>
+  <h1>Estruturas de Dados<br>e Algoritmos</h1>
+  <p class="hero-sub">Demonstrações interativas e sebenta teórico-prática para estudar como preparo para o exame (está aqui toda a matéria sem falta!).</p>
+  <div class="hero-meta">
+    <span class="meta-item"><strong>11</strong> matérias</span>
+    <span class="meta-item"><strong>4</strong> temas</span>
+    <span class="meta-item"><strong>EDA</strong> · Aulas 1–11 · © Martim Dias </span>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<div class="groups">
+
+  <div class="group">
+    <div class="group-header">
+      <span class="group-label">Ordenação</span>
+      <div class="group-line"></div>
+    </div>
+    <div class="grid">
+      <a class="card" href="1 insertion sort.htm">
+        <div class="card-num">Aula 1</div>
+        <div class="card-title">Insertion Sort</div>
+        <div class="card-sub">Demonstração interativa passo a passo com pseudocódigo comentado</div>
+        <span class="card-arrow">→</span>
+      </a>
+      <a class="card" href="2 merge sort.htm">
+        <div class="card-num">Aula 2</div>
+        <div class="card-title">Merge Sort</div>
+        <div class="card-sub">Divisão e conquista com visualização da árvore de recursão</div>
+        <span class="card-arrow">→</span>
+      </a>
+      <a class="card" href="3 heap.htm">
+        <div class="card-num">Aula 3</div>
+        <div class="card-title">Heap Sort</div>
+        <div class="card-sub">Build-heap e heapify com representação visual da árvore binária</div>
+        <span class="card-arrow">→</span>
+      </a>
+      <a class="card" href="4 quick sort.htm">
+        <div class="card-num">Aula 4</div>
+        <div class="card-title">Quick Sort</div>
+        <div class="card-sub">Partição de Lomuto com pivot e comparação de custos médio/pior caso</div>
+        <span class="card-arrow">→</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-header">
+      <span class="group-label">Estruturas de Dados</span>
+      <div class="group-line"></div>
+    </div>
+    <div class="grid">
+      <a class="card" href="5 conjuntos dinamicos.htm">
+        <div class="card-num">Aula 5</div>
+        <div class="card-title">Conjuntos Dinâmicos</div>
+        <div class="card-sub">Pilhas, filas, listas ligadas e alocação de memória</div>
+        <span class="card-arrow">→</span>
+      </a>
+      <a class="card" href="6 hash tables.htm">
+        <div class="card-num">Aula 6</div>
+        <div class="card-title">Hash Tables</div>
+        <div class="card-sub">Funções de dispersão, colisões e encadeamento</div>
+        <span class="card-arrow">→</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-header">
+      <span class="group-label">Árvores</span>
+      <div class="group-line"></div>
+    </div>
+    <div class="grid">
+      <a class="card" href="7 arvores pesquisa binarias.htm">
+        <div class="card-num">Aula 7</div>
+        <div class="card-title">Árvores de Pesquisa Binária</div>
+        <div class="card-sub">Inserção, remoção, pesquisa e travessias em BST</div>
+        <span class="card-arrow">→</span>
+      </a>
+      <a class="card" href="8 desbalanceadas red black.htm">
+        <div class="card-num">Aula 8</div>
+        <div class="card-title">Árvores Red-Black</div>
+        <div class="card-sub">Propriedades, rotações e casos de reequilíbrio</div>
+        <span class="card-arrow">→</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-header">
+      <span class="group-label">Grafos</span>
+      <div class="group-line"></div>
+    </div>
+    <div class="grid">
+      <a class="card" href="9 introducao grafos.htm">
+        <div class="card-num">Aula 9</div>
+        <div class="card-title">Introdução a Grafos</div>
+        <div class="card-sub">BFS, DFS, ordenação topológica e componentes fortemente ligados</div>
+        <span class="card-arrow">→</span>
+      </a>
+      <a class="card" href="10 arvores envergadura minima.htm">
+        <div class="card-num">Aula 10</div>
+        <div class="card-title">Árvores de Envergadura Mínima</div>
+        <div class="card-sub">Algoritmos de Kruskal e Prim com simulação interativa</div>
+        <span class="card-arrow">→</span>
+      </a>
+      <a class="card" href="11 caminhos curtos grafos.htm">
+        <div class="card-num">Aula 11</div>
+        <div class="card-title">Caminhos Mais Curtos</div>
+        <div class="card-sub">Dijkstra e Bellman-Ford em grafos orientados e ponderados</div>
+        <span class="card-arrow">→</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-header">
+      <span class="group-label">Bonus · Resumo Rápido</span>
+      <div class="group-line"></div>
+    </div>
+    <p style="font-size:13px;color:var(--text3);margin-bottom:1rem;line-height:1.5;">O que cada coisa é e para que serve, numa frase. Útil para identificar rapidamente diferenças entre algoritmos numa pergunta de exame.</p>
+    <div class="cheat-box">
+      <div class="cheat-item">
+        <div class="cheat-term">Insertion Sort</div>
+        <div class="cheat-desc">Insere cada elemento na posição certa dentro da parte já ordenada. Bom para arrays pequenos ou quase ordenados. <code>O(n²)</code> pior caso, <code>O(n)</code> melhor caso.</div>
+      </div>
+      <div class="cheat-item">
+        <div class="cheat-term">Merge Sort</div>
+        <div class="cheat-desc">Divide o array ao meio recursivamente e funde as metades já ordenadas. Sempre <code>O(n log n)</code>, estável, mas gasta memória extra.</div>
+      </div>
+      <div class="cheat-item">
+        <div class="cheat-term">Heap Sort</div>
+        <div class="cheat-desc">Usa uma árvore heap para ir buscar sempre o maior elemento. <code>O(n log n)</code> garantido, ordena "no próprio lugar" (in-place), mas não é estável.</div>
+      </div>
+      <div class="cheat-item">
+        <div class="cheat-term">Quick Sort</div>
+        <div class="cheat-desc">Escolhe um pivô e separa tudo o que é menor/maior que ele. Rápido na prática (<code>O(n log n)</code> médio), mas pode degenerar para <code>O(n²)</code> sem uma boa escolha de pivô (daí a versão aleatorizada).</div>
+      </div>
+      <div class="cheat-item">
+        <div class="cheat-term">Notação O / Ω / Θ</div>
+        <div class="cheat-desc"><code>O</code> = teto (nunca é pior que isto). <code>Ω</code> = piso (nunca é melhor). <code>Θ</code> = os dois coincidem (comportamento exato).</div>
+      </div>
+      <div class="cheat-item">
+        <div class="cheat-term">Teorema Principal</div>
+        <div class="cheat-desc">Fórmula pronta para recorrências do tipo <code>T(n) = aT(n/b) + f(n)</code>, sem ter de desenhar a árvore de recursão à mão. 3 casos, consoante quem "pesa mais".</div>
+      </div>
+      <div class="cheat-item">
+        <div class="cheat-term">Pilhas / Filas / Listas Ligadas</div>
+        <div class="cheat-desc">Estruturas base para guardar coleções que crescem/encolhem. Pilha = LIFO (último a entrar, primeiro a sair). Fila = FIFO (primeiro a entrar, primeiro a sair).</div>
+      </div>
+      <div class="cheat-item">
+        <div class="cheat-term">Filas de Prioridade</div>
+        <div class="cheat-desc">Como uma triagem de hospital: atende sempre o elemento mais "urgente" (maior ou menor chave), não por ordem de chegada. Implementadas com um heap.</div>
+      </div>
+      <div class="cheat-item">
+        <div class="cheat-term">Hash Tables</div>
+        <div class="cheat-desc">Mapeiam uma chave para uma posição de array através de uma função de dispersão <code>h(k)</code>. <code>O(1)</code> esperado; colisões resolvem-se por encadeamento ou endereçamento aberto.</div>
+      </div>
+      <div class="cheat-item">
+        <div class="cheat-term">Árvore de Pesquisa Binária (BST)</div>
+        <div class="cheat-desc">Cada nó: tudo à esquerda é menor, tudo à direita é maior. Pesquisa/inserção/remoção em <code>O(h)</code> — mas h pode degenerar para <code>n</code> se os dados entrarem já ordenados.</div>
+      </div>
+      <div class="cheat-item">
+        <div class="cheat-term">Árvore Red-Black</div>
+        <div class="cheat-desc">Uma BST que se auto-equilibra por cores (vermelho/preto), garantindo sempre altura <code>O(log n)</code> — nunca degenera, ao contrário de uma BST simples.</div>
+      </div>
+      <div class="cheat-item">
+        <div class="cheat-term">BFS (Largura)</div>
+        <div class="cheat-desc">Explora o grafo "por camadas", nível a nível, usando uma fila. Serve para achar o caminho com menos arestas. <code>O(V+E)</code>.</div>
+      </div>
+      <div class="cheat-item">
+        <div class="cheat-term">DFS (Profundidade)</div>
+        <div class="cheat-desc">Explora o mais fundo possível antes de recuar, usando uma pilha (ou recursão). Serve para detetar ciclos e ordenar topologicamente. <code>O(V+E)</code>.</div>
+      </div>
+      <div class="cheat-item">
+        <div class="cheat-term">Kruskal / Prim (MST)</div>
+        <div class="cheat-desc">Ligam todos os nós de um grafo com o custo total mínimo. Kruskal ordena as arestas e vai unindo componentes; Prim cresce a árvore a partir de um nó, sempre pela aresta mais barata disponível.</div>
+      </div>
+      <div class="cheat-item">
+        <div class="cheat-term">Dijkstra</div>
+        <div class="cheat-desc">Caminho mais curto a partir de uma origem, só funciona com pesos positivos. Usa uma fila de prioridade (min-heap). <code>O((V+E) log V)</code>.</div>
+      </div>
+      <div class="cheat-item">
+        <div class="cheat-term">Bellman-Ford</div>
+        <div class="cheat-desc">Caminho mais curto que aceita pesos negativos e deteta ciclos negativos. Relaxa todas as arestas <code>V-1</code> vezes. Mais lento que o Dijkstra: <code>O(V·E)</code>.</div>
+      </div>
+      <div class="cheat-item">
+        <div class="cheat-term">DAG-Shortest-Paths</div>
+        <div class="cheat-desc">Quando o grafo não tem ciclos, ordena-se topologicamente e relaxa-se cada aresta uma única vez. Mais rápido que Dijkstra/Bellman-Ford: <code>Θ(V+E)</code>.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  EDA · IPBeja · Estruturas de Dados e Algoritmos
+</div>
+
+</body>
+</html>

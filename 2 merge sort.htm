@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Merge Sort — Demonstração Interativa</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #ffffff;
+    --bg2: #f5f5f3;
+    --bg3: #ededea;
+    --text: #1a1a18;
+    --text2: #5f5e5a;
+    --text3: #88877f;
+    --border: rgba(0,0,0,0.12);
+    --border2: rgba(0,0,0,0.22);
+    --info-bg: #e6f1fb;
+    --info-text: #042c53;
+    --info-border: #185fa5;
+    --warn-bg: #faeeda;
+    --warn-text: #412402;
+    --warn-border: #854f0b;
+    --success-bg: #eaf3de;
+    --success-text: #173404;
+    --success-border: #3b6d11;
+    --radius: 8px;
+    --radius-lg: 12px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1c1a;
+      --bg2: #252523;
+      --bg3: #2e2e2b;
+      --text: #e8e6de;
+      --text2: #a8a69e;
+      --text3: #6e6c66;
+      --border: rgba(255,255,255,0.1);
+      --border2: rgba(255,255,255,0.2);
+      --info-bg: #0c447c;
+      --info-text: #b5d4f4;
+      --info-border: #378add;
+      --warn-bg: #633806;
+      --warn-text: #fac775;
+      --warn-border: #ba7517;
+      --success-bg: #27500a;
+      --success-text: #c0dd97;
+      --success-border: #639922;
+    }
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: var(--bg3);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1rem;
+  }
+
+  .container {
+    max-width: 780px;
+    margin: 0 auto;
+    background: var(--bg);
+    border-radius: var(--radius-lg);
+    border: 0.5px solid var(--border);
+    padding: 2rem;
+  }
+
+  h1 {
+    font-size: 22px;
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+  .subtitle {
+    font-size: 14px;
+    color: var(--text2);
+    margin-bottom: 1.5rem;
+  }
+
+  .controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+
+  .btn {
+    cursor: pointer;
+    padding: 8px 18px;
+    border: 0.5px solid var(--border2);
+    border-radius: var(--radius);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    transition: background .15s;
+    font-family: inherit;
+  }
+  .btn:hover { background: var(--bg2); }
+  .btn:disabled { opacity: 0.4; cursor: default; }
+  .btn-primary {
+    background: var(--info-bg);
+    color: var(--info-text);
+    border-color: var(--info-border);
+  }
+  .btn-primary:hover { filter: brightness(0.95); }
+
+  .phase-badge {
+    display: inline-block;
+    padding: 3px 12px;
+    border-radius: var(--radius);
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .desc-box {
+    background: var(--bg2);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    font-size: 14px;
+    color: var(--text);
+    min-height: 68px;
+    margin-bottom: 16px;
+    line-height: 1.6;
+    border: 0.5px solid var(--border);
+  }
+
+  #visual-svg {
+    display: block;
+    width: 100%;
+    margin-bottom: 12px;
+    background: var(--bg2);
+    border-radius: var(--radius);
+    border: 0.5px solid var(--border);
+  }
+
+  .array-label {
+    margin-bottom: 6px;
+    font-size: 12px;
+    color: var(--text3);
+  }
+
+  #array-row {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+
+  .cell {
+    min-width: 40px;
+    height: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    border: 1px solid;
+  }
+  .cell-idx {
+    font-size: 9px;
+    font-weight: 400;
+    color: var(--text3);
+    line-height: 1;
+  }
+  .cell-val { line-height: 1.2; }
+
+  .cell-normal  { background: var(--bg); border-color: var(--border2); color: var(--text); }
+  .cell-divide  { background: var(--info-bg); border-color: var(--info-border); color: var(--info-text); }
+  .cell-merge   { background: var(--warn-bg); border-color: var(--warn-border); color: var(--warn-text); }
+  .cell-active  { background: var(--success-bg); border-color: var(--success-border); color: var(--success-text); }
+
+  .step-counter {
+    font-size: 12px;
+    color: var(--text3);
+    margin-top: 4px;
+  }
+
+  .pseudocode-section {
+    margin-top: 2rem;
+    border-top: 1px dashed var(--border2);
+    padding-top: 1.5rem;
+  }
+  .pseudocode-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-top: 12px;
+    margin-bottom: 6px;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .code-container {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+    font-family: monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    overflow-x: auto;
+    margin-bottom: 14px;
+  }
+  .code-line {
+    display: flex;
+    border-radius: 4px;
+    padding: 2px 6px;
+  }
+  .line-num {
+    width: 24px;
+    color: var(--text3);
+    flex-shrink: 0;
+  }
+  .line-text {
+    white-space: pre;
+    flex-grow: 1;
+  }
+  .line-comment {
+    color: #2b8a3e;
+    font-style: italic;
+  }
+  @media (prefers-color-scheme: dark) {
+    .line-comment { color: #69db7c; }
+  }
+
+  .legend {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 0.5px solid var(--border);
+    font-size: 12px;
+    color: var(--text2);
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-dot {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    border: 1.5px solid;
+    flex-shrink: 0;
+  }
+
+  .info-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 10px;
+    margin-bottom: 1.5rem;
+  }
+  .info-card {
+    background: var(--bg2);
+    border-radius: var(--radius);
+    padding: 10px 14px;
+    font-size: 13px;
+    border: 0.5px solid var(--border);
+  }
+  .info-card strong { display: block; font-size: 15px; font-weight: 500; margin-bottom: 2px; }
+  .info-card span { color: var(--text2); }
+
+  .nav-tabs {
+    display: flex;
+    gap: 8px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .tab-btn {
+    padding: 10px 16px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    color: var(--text2);
+    font-size: 14px;
+    font-weight: 500;
+    border-bottom: 2px solid transparent;
+  }
+  .tab-btn.active {
+    color: var(--info-border);
+    border-bottom-color: var(--info-border);
+  }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  h2 { font-size: 18px; font-weight: 600; margin: 1.8rem 0 0.6rem 0; color: var(--info-border); }
+  h3 { font-size: 15px; font-weight: 600; margin: 1.2rem 0 0.5rem 0; }
+  #tab0 p, #tab0 li { font-size: 14px; line-height: 1.6; margin-bottom: 1rem; }
+  #tab0 ul { margin-left: 20px; margin-bottom: 1rem; }
+  #tab0 li { margin-bottom: 6px; }
+  #tab0 code { background: var(--bg2); padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 13px; font-weight: 600; }
+  .info-badge {
+    background: var(--info-bg);
+    color: var(--info-text);
+    padding: 12px 16px;
+    border-radius: var(--radius);
+    font-size: 13px;
+    border: 0.5px solid var(--info-border);
+    margin-bottom: 1.2rem;
+    line-height: 1.6;
+  }
+  .danger-badge {
+    background: var(--warn-bg);
+    color: var(--warn-text);
+    padding: 12px 16px;
+    border-radius: var(--radius);
+    font-size: 13px;
+    border: 0.5px solid var(--warn-border);
+    margin-bottom: 1.2rem;
+    line-height: 1.6;
+  }
+  .info-badge code, .danger-badge code {
+    background: rgba(0,0,0,0.08);
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Merge Sort — Demonstração Interativa</h1>
+  <p class="subtitle">Estruturas de Dados e Algoritmos · IPBeja · EDA Aula 2</p>
+
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab(0)">1. Teoria: Divisão e Conquista + Teorema Principal</button>
+    <button class="tab-btn" onclick="switchTab(1)">2. Demonstração Interativa</button>
+  </div>
+
+  <div id="tab0" class="tab-content active">
+    <h2>Uma forma diferente de atacar o problema (Slide 3)</h2>
+    <p>O Insertion Sort resolve o problema <strong>a acumular</strong>: pega num elemento de cada vez e cresce uma solução parcial. O Merge Sort ataca de forma completamente diferente — <strong>Divisão e Conquista</strong> — que se resume a 3 passos: <strong>Divide</strong> o array ao meio; <strong>Resolve</strong> cada metade (chamando-se a si próprio, recursivamente, até sobrar só 1 elemento — que já está "ordenado" por definição); <strong>Combina</strong> as duas metades já ordenadas, fundindo-as numa só (é isso que o Merge faz).</p>
+
+    <h2>Teorema Principal — um "atalho" para calcular a complexidade de recursões (Slides 24-25)</h2>
+    <p>Sempre que um algoritmo se divide em <code>a</code> partes de tamanho <code>n/b</code>, e depois gasta <code>f(n)</code> a combinar os resultados, dá jeito ter uma fórmula pronta para descobrir o tempo total, em vez de refazer as contas da árvore de recursão de cada vez. É isso que o Teorema Principal dá — uma espécie de tabela de consulta com 3 casos, consoante quem "pesa mais": a recursão em si, ou o trabalho de combinar (<code>f(n)</code>).</p>
+
+    <div class="info-badge">
+      <strong>Caso 1 — a recursão pesa mais</strong><br>
+      Se dividir o problema custa muito mais do que combinar os resultados (<code>f(n)</code> é pequeno comparado com <code>n^(log_b a)</code>), o resultado final é dominado pela recursão: <code>T(n) = Θ(n^(log_b a))</code>.
+    </div>
+    <div class="info-badge">
+      <strong>Caso 2 — empate entre os dois</strong><br>
+      Se <code>f(n)</code> cresce ao mesmo ritmo que <code>n^(log_b a)</code>, ganham-se ambos um "bónus" de <code>log n</code>: <code>T(n) = Θ(n^(log_b a) · log n)</code>. É este o caso do Merge Sort, como vamos ver a seguir.
+    </div>
+    <div class="danger-badge">
+      <strong>Caso 3 — combinar pesa mais</strong><br>
+      Se <code>f(n)</code> (o trabalho de combinar) for claramente maior do que a recursão, o resultado final é dominado por <code>f(n)</code>: <code>T(n) = Θ(f(n))</code>. Só se aplica se, além disso, se verificar uma condição técnica extra chamada "condição de regularidade" (garante que não há surpresas a meio da recursão).
+    </div>
+
+    <h3>Aplicação ao Merge Sort — passo a passo</h3>
+    <p>A recorrência do Merge Sort é <code>T(n) = 2T(n/2) + Θ(n)</code>: divide-se em <code>a=2</code> metades de tamanho <code>n/b=n/2</code>, e o Merge no fim custa <code>f(n)=Θ(n)</code>. Calcula-se <code>n^(log_b a) = n^(log₂ 2) = n</code>. Como <code>f(n)=Θ(n)</code> é exatamente igual a esse valor, estamos no <strong>Caso 2</strong> — e o resultado sai direto: <code>T(n) = Θ(n log n)</code>. É o mesmo valor a que se chega desenhando a árvore de recursão à mão, só que sem ter de a desenhar.</p>
+
+  </div>
+
+  <div id="tab1" class="tab-content">
+
+  <div class="info-row">
+    <div class="info-card"><strong>Divisão e Conquista</strong><span>Subproblemas de tamanho n/2</span></div>
+    <div class="info-card"><strong>Função merge</strong><span>Usa Sentinelas: ∞</span></div>
+    <div class="info-card"><strong>Complexidade Pior Caso</strong><span>Custo: Θ(n log n)</span></div>
+  </div>
+
+  <div class="controls">
+    <button class="btn btn-primary" id="btn-prev" onclick="step(-1)">← Anterior</button>
+    <button class="btn btn-primary" id="btn-next" onclick="step(1)">Próximo →</button>
+    <button class="btn" onclick="reset()">↺ Recomeçar</button>
+    <span id="phase-label" class="phase-badge"></span>
+  </div>
+
+  <div class="desc-box" id="desc-box"></div>
+
+  <svg id="visual-svg" viewBox="0 0 680 180"></svg>
+
+  <div class="array-label">Array Principal A (índice em cima, valor em baixo):</div>
+  <div id="array-row"></div>
+  <div class="step-counter" id="step-counter"></div>
+
+  <div class="pseudocode-section">
+    
+    <div class="pseudocode-title">Secção 1: MERGE-SORT(A, p, r) — Divisão Recursiva</div>
+    <div class="code-container">
+      <div class="code-line"><span class="line-num">1</span><span class="line-text">if p < r then</span><span class="line-comment">// Se o sub-array tiver mais do que 1 elemento...</span></div>
+      <div class="code-line"><span class="line-num">2</span><span class="line-text">    q = ⌊(p + r) / 2⌋</span><span class="line-comment">// Calcula o ponto intermédio (divisão a meio).</span></div>
+      <div class="code-line"><span class="line-num">3</span><span class="line-text">    MERGE-SORT(A, p, q)</span><span class="line-comment">// Ordena recursivamente a primeira metade esquerda.</span></div>
+      <div class="code-line"><span class="line-num">4</span><span class="line-text">    MERGE-SORT(A, q + 1, r)</span><span class="line-comment">// Ordena recursivamente a segunda metade direita.</span></div>
+      <div class="code-line"><span class="line-num">5</span><span class="line-text">    MERGE(A, p, q, r)</span><span class="line-comment">// Intercala as duas metades já ordenadas.</span></div>
+    </div>
+
+    <div class="pseudocode-title">Secção 2: MERGE(A, p, q, r) — Combinação e Escrita das Metades</div>
+    <div class="code-container" id="code-container">
+      <div class="code-line"><span class="line-num">1</span><span class="line-text">n1 = q - p + 1</span><span class="line-comment">// Tamanho da sequência da esquerda.</span></div>
+      <div class="code-line"><span class="line-num">2</span><span class="line-text">n2 = r - q</span><span class="line-comment">// Tamanho da sequência da direita.</span></div>
+      <div class="code-line"><span class="line-num">3</span><span class="line-text">let L[1..n1+1] and R[1..n2+1] be new arrays</span><span class="line-comment">// Aloca os blocos temporários L e R.</span></div>
+      <div class="code-line"><span class="line-num">4</span><span class="line-text">for i = 1 to n1 do L[i] = A[p + i - 1]</span><span class="line-comment">// Transpõe a sub-sequência esquerda para L.</span></div>
+      <div class="code-line"><span class="line-num">5</span><span class="line-text">for j = 1 to n2 do R[j] = A[q + j]</span><span class="line-comment">// Transpõe a sub-sequência direita para R.</span></div>
+      <div class="code-line"><span class="line-num">6</span><span class="line-text">L[n1 + 1] = ∞</span><span class="line-comment">// Sentinela estável no final de L.</span></div>
+      <div class="code-line"><span class="line-num">7</span><span class="line-text">R[n2 + 1] = ∞</span><span class="line-comment">// Sentinela estável no final de R.</span></div>
+      <div class="code-line"><span class="line-num">8</span><span class="line-text">i = 1; j = 1</span><span class="line-comment">// Inicializa os apontadores de leitura.</span></div>
+      <div class="code-line"><span class="line-num">9</span><span class="line-text">for k = p to r do</span><span class="line-comment">// Reconstrói e ordena o intervalo no Array Principal A.</span></div>
+      <div class="code-line"><span class="line-num">10</span><span class="line-text">    if L[i] <= R[j] then</span><span class="line-comment">// Se o valor em L for o menor...</span></div>
+      <div class="code-line"><span class="line-num">11</span><span class="line-text">        A[k] = L[i]; i = i + 1</span><span class="line-comment">// Aloca-o em A[k] e avança em L.</span></div>
+      <div class="code-line"><span class="line-num">12</span><span class="line-text">    else A[k] = R[j]; j = j + 1</span><span class="line-comment">// Senão, aloca R[j] em A[k] e avança em R.</span></div>
+    </div>
+
+  </div>
+
+  <div class="legend">
+    <div class="legend-item">
+      <div class="legend-dot" style="background:var(--info-bg);border-color:var(--info-border)"></div>
+      Sub-array em Divisão
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:var(--warn-bg);border-color:var(--warn-border)"></div>
+      Elementos sob Comparação Ativa (L vs R)
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:var(--success-bg);border-color:var(--success-border)"></div>
+      Posição alterada / Escrita ativa
+    </div>
+  </div>
+
+  </div></div>
+
+<script>
+function switchTab(idx) {
+  document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
+  document.querySelectorAll('.tab-content').forEach((c, i) => c.classList.toggle('active', i === idx));
+}
+
+const ORIG = [16, 4, 10, 14, 7, 9, 3, 2];
+
+let steps = [];
+let cur = 0;
+
+function genSteps(){
+  steps = [];
+  let A = [null, ...ORIG];
+  
+  function snap(desc, phase, p, r, meta={}) {
+    steps.push({
+      A: A.slice(),
+      desc,
+      phase,
+      p,
+      r,
+      meta: JSON.parse(JSON.stringify(meta))
+    });
+  }
+
+  function merge(p, q, r) {
+    let n1 = q - p + 1;
+    let n2 = r - q;
+    let L = [];
+    let R = [];
+    
+    for(let i = 1; i <= n1; i++) L[i] = A[p + i - 1];
+    for(let j = 1; j <= n2; j++) R[j] = A[q + j];
+    
+    L[n1 + 1] = Infinity;
+    R[n2 + 1] = Infinity;
+    
+    snap(`Execução do <b>MERGE(A, ${p}, ${q}, ${r})</b>.<br>Criados os arrays auxiliares <b>L</b> (tamanho ${n1}) e <b>R</b> (tamanho ${n2}) com as sentinelas <b>&infin;</b> prontas para início da intercalação.`, "merge", p, r, { L, R, i:1, j:1, k:p, stage:'init' });
+
+    let i = 1;
+    let j = 1;
+    
+    for(let k = p; k <= r; k++) {
+      let activeSide = '';
+      let chosenVal = null;
+      
+      if(L[i] <= R[j]) {
+        chosenVal = L[i];
+        activeSide = 'L';
+        snap(`Comparação: Elemento esquerdo menor ou igual <b>L[${i}] (${L[i]}) &le; R[${j}] (${R[j] === Infinity ? '&infin;' : R[j]})</b>.<br>Selecionamos o valor de <b>L</b> para mover para a posição de destino.`, "merge", p, r, { L, R, i, j, k, stage:'compare', side:'L' });
+        A[k] = L[i];
+        i++;
+      } else {
+        chosenVal = R[j];
+        activeSide = 'R';
+        snap(`Comparação: Elemento direito menor <b>L[${i}] (${L[i] === Infinity ? '&infin;' : L[i]}) > R[${j}] (${R[j]})</b>.<br>Selecionamos o valor de <b>R</b> para mover para a posição de destino.`, "merge", p, r, { L, R, i, j, k, stage:'compare', side:'R' });
+        A[k] = R[j];
+        j++;
+      }
+      snap(`Posicionado com sucesso: O índice de destino <b>A[${k}]</b> recebe o valor estável <b>${chosenVal}</b>. Incrementamos o ponteiro de ${activeSide} e avançamos k para ${k+1}.`, "merge", p, r, { L, R, i, j, k, stage:'placed', side:activeSide });
+    }
+    snap(`Fusão terminada para o bloco de índices [${p}..${r}]. O intervalo foi devidamente reordenado e unificado em A.`, "conquer", p, r, {});
+  }
+
+  function mergeSort(p, r) {
+    if(p < r) {
+      let q = Math.floor((p + r) / 2);
+      snap(`Divisão recursiva: <b>mergeSort(A, ${p}, ${r})</b>.<br>Calculado o ponto médio <b>q = ${q}</b> para quebrar o problema em duas metades.`, "divide", p, r, { q });
+      
+      mergeSort(p, q);
+      mergeSort(q + 1, r);
+      merge(p, q, r);
+    } else {
+      snap(`Caso base alcançado: O sub-array possui tamanho 1 no índice <b>A[${p}] = ${A[p]}</b>. Elementos isolados estão ordenados por definição.`, "divide", p, r, { base: true });
+    }
+  }
+
+  snap("Início da ordenação utilizando Merge Sort (Abordagem de Divisão e Conquista com indexação de Base 1).", "start", null, null, {});
+  mergeSort(1, A.length - 1);
+  snap("Algoritmo concluído! Todas as subdivisões foram resolvidas e intercaladas. O array está perfeitamente ordenado.", "done", null, null, {});
+}
+
+function drawVisual(s) {
+  const svg = document.getElementById('visual-svg');
+  svg.innerHTML = '';
+  
+  if (s.phase === 'start' || s.phase === 'done' || !s.p) {
+    const txt = document.createElementNS('http://www.w3.org/2000/svg','text');
+    txt.setAttribute('x', 340); txt.setAttribute('y', 95);
+    txt.setAttribute('text-anchor', 'middle');
+    txt.setAttribute('fill', 'var(--text2)');
+    txt.setAttribute('font-size', '14');
+    txt.textContent = s.phase === 'done' ? "Concluído! Todos os blocos foram fundidos com sucesso." : "Pressiona Próximo para ver a árvore e as matrizes auxiliares L e R.";
+    svg.appendChild(txt);
+    return;
+  }
+
+  if (s.phase === 'divide') {
+    let q = s.meta.q;
+    for(let i=1; i<=8; i++) {
+      let x = 40 + (i-1)*75;
+      let y = 70;
+      let inScope = (i >= s.p && i <= s.r);
+      
+      if(inScope && q) {
+        y = (i <= q) ? 50 : 90;
+      }
+      
+      drawBox(svg, x, y, s.A[i], i, inScope ? 'var(--info-bg)' : 'var(--bg)', inScope ? 'var(--info-border)' : 'var(--border)');
+    }
+    return;
+  }
+
+  if (s.phase === 'merge' && s.meta.L) {
+    const meta = s.meta;
+    
+    // DESENHO DO ARRAY A
+    drawText(svg, 40, 32, "Array Principal A:", "12", "var(--text2)", "start");
+    for(let i=1; i<=8; i++) {
+      let x = 40 + (i-1)*50;
+      let isTarget = (i === meta.k);
+      let isCurrentRange = (i >= s.p && i <= s.r);
+      
+      let fill = 'var(--bg)';
+      let border = 'var(--border)';
+      
+      if (isCurrentRange) {
+        if (isTarget && meta.stage === 'placed') {
+          fill = 'var(--success-bg)'; 
+          border = 'var(--success-border)';
+        } else if (isTarget && meta.stage === 'compare') {
+          fill = 'var(--warn-bg)';
+          border = 'var(--warn-border)';
+        } else {
+          fill = 'var(--info-bg)'; 
+          border = 'var(--info-border)';
+        }
+      }
+      drawBox(svg, x, 40, s.A[i], i, fill, border);
+    }
+
+    // DESENHO DO ARRAY AUXILIAR L
+    drawText(svg, 40, 112, "Array Auxiliar L (Esquerdo):", "12", "var(--text2)", "start");
+    for(let i=1; i<meta.L.length; i++) {
+      let x = 40 + (i-1)*50;
+      let isComparing = (i === meta.i && meta.side === 'L' && meta.stage === 'compare');
+      
+      let fill = 'var(--info-bg)';
+      let border = 'var(--info-border)';
+      
+      if (isComparing) {
+        fill = 'var(--warn-bg)';
+        border = 'var(--warn-border)';
+      }
+      
+      let valStr = meta.L[i] === Infinity ? '∞' : meta.L[i];
+      drawBox(svg, x, 120, valStr, i, fill, border);
+    }
+
+    // DESENHO DO ARRAY AUXILIAR R
+    let startX_R = 40 + (meta.L.length * 50) + 40;
+    drawText(svg, startX_R, 112, "Array Auxiliar R (Direito):", "12", "var(--text2)", "start");
+    for(let j=1; j<meta.R.length; j++) {
+      let x = startX_R + (j-1)*50;
+      let isComparing = (j === meta.j && meta.side === 'R' && meta.stage === 'compare');
+      
+      let fill = 'var(--info-bg)';
+      let border = 'var(--info-border)';
+      
+      if (isComparing) {
+        fill = 'var(--warn-bg)';
+        border = 'var(--warn-border)';
+      }
+
+      let valStr = meta.R[j] === Infinity ? '∞' : meta.R[j];
+      drawBox(svg, x, 120, valStr, j, fill, border);
+    }
+  }
+  
+  if (s.phase === 'conquer') {
+    for(let i=1; i<=8; i++) {
+      let x = 40 + (i-1)*75;
+      let inRange = (i >= s.p && i <= s.r);
+      // CORREÇÃO: Apenas fica verde se estiver dentro do intervalo conquistado neste passo
+      drawBox(svg, x, 70, s.A[i], i, inRange ? 'var(--success-bg)' : 'var(--bg)', inRange ? 'var(--success-border)' : 'var(--border)');
+    }
+  }
+}
+
+function drawBox(svg, x, y, val, idx, fill, border) {
+  const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+  rect.setAttribute('x', x); rect.setAttribute('y', y);
+  rect.setAttribute('width', 42); rect.setAttribute('height', 36);
+  rect.setAttribute('fill', fill); rect.setAttribute('stroke', border);
+  rect.setAttribute('stroke-width', '1.5');
+  rect.setAttribute('rx', '6');
+  svg.appendChild(rect);
+
+  const tIdx = document.createElementNS('http://www.w3.org/2000/svg','text');
+  tIdx.setAttribute('x', x + 21); tIdx.setAttribute('y', y - 4);
+  tIdx.setAttribute('text-anchor', 'middle'); tIdx.setAttribute('font-size', '9');
+  tIdx.setAttribute('fill', 'var(--text3)');
+  tIdx.textContent = idx;
+  svg.appendChild(tIdx);
+
+  const tVal = document.createElementNS('http://www.w3.org/2000/svg','text');
+  tVal.setAttribute('x', x + 21); tVal.setAttribute('y', y + 18);
+  tVal.setAttribute('text-anchor', 'middle'); tVal.setAttribute('dominant-baseline', 'central');
+  tVal.setAttribute('font-size', '13'); tVal.setAttribute('font-weight', '500');
+  tVal.setAttribute('fill', 'var(--text)');
+  tVal.textContent = val;
+  svg.appendChild(tVal);
+}
+
+function drawText(svg, x, y, str, size, color, anchor="middle") {
+  const txt = document.createElementNS('http://www.w3.org/2000/svg','text');
+  txt.setAttribute('x', x); txt.setAttribute('y', y);
+  txt.setAttribute('font-size', size); txt.setAttribute('fill', color);
+  txt.setAttribute('text-anchor', anchor);
+  txt.innerHTML = str;
+  svg.appendChild(txt);
+}
+
+function drawArray(A, s){
+  const row = document.getElementById('array-row');
+  row.innerHTML = '';
+  for(let i = 1; i < A.length; i++){
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    
+    let isCurrentScope = (i >= s.p && i <= s.r);
+    
+    if(s.phase === 'done') {
+      cell.classList.add('cell-active');
+    } else if(isCurrentScope) {
+      if (s.phase === 'divide') {
+        cell.classList.add('cell-divide');
+      } else if (s.phase === 'merge') {
+        if (i === s.meta.k && s.meta.stage === 'placed') {
+          cell.classList.add('cell-active'); 
+        } else if (i === s.meta.k && s.meta.stage === 'compare') {
+          cell.classList.add('cell-merge');
+        } else {
+          cell.classList.add('cell-divide');
+        }
+      } else if (s.phase === 'conquer') {
+        // CORREÇÃO: Apenas ativa o verde em baixo para o bloco local conquistado
+        cell.classList.add('cell-active');
+      }
+    } else {
+      cell.classList.add('cell-normal');
+    }
+
+    const idxEl = document.createElement('div');
+    idxEl.className = 'cell-idx';
+    idxEl.textContent = i;
+    const valEl = document.createElement('div');
+    valEl.className = 'cell-val';
+    valEl.textContent = A[i];
+    cell.appendChild(idxEl);
+    cell.appendChild(valEl);
+    row.appendChild(cell);
+  }
+}
+
+function render(){
+  const s = steps[cur];
+  drawVisual(s);
+  drawArray(s.A, s);
+  document.getElementById('desc-box').innerHTML = s.desc;
+
+  const phaseColors = {
+    start:   'background:var(--bg3);color:var(--text2)',
+    divide:  'background:var(--info-bg);color:var(--info-text)',
+    merge:   'background:var(--warn-bg);color:var(--warn-text)',
+    conquer: 'background:var(--success-bg);color:var(--success-text)',
+    done:    'background:var(--success-bg);color:var(--success-text)'
+  };
+  const phaseNames = { start: 'Setup', divide: 'Divisão', merge: 'Fusão (Merge)', conquer: 'Conquistado', done: 'Concluído' };
+  const pb = document.getElementById('phase-label');
+  pb.style.cssText = (phaseColors[s.phase] || '') + ';padding:3px 12px;border-radius:8px;font-size:12px;font-weight:500';
+  pb.textContent = phaseNames[s.phase] || s.phase;
+
+  document.getElementById('step-counter').textContent = `Passo ${cur+1} de ${steps.length}`;
+  document.getElementById('btn-prev').disabled = cur === 0;
+  document.getElementById('btn-next').disabled = cur === steps.length - 1;
+}
+
+function step(d){ cur = Math.max(0, Math.min(steps.length-1, cur+d)); render(); }
+function reset(){ cur = 0; render(); }
+
+genSteps();
+render();
+</script>
+</body>
+</html>
