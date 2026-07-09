@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sebenta Interativa: Conjuntos Dinâmicos, Pilhas, Filas e Listas</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #ffffff;
+    --bg2: #f5f5f3;
+    --bg3: #ededea;
+    --text: #1a1a18;
+    --text2: #5f5e5a;
+    --text3: #88877f;
+    --border: rgba(0,0,0,0.12);
+    --border2: rgba(0,0,0,0.22);
+    --info-bg: #e6f1fb;
+    --info-text: #042c53;
+    --info-border: #185fa5;
+    --warn-bg: #faeeda;
+    --warn-text: #412402;
+    --warn-border: #854f0b;
+    --success-bg: #eaf3de;
+    --success-text: #173404;
+    --success-border: #3b6d11;
+    --radius: 8px;
+    --radius-lg: 12px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1c1a;
+      --bg2: #252523;
+      --bg3: #2e2e2b;
+      --text: #e8e6de;
+      --text2: #a8a69e;
+      --text3: #6e6c66;
+      --border: rgba(255,255,255,0.1);
+      --border2: rgba(255,255,255,0.2);
+      --info-bg: #0c447c;
+      --info-text: #b5d4f4;
+      --info-border: #378add;
+      --warn-bg: #633806;
+      --warn-text: #fac775;
+      --warn-border: #ba7517;
+      --success-bg: #27500a;
+      --success-text: #c0dd97;
+      --success-border: #639922;
+    }
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: var(--bg3);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1rem;
+  }
+
+  .container {
+    max-width: 920px;
+    margin: 0 auto;
+    background: var(--bg);
+    border-radius: var(--radius-lg);
+    border: 0.5px solid var(--border);
+    padding: 2.5rem;
+  }
+
+  h1 { font-size: 24px; font-weight: 600; margin-bottom: 6px; }
+  .subtitle { font-size: 15px; color: var(--text2); margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem; }
+
+  h2 { font-size: 18px; font-weight: 600; margin: 1.8rem 0 0.6rem 0; color: var(--info-border); }
+  h3 { font-size: 15px; font-weight: 600; margin-bottom: 8px; color: var(--text); }
+  p { font-size: 14px; line-height: 1.6; margin-bottom: 1rem; color: var(--text); }
+  
+  ul { margin-left: 20px; margin-bottom: 1rem; font-size: 14px; line-height: 1.6; }
+  li { margin-bottom: 6px; }
+  code { background: var(--bg2); padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 13px; font-weight: 600; }
+
+  .nav-tabs {
+    display: flex;
+    gap: 8px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .tab-btn {
+    padding: 10px 16px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    color: var(--text2);
+    font-size: 14px;
+    font-weight: 500;
+    border-bottom: 2px solid transparent;
+  }
+  .tab-btn.active {
+    color: var(--info-border);
+    border-bottom-color: var(--info-border);
+    font-weight: 600;
+  }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  .interactive-box {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-top: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .grid-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  @media (min-width: 700px) {
+    .grid-layout { grid-template-columns: 1fr 1fr; }
+  }
+
+  .code-static {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px;
+    font-family: monospace;
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: var(--text);
+  }
+  .code-comment { color: #2b8a3e; font-style: italic; padding-left: 2em; }
+  @media (prefers-color-scheme: dark) { .code-comment { color: #69db7c; } }
+
+  .visual-array {
+    display: flex;
+    gap: 8px;
+    margin: 1.8rem 0;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .cell {
+    width: 58px;
+    height: 58px;
+    border: 1.5px solid var(--border2);
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius);
+    font-weight: 600;
+    position: relative;
+    font-size: 15px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  }
+  .cell .idx {
+    position: absolute;
+    top: -18px;
+    font-size: 11px;
+    color: var(--text3);
+    font-weight: normal;
+  }
+  .cell .ptr {
+    position: absolute;
+    bottom: -22px;
+    font-size: 11px;
+    font-weight: bold;
+    color: var(--warn-border);
+    background: var(--warn-bg);
+    padding: 1px 4px;
+    border-radius: 4px;
+    border: 0.5px solid var(--warn-border);
+    white-space: nowrap;
+  }
+  .cell.active-cell {
+    border-color: var(--info-border);
+    background: var(--info-bg);
+    color: var(--info-text);
+  }
+
+  .controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .btn {
+    cursor: pointer;
+    padding: 8px 16px;
+    border: 0.5px solid var(--border2);
+    border-radius: var(--radius);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .btn:hover { background: var(--bg3); }
+  .btn-primary { background: var(--info-bg); color: var(--info-text); border-color: var(--info-border); }
+
+  .info-badge {
+    background: var(--info-bg);
+    color: var(--info-text);
+    padding: 12px 16px;
+    border-radius: var(--radius);
+    font-size: 13px;
+    border: 0.5px solid var(--info-border);
+    margin-bottom: 1.2rem;
+    line-height: 1.6;
+  }
+  .danger-badge {
+    background: var(--warn-bg);
+    color: var(--warn-text);
+    padding: 12px 16px;
+    border-radius: var(--radius);
+    font-size: 13px;
+    border: 0.5px solid var(--warn-border);
+    margin-bottom: 1.2rem;
+    line-height: 1.6;
+  }
+  .concept-card {
+    background: var(--bg2);
+    border-left: 4px solid var(--info-border);
+    padding: 12px 16px;
+    margin-bottom: 1rem;
+    border-radius: 0 var(--radius) var(--radius) 0;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Sebenta Teórico-Prática: Aula 5 — Conjuntos Dinâmicos</h1>
+  <p class="subtitle">Estruturas de Dados Lineares e Alocação de Memória · IPBeja · Resumo para Estudo</p>
+
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab(0)">1. Dicionários e Operações</button>
+    <button class="tab-btn" onclick="switchTab(1)">2. Pilhas (LIFO)</button>
+    <button class="tab-btn" onclick="switchTab(2)">3. Filas (FIFO)</button>
+    <button class="tab-btn" onclick="switchTab(3)">4. Listas, Memória e Árvores</button>
+  </div>
+
+  <div id="tab0" class="tab-content active">
+    <h2>Conjuntos Matemáticos vs. Informáticos</h2>
+    <p>Na matemática pura, os conjuntos são estáticos e imutáveis. Em informática a conversa é outra: os algoritmos manipulam dados que mudam a toda a hora, crescendo ou encolhendo conforme os utilizadores adicionam ou removem coisas. A esses conjuntos que variam em tempo de execução chamamos <strong>Conjuntos Dinâmicos</strong>.</p>
+    
+    <h2>As Duas Categorias de Operações</h2>
+    <p>Qualquer operação que lances sobre uma estrutura de dados recai sempre numa destas duas categorias:</p>
+    <ul>
+      <li><strong>Consultas (Queries):</strong> São operações de leitura pura. Não alteram rigorosamente nada no conjunto. <br>👉 Exemplos: <code>SEARCH(S, k)</code>, <code>MINIMUM(S)</code>, <code>MAXIMUM(S)</code>, <code>SUCCESSOR(S, x)</code> e <code>PREDECESSOR(S, x)</code>.</li>
+      <li><strong>Modificações (Modifying Operations):</strong> Estas alteram fisicamente o conteúdo ou o tamanho da estrutura em memória. <br>👉 Exemplos: <code>INSERT(S, x)</code> e <code>DELETE(S, x)</code>.</li>
+    </ul>
+
+    <h2>Dicionários e Elementos Satélite (Termos de Exame)</h2>
+    <div class="concept-card">
+      <p><strong>O que é um Dicionário em EDA?</strong> É um conjunto dinâmico que suporta apenas as três operações mais básicas e essenciais: <code>INSERT</code>, <code>DELETE</code> e <code>SEARCH</code>.</p>
+    </div>
+    <div class="info-badge">
+      <strong>Chave vs. Dados Satélite:</strong> Geralmente, pesquisamos elementos usando um identificador único chamado <strong>Chave (Key)</strong>. Mas os objetos trazem carga útil atrás deles! Toda a informação extra associada a essa chave chama-se <strong>Dados Satélite (Satellite Data)</strong>. Se precisarmos de mover o elemento, os dados satélite movem-se com a chave.
+    </div>
+  </div>
+
+  <div id="tab1" class="tab-content">
+    <h2>Pilhas e a Política LIFO (Last-In, First-Out)</h2>
+    <p>Numa pilha (Stack), o último elemento a entrar é obrigatoriamente o primeiro a ser retirado (pensa numa pilha de pratos). O ponteiro crucial aqui chama-se <code>S.top</code>, que guarda o índice do elemento que está mesmo no topo da pilha.</p>
+    
+    <div class="danger-badge">
+      <strong>⚠️ Cuidado com as Condições de Limite (Erros de Execução):</strong>
+      <br>• <strong>Stack Overflow:</strong> Acontece quando tentas empilhar (<code>PUSH</code>) um elemento, mas a tabela já atingiu o limite máximo de tamanho de alocação (<code>S.top &gt; S.length</code>).
+      <br>• <strong>Stack Underflow:</strong> Acontece quando tentas desempilhar (<code>POP</code>) um elemento de uma pilha que está completamente vazia (<code>S.top == 0</code>).
+    </div>
+
+    <div class="interactive-box">
+      <h3>Simulador de Pilha com Algoritmos Associados</h3>
+      <p style="font-size:13px; color:var(--text2);">Brinca com os botões PUSH/POP e vê o ponteiro <code>S.top</code> (Base 1) a deslocar-se a par dos algoritmos teóricos abaixo.</p>
+      
+      <div class="controls">
+        <input type="number" id="stack-input" value="42" style="width:65px; padding:6px; border-radius:4px; border:1px solid var(--text3); font-weight:bold; text-align:center;">
+        <button class="btn btn-primary" onclick="pushStack()">STACK-EMPTY? / PUSH</button>
+        <button class="btn" onclick="popStack()">POP</button>
+        <span id="stack-status" style="font-size:13px; font-weight:bold; color:var(--warn-border);"></span>
+      </div>
+
+      <div class="visual-array" id="stack-visual"></div>
+
+      <div class="grid-layout">
+        <div class="code-static">
+          <strong>STACK-EMPTY(S)</strong><br>
+          1  if S.top == 0 <span class="code-comment">// Verifica se o ponteiro de topo está em zero (pilha vazia)</span><br>
+          2      return true <span class="code-comment">// Se sim, confirma que está vazia</span><br>
+          3  else return false <span class="code-comment">// Caso contrário, ainda há elementos dentro</span>
+        </div>
+        <div class="code-static">
+          <strong>PUSH(S, x)</strong><br>
+          1  S.top = S.top + 1 <span class="code-comment">// Avança o ponteiro de topo para abrir espaço</span><br>
+          2  S[S.top] = x <span class="code-comment">// Guarda na nova posição</span>
+        </div>
+        <div class="code-static" style="grid-column: 1 / -1;">
+          <strong>POP(S)</strong><br>
+          1  if STACK-EMPTY(S) <span class="code-comment">// Verifica se a pilha está vazia antes de tentar retirar</span><br>
+          2      error "underflow" <span class="code-comment">// Não há nada para retirar: erro de underflow</span><br>
+          3  else S.top = S.top - 1 <span class="code-comment">// Recua o ponteiro, descartando o elemento do topo</span><br>
+          4      return S[S.top + 1] <span class="code-comment">// Devolve o elemento que estava no topo</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab2" class="tab-content">
+    <h2>Filas de Espera e a Política FIFO (First-In, First-Out)</h2>
+    <p>Nas filas (Queues), quem chega primeiro é atendido e sai primeiro (como na fila do supermercado). A inserção chama-se <code>ENQUEUE</code> e a remoção chama-se <code>DEQUEUE</code>.</p>
+    
+    <h2>A Magia da Fila Circular</h2>
+    <p>Para não desperdiçarmos memória, a fila do manual do Cormen/IPBeja é **Circular**: quando os ponteiros chegam ao fim do array, eles "dão a volta" e regressam ao índice 1 se houver casas vazias livres.</p>
+    <ul>
+      <li><code>Q.head</code>: Aponta para a cabeça (o próximo elemento a ser removido).</li>
+      <li><code>Q.tail</code>: Aponta para a cauda (a posição exata onde o próximo elemento **vai entrar**).</li>
+    </ul>
+
+    <div class="danger-badge">
+      <strong>Detetores de Erro na Fila:</strong>
+      <br>• Se <code>Q.head == Q.tail</code>, significa que a fila está <strong>Vazia</strong>. Tentar fazer Dequeue gera Underflow.
+      <br>• Se <code>Q.head == Q.tail + 1</code> (ou se <code>Q.head == 1 e Q.tail == Q.length</code>), a fila está completamente <strong>Cheia</strong>! Tentar fazer Enqueue dá Overflow.
+    </div>
+
+    <div class="interactive-box">
+      <h3>Simulador de Fila Circular</h3>
+      <p style="font-size:13px; color:var(--text2);">Insere elementos para veres os ponteiros a dar a volta ao array circular (Tamanho fixo = 6 casas).</p>
+      
+      <div class="controls">
+        <input type="number" id="queue-input" value="99" style="width:65px; padding:6px; border-radius:4px; border:1px solid var(--text3); font-weight:bold; text-align:center;">
+        <button class="btn btn-primary" onclick="enqueueQueue()">ENQUEUE(Q, x)</button>
+        <button class="btn" onclick="dequeueQueue()">DEQUEUE(Q)</button>
+        <span id="queue-status" style="font-size:13px; font-weight:bold; color:var(--warn-border);"></span>
+      </div>
+
+      <div class="visual-array" id="queue-visual"></div>
+
+      <div class="grid-layout">
+        <div class="code-static">
+          <strong>ENQUEUE(Q, x)</strong><br>
+          1  Q[Q.tail] = x <span class="code-comment">// Guarda o novo elemento na posição de cauda atual</span><br>
+          2  if Q.tail == Q.length <span class="code-comment">// Chegou ao fim do array: precisa de dar a volta</span><br>
+          3      Q.tail = 1 <span class="code-comment">// Volta ao início (comportamento circular)</span><br>
+          4  else Q.tail = Q.tail + 1 <span class="code-comment">// Avança normalmente para a próxima posição</span>
+        </div>
+        <div class="code-static">
+          <strong>DEQUEUE(Q)</strong><br>
+          1  x = Q[Q.head] <span class="code-comment">// Guarda o elemento da cabeça para devolver</span><br>
+          2  if Q.head == Q.length <span class="code-comment">// Chegou ao fim do array: precisa de dar a volta</span><br>
+          3      Q.head = 1 <span class="code-comment">// Volta ao início (comportamento circular)</span><br>
+          4  else Q.head = Q.head + 1 <span class="code-comment">// Avança normalmente para a próxima posição</span><br>
+          5  return x <span class="code-comment">// Devolve o elemento removido</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab3" class="tab-content">
+    <h2>Listas Ligadas Duplas</h2>
+    <p>Ao contrário dos arrays ordinais, numa Lista Ligada a ordem dos elementos não vem dada pelos índices da tabela, mas sim por referências de memória (ponteiros). Cada nó é uma estrutura independente com três campos:</p>
+    <ul>
+      <li><code>x.key</code>: O dado propriamente dito.</li>
+      <li><code>x.next</code>: Ponteiro que salta para o elemento seguinte (vale <code>NIL</code> se for o fim).</li>
+      <li><code>x.prev</code>: Ponteiro que aponta para o elemento anterior (vale <code>NIL</code> se for o início).</li>
+    </ul>
+
+    <h2>Sentinelas: O Truque Limpa-Código</h2>
+    <p>Para evitar fazer verificações do tipo <code>if x.next == NIL</code> ou <code>if x.prev == NIL</code> a toda a hora (o que enche o código de condições lentas), usamos um objeto especial chamado <strong>Sentinela (Sentinel)</strong>, representado por <code>L.nil</code>.</p>
+    <div class="info-badge">
+      A sentinela faz o papel de um nó "dummy/fantasma" intermédio que fecha a lista num anel circular. O <code>next</code> do último elemento aponta para a sentinela, e o <code>prev</code> do primeiro elemento aponta também para ela. Com isto, o código de inserção/remoção fica limpo, direto e muito mais rápido!
+    </div>
+
+    <h2>Simulação de Objetos na Ausência de Ponteiros Reais</h2>
+    <p>Como lidamos com memória em computadores ou linguagens antigas que não gerem ponteiros de forma nativa? O manual aborda duas técnicas:</p>
+    <ul>
+      <li><strong>Arrays Múltiplos:</strong> Criamos três arrays paralelos (<code>key[x]</code>, <code>next[x]</code>, <code>prev[x]</code>) onde o mesmo índice <code>x</code> acede às propriedades do mesmo objeto fictício.</li>
+      <li><strong>Array Único Composto:</strong> Guardamos tudo sequencialmente num só grande array de inteiros. Cada objeto fictício consome exatamente 3 posições consecutivas de memória (Índice $i$=chave, $i+1$=next, $i+2$=prev).</li>
+    </ul>
+    <div class="concept-card">
+      <p><strong>Lista Livre (Free List):</strong> A memória disponível que não está a ser usada por nenhum nó válido não fica ao abandono: é organizada e encadeada numa lista ligada simples própria. Fazer um "new" significa retirar um índice da Free List; apagar um nó significa devolvê-lo para a Free List.</p>
+    </div>
+
+    <h2>Representação de Árvores n-árias (Descendente Esq., Irmão Dir.)</h2>
+    <p>Numa árvore binária comum, cada nó tem apenas dois apontadores fixos: <code>left</code> e <code>right</code>. Mas e se um pai puder ter 10, 20 ou um número indefinido de filhos? Alocar arrays fixos para cada nó seria um desperdício colossal de RAM.</p>
+    <div class="info-badge">
+      <strong>A Solução Eficiente (Slide 39):</strong> Usar a regra de ouro do algoritmo:
+      <br>1. <code>x.left-child</code>: Aponta única e exclusivamente para o <strong>primeiro filho</strong> do nó (o mais à esquerda).
+      <br>2. <code>x.right-sibling</code>: Aponta para o seu <strong>irmão gémeo imediato</strong> que está logo à sua direita.
+      <br>Com apenas dois ponteiros por nó conseguimos mapear qualquer árvore complexa do universo gastando exatamente $O(n)$ de memória total estável!
+    </div>
+  </div>
+</div>
+
+<script>
+// Lógica de navegação entre tabs
+function switchTab(idx) {
+  document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
+  document.querySelectorAll('.tab-content').forEach((c, i) => c.classList.toggle('active', i === idx));
+}
+
+// LÓGICA DO SIMULADOR DE PILHA
+let stack = [12, 45, 78, null, null, null];
+let topIdx = 3; // Estado Inicial S.top = 3 elementos ativos
+
+function renderStack() {
+  const container = document.getElementById('stack-visual');
+  container.innerHTML = '';
+  for(let i = 0; i < 6; i++) {
+    let cell = document.createElement('div');
+    cell.className = 'cell';
+    if(i < topIdx) cell.classList.add('active-cell');
+    cell.innerHTML = `<span class="idx">${i+1}</span>${stack[i] !== null ? stack[i] : ''}`;
+    if(i + 1 === topIdx) {
+      cell.innerHTML += `<span class="ptr">S.top</span>`;
+    }
+    container.appendChild(cell);
+  }
+}
+
+function pushStack() {
+  const val = document.getElementById('stack-input').value;
+  const status = document.getElementById('stack-status');
+  status.innerText = '';
+  if(topIdx >= 6) {
+    status.innerText = 'ERRO: STACK OVERFLOW! A tabela estourou o limite máximo.';
+    return;
+  }
+  stack[topIdx] = val;
+  topIdx++;
+  renderStack();
+}
+
+function popStack() {
+  const status = document.getElementById('stack-status');
+  status.innerText = '';
+  if(topIdx === 0) {
+    status.innerText = 'ERRO: STACK UNDERFLOW! Não podes remover de uma pilha vazia.';
+    return;
+  }
+  topIdx--;
+  stack[topIdx] = null;
+  renderStack();
+}
+
+// LÓGICA DO SIMULADOR DE FILA CIRCULAR
+let queue = [null, 10, 20, 30, null, null];
+let head = 2; // Aponta para o valor 10 (Índice humano 2)
+let tail = 5; // Aponta para a casa vazia de inserção (Índice humano 5)
+const Q_LEN = 6;
+
+function renderQueue() {
+  const container = document.getElementById('queue-visual');
+  container.innerHTML = '';
+  for(let i = 0; i < Q_LEN; i++) {
+    let cell = document.createElement('div');
+    cell.className = 'cell';
+    if(queue[i] !== null) cell.classList.add('active-cell');
+    cell.innerHTML = `<span class="idx">${i+1}</span>${queue[i] !== null ? queue[i] : ''}`;
+    
+    let labels = [];
+    if(i + 1 === head) labels.push('head');
+    if(i + 1 === tail) labels.push('tail');
+    if(labels.length > 0) {
+      cell.innerHTML += `<span class="ptr">${labels.join(' + ')}</span>`;
+    }
+    container.appendChild(cell);
+  }
+}
+
+function enqueueQueue() {
+  const val = document.getElementById('queue-input').value;
+  const status = document.getElementById('queue-status');
+  status.innerText = '';
+  
+  // Condição analítica de fila cheia circular
+  if((tail === Q_LEN && head === 1) || (tail + 1 === head)) {
+    status.innerText = 'ERRO: QUEUE OVERFLOW! Fila cheia.';
+    return;
+  }
+  
+  queue[tail - 1] = val;
+  if(tail === Q_LEN) tail = 1;
+  else tail++;
+  renderQueue();
+}
+
+function dequeueQueue() {
+  const status = document.getElementById('queue-status');
+  status.innerText = '';
+  
+  // Condição de fila vazia
+  if(head === tail && queue[head - 1] === null) {
+    status.innerText = 'ERRO: QUEUE UNDERFLOW! Fila vazia.';
+    return;
+  }
+  
+  queue[head - 1] = null;
+  if(head === Q_LEN) head = 1;
+  else head++;
+  renderQueue();
+}
+
+// Arranque inicial
+renderStack();
+renderQueue();
+</script>
+</body>
+</html>

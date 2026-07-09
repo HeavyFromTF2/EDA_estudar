@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manual Completo: Árvores de Envergadura Mínima</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #ffffff;
+    --bg2: #f5f5f3;
+    --bg3: #ededea;
+    --text: #1a1a18;
+    --text2: #5f5e5a;
+    --text3: #88877f;
+    --border: rgba(0,0,0,0.12);
+    --border2: rgba(0,0,0,0.22);
+    --info-bg: #e6f1fb;
+    --info-text: #042c53;
+    --info-border: #185fa5;
+    --warn-bg: #faeeda;
+    --warn-text: #412402;
+    --warn-border: #854f0b;
+    --success-bg: #eaf3de;
+    --success-text: #173404;
+    --success-border: #3b6d11;
+    --danger-bg: #fdf2f2;
+    --danger-text: #771d1d;
+    --danger-border: #de3535;
+    --radius: 8px;
+    --radius-lg: 12px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1c1a;
+      --bg2: #252523;
+      --bg3: #2e2e2b;
+      --text: #e8e6de;
+      --text2: #a8a69e;
+      --text3: #6e6c66;
+      --border: rgba(255,255,255,0.1);
+      --border2: rgba(255,255,255,0.2);
+      --info-bg: #0c447c;
+      --info-text: #b5d4f4;
+      --info-border: #378add;
+      --warn-bg: #633806;
+      --warn-text: #fac775;
+      --warn-border: #ba7517;
+      --success-bg: #1e3d06;
+      --success-text: #d2f1b0;
+      --success-border: #55961c;
+      --danger-bg: #5a1a1a;
+      --danger-text: #fbcbcb;
+      --danger-border: #ec5959;
+    }
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: var(--bg3);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1rem;
+  }
+
+  .container {
+    max-width: 1000px;
+    margin: 0 auto;
+    background: var(--bg);
+    border-radius: var(--radius-lg);
+    border: 0.5px solid var(--border);
+    padding: 2.5rem;
+  }
+
+  h1 { font-size: 24px; font-weight: 600; margin-bottom: 6px; }
+  .subtitle { font-size: 15px; color: var(--text2); margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem; }
+
+  h2 { font-size: 18px; font-weight: 500; margin: 1.5rem 0 0.5rem 0; color: var(--info-border); }
+  h3 { font-size: 15px; font-weight: 600; margin: 1rem 0 0.5rem 0; color: var(--text); }
+  p { font-size: 14px; line-height: 1.6; margin-bottom: 1rem; color: var(--text); }
+  
+  ul { margin-left: 20px; margin-bottom: 1rem; font-size: 14px; line-height: 1.6; }
+  li { margin-bottom: 4px; }
+  code { background: var(--bg2); padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 13px; }
+  pre { background: var(--bg2); padding: 1rem; border-radius: var(--radius); border: 1px solid var(--border); overflow-x: auto; font-family: monospace; font-size: 12.5px; line-height: 1.5; margin-bottom: 1rem; }
+
+  .nav-tabs {
+    display: flex;
+    gap: 8px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .tab-btn {
+    padding: 10px 16px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    color: var(--text2);
+    font-size: 14px;
+    font-weight: 500;
+    border-bottom: 2px solid transparent;
+  }
+  .tab-btn.active {
+    color: var(--info-border);
+    border-bottom-color: var(--info-border);
+  }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  .interactive-box {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .btn {
+    cursor: pointer;
+    padding: 8px 16px;
+    border: 0.5px solid var(--border2);
+    border-radius: var(--radius);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .btn:hover { background: var(--bg3); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-primary { background: var(--info-bg); color: var(--info-text); border-color: var(--info-border); }
+
+  .info-badge {
+    background: var(--info-bg);
+    color: var(--info-text);
+    padding: 12px 16px;
+    border-radius: var(--radius);
+    font-size: 13px;
+    border: 0.5px solid var(--info-border);
+    margin-bottom: 1rem;
+    line-height: 1.5;
+  }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+  @media(max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } }
+
+  .graph-viz {
+    width: 100%;
+    min-height: 380px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-top: 1rem;
+  }
+  
+  .node circle { stroke-width: 2.5px; transition: fill 0.2s, stroke 0.2s; }
+  .node text { font-family: sans-serif; font-size: 12px; text-anchor: middle; dominant-baseline: middle; font-weight: bold; }
+  .edge { stroke-width: 2.5px; fill: none; transition: stroke 0.2s, stroke-width 0.2s; }
+  .edge-weight { font-size: 11px; font-family: monospace; font-weight: bold; fill: var(--text2); }
+  
+  .mst-edge { stroke: var(--success-border) !important; stroke-width: 4.5px !important; }
+  .active-edge { stroke: #dc3545 !important; stroke-width: 4.5px !important; }
+
+  .panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .step-counter {
+    font-size: 12px;
+    color: var(--text3);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .phase-badge {
+    font-size: 12px;
+    font-weight: 500;
+    padding: 3px 12px;
+    border-radius: var(--radius);
+    display: inline-block;
+  }
+  .desc-container {
+    background: var(--bg2);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    font-size: 14px;
+    color: var(--text);
+    min-height: 52px;
+    margin-bottom: 16px;
+    line-height: 1.6;
+    border: 0.5px solid var(--border);
+  }
+  .meta-data-line {
+    font-family: monospace;
+    font-size: 12.5px;
+    color: var(--text2);
+    background: var(--bg3);
+    padding: 6px 12px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .pseudocode-section {
+    margin-top: 2rem;
+    border-top: 1px dashed var(--border2);
+    padding-top: 1.5rem;
+  }
+  .code-container {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+    font-family: monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    overflow-x: auto;
+    margin-bottom: 1.5rem;
+  }
+  .code-line {
+    display: flex;
+    border-radius: 4px;
+    padding: 2px 6px;
+  }
+  .line-num {
+    width: 28px;
+    color: var(--text3);
+    flex-shrink: 0;
+  }
+  .line-text {
+    white-space: pre;
+    width: 290px;
+    flex-shrink: 0;
+  }
+  .line-comment {
+    color: #2b8a3e;
+    font-style: italic;
+  }
+  @media (prefers-color-scheme: dark) {
+    .line-comment { color: #69db7c; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Sebenta Completa: Aula 10 — Árvores de Envergadura Mínima</h1>
+  <p class="subtitle">Algoritmos Gulosos, Algoritmo de Kruskal e Algoritmo de Prim · IPBeja</p>
+
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab(0)">1. Definições Gerais</button>
+    <button class="tab-btn" onclick="switchTab(1)">2. Algoritmo de Kruskal</button>
+    <button class="tab-btn" onclick="switchTab(2)">3. Algoritmo de Prim</button>
+    <button class="tab-btn" onclick="switchTab(3)">4. Simulador por Passos</button>
+  </div>
+
+  <div id="tab0" class="tab-content active">
+    <h2>Problema da Árvore de Envergadura Mínima (Slides 2-5)</h2>
+    <p>Dado um grafo conexo não orientado <code>G = (V, E)</code>, onde cada ramo ou ligação <code>(u, v) ∈ E</code> possui um custo/peso associado <code>w(u, v)</code>, o objetivo principal é encontrar um subconjunto acíclico (livre de caminhos fechados) <code>T ⊆ E</code> que consiga interligar todos os vértices do grafo gastando o menor peso total possível:</p>
+    <pre>w(T) = ∑ w(u, v) sobre todos os ramos inseridos em T</pre>
+    
+    <h3>Aplicações Práticas no Mundo Real (Slide 2)</h3>
+    <ul>
+      <li><strong>Circuitos Eletrónicos:</strong> Minimização do tamanho físico de pistas metálicas de interconexão em microchips.</li>
+      <li><strong>Redes de Distribuição:</strong> Planeamento e traçado de canais de condutas de água ou redes de saneamento básico.</li>
+      <li><strong>Infraestruturas Elétricas:</strong> Desenho de linhas de alta tensão ligando cidades com o menor custo de cabos possível.</li>
+    </ul>
+
+    <h2>A Abordagem Gulosa / Greedy (Slide 5)</h2>
+    <p>Ambos os algoritmos estudados nesta secção utilizam uma estratégia computacional conhecida como **Gulosa (Greedy)**. A solução final é construída passo a passo, tomando sempre a decisão localmente ideal no momento (escolher o ramo mais barato disponível) com o objetivo de alcançar uma solução globalmente perfeita.</p>
+    <div class="info-badge">
+      <strong>Regra do Ramo Seguro (Safe Edge):</strong> Uma aresta é considerada "segura" para expandir a solução atual se, ao ser adicionada ao conjunto estável acumulado, este continuar a ser um subconjunto válido de alguma árvore de envergadura mínima global.
+    </div>
+  </div>
+
+  <div id="tab1" class="tab-content">
+    <h2>Algoritmo de Kruskal (Slides 6-10)</h2>
+    <p>O algoritmo de Kruskal adota uma abordagem totalmente focada nas **arestas/ramos** do grafo. Ele ignora a estrutura de nós conectados num bloco único no início; em vez disso, começa com todos os nós isolados nas suas próprias "ilhas" (componentes) e vai interligando-os usando estritamente as arestas mais baratas de todo o grafo, desde que essa ligação não crie um ciclo.</p>
+    
+    <h3>Estrutura de Conjuntos Disjuntos / Union-Find (Slide 6)</h3>
+    <p>Para conseguir validar se a adição de uma aresta provoca ou não ciclos em tempo recorde, o algoritmo recorre a três rotinas estruturais:</p>
+    <ul>
+      <li><code>MAKE-SET(v)</code>: Aloca e cria um conjunto disjunto individual contendo apenas o nó <code>v</code>.</li>
+      <li><code>FIND-SET(v)</code>: Devolve a identidade do líder/representante único do conjunto a que o nó <code>v</code> pertence. Se dois nós tiverem o mesmo líder, significa que já estão na mesma árvore.</li>
+      <li><code>UNION(u, v)</code>: Funde permanentemente as duas componentes isoladas dos nós <code>u</code> e <code>v</code> numa só.</li>
+    </ul>
+
+    <div class="pseudocode-section">
+      <h3>Pseudocódigo Comentado: MST-KRUSKAL(G, w)</h3>
+      <div class="code-container">
+        <div class="code-line"><span class="line-num">1</span><span class="line-text">A = Ø                         </span><span class="line-comment">// Inicializa o conjunto final 'A' vazio, que armazenará os ramos da MST</span></div>
+        <div class="code-line"><span class="line-num">2</span><span class="line-text">for each vertex v ∈ G.V       </span><span class="line-comment">// Inicia uma varredura por todos os vértices que existem no grafo</span></div>
+        <div class="code-line"><span class="line-num">3</span><span class="line-text">    MAKE-SET(v)               </span><span class="line-comment">// Cria um conjunto individual disjunto para cada nó. Cada nó é uma árvore</span></div>
+        <div class="code-line"><span class="line-num">4</span><span class="line-text">sort edges of G.E into ↑ order</span><span class="line-comment">// Ordena TODOS os ramos do grafo de forma crescente pelo seu peso</span></div>
+        <div class="code-line"><span class="line-num">5</span><span class="line-text">for each edge (u, v) ∈ G.E    </span><span class="line-comment">// Percorre sequencialmente a lista ordenada de ramos, do mais barato ao mais caro</span></div>
+        <div class="code-line"><span class="line-num">6</span><span class="line-text">    if FIND-SET(u) != FIND-SET(v)</span><span class="line-comment">// TESTE DE CICLO: Se os representantes diferem, estão em árvores separadas</span></div>
+        <div class="code-line"><span class="line-num">7</span><span class="line-text">        A = A U {(u, v)}      </span><span class="line-comment">// RAMO SEGURO! Adiciona formalmente a aresta à nossa árvore final</span></div>
+        <div class="code-line"><span class="line-num">8</span><span class="line-text">        UNION(u, v)           </span><span class="line-comment">// Funde os dois conjuntos das pontas num só, conectando as ilhas de vez</span></div>
+        <div class="code-line"><span class="line-num">9</span><span class="line-text">return A                      </span><span class="line-comment">// Retorna a árvore que conecta todos os nós com o menor custo: O(E log V)</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab2" class="tab-content">
+    <h2>Algoritmo de Prim (Slides 11-15)</h2>
+    <p>Ao contrário de Kruskal, o algoritmo de Prim foca-se nos **vértices** e faz crescer uma **única árvore centralizada** e contínua. Ele começa num nó raiz qualquer escolhido arbitrariamente e, a cada passo, inspeciona todas as pontes que ligam a árvore atual ao resto do grafo exterior, capturando o nó externo mais próximo (mais barato).</p>
+    
+    <h3>A Fila de Prioridade Mínima (Q)</h3>
+    <ul>
+      <li><code>u.key</code> (Chave): Guarda o menor custo conhecido para ligar o nó <code>u</code> à árvore central. Começa como Infinito (<code>∞</code>) para todos, exceto para a raiz que começa com <code>0</code>.</li>
+      <li><code>u.π</code> (Pai/Progenitor): Regista o nó que serviu de ponte para pescar o nó <code>u</code> para dentro da árvore definitiva.</li>
+    </ul>
+
+    <div class="pseudocode-section">
+      <h3>Pseudocódigo Comentado: MST-PRIM(G, w, r)</h3>
+      <div class="code-container">
+        <div class="code-line"><span class="line-num">1</span><span class="line-text">for each u ∈ G.V              </span><span class="line-comment">// Corre uma preparação inicial por todos os nós existentes no sistema</span></div>
+        <div class="code-line"><span class="line-num">2</span><span class="line-text">    u.key = INF               </span><span class="line-comment">// Inicializa o custo de ligação de todos como Infinito (∞) por segurança</span></div>
+        <div class="code-line"><span class="line-num">3</span><span class="line-text">    u.π = NIL                 </span><span class="line-comment">// Limpa e define a ausência de um pai original para todos os vértices</span></div>
+        <div class="code-line"><span class="line-num">4</span><span class="line-text">r.key = 0                     </span><span class="line-comment">// Atribui chave zero à raiz 'r'. Isto força o algoritmo a começar por ela</span></div>
+        <div class="code-line"><span class="line-num">5</span><span class="line-text">Q = G.V                       </span><span class="line-comment">// Carrega todos os vértices do grafo para dentro da fila de prioridade mínima 'Q'</span></div>
+        <div class="code-line"><span class="line-num">6</span><span class="line-text">while Q != Ø                  </span><span class="line-comment">// Laço principal: enquanto existirem nós soltos fora da nossa árvore única...</span></div>
+        <div class="code-line"><span class="line-num">7</span><span class="line-text">    u = EXTRACT-MIN(Q)        </span><span class="line-comment">// Extrai da fila o nó 'u' com o menor valor de chave ativo. Ele entra na MST</span></div>
+        <div class="code-line"><span class="line-num">8</span><span class="line-text">    for each v ∈ G.Adj[u]     </span><span class="line-comment">// Analisa detalhadamente cada vizinho 'v' que possua uma ligação direta a 'u'</span></div>
+        <div class="code-line"><span class="line-num">9</span><span class="line-text">        if v ∈ Q and w(u,v) < v.key</span><span class="line-comment">// Validação: Se 'v' está fora da MST E o ramo (u,v) for mais barato que a key de 'v'</span></div>
+        <div class="code-line"><span class="line-num">10</span><span class="line-text">            v.π = u           </span><span class="line-comment">// Atualiza o pai: o nó 'u' passa a ser o Progenitor oficial da ligação a 'v'</span></div>
+        <div class="code-line"><span class="line-num">11</span><span class="line-text">            v.key = w(u, v)   </span><span class="line-comment">// Diminui o custo da chave de 'v' em Q para o peso do novo ramo: O(E log V)</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab3" class="tab-content">
+    <h2>Simulador de Algoritmos Manual por Passos</h2>
+    <p>Escolhe o algoritmo desejado. Utiliza os botões de controlo para avançar ou recuar os passos manualmente:</p>
+    
+    <div class="interactive-box">
+      <div class="controls">
+        <label style="font-size:13px; font-weight:bold;">Algoritmo:</label>
+        <select id="algo-select" onchange="initSimulation()" style="padding:6px; border-radius:4px; border:1px solid var(--text3); background:var(--bg); color:var(--text); font-weight:500;">
+          <option value="Kruskal">Algoritmo de Kruskal (União de Ramos)</option>
+          <option value="Prim">Algoritmo de Prim (Expansão de Raiz 'a')</option>
+        </select>
+        
+        <button class="btn btn-primary" id="btn-prev" onclick="prevStep()">← Anterior</button>
+        <button class="btn btn-primary" id="btn-next" onclick="nextStep()">Próximo →</button>
+        <button class="btn" id="btn-reset" onclick="initSimulation()">↺ Recomeçar</button>
+      </div>
+      
+      <div id="step-panel">
+        <div class="panel-header">
+          <div class="step-counter" id="step-counter-lbl">Passo 0 de 0</div>
+          <span class="phase-badge" id="phase-label"></span>
+        </div>
+        <div class="desc-container" id="desc-box">
+          Inicializando componentes...
+        </div>
+        <div class="meta-data-line">
+          <strong>Estado das variáveis:</strong>
+          <span id="structure-lbl">[]</span>
+        </div>
+      </div>
+
+      <svg class="graph-viz" id="graph-svg"></svg>
+    </div>
+  </div>
+</div>
+
+<script>
+function switchTab(idx) {
+  document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
+  document.querySelectorAll('.tab-content').forEach((c, i) => c.classList.toggle('active', i === idx));
+  if(idx === 3) initSimulation();
+}
+
+const nodes = [
+  { id: 'a', x: 80,  y: 190 },
+  { id: 'b', x: 220, y: 90 },
+  { id: 'c', x: 400, y: 90 },
+  { id: 'd', x: 580, y: 90 },
+  { id: 'e', x: 720, y: 190 },
+  { id: 'f', x: 580, y: 290 },
+  { id: 'g', x: 400, y: 290 },
+  { id: 'h', x: 220, y: 290 },
+  { id: 'i', x: 310, y: 190 }
+];
+
+const edges = [
+  { from: 'a', to: 'b', weight: 4 },
+  { from: 'a', to: 'h', weight: 8 },
+  { from: 'b', to: 'h', weight: 11 },
+  { from: 'b', to: 'c', weight: 8 },
+  { from: 'h', to: 'i', weight: 7 },
+  { from: 'h', to: 'g', weight: 1 },
+  { from: 'i', to: 'c', weight: 2 },
+  { from: 'i', to: 'g', weight: 6 },
+  { from: 'c', to: 'g', weight: 4 },
+  { from: 'c', to: 'd', weight: 7 },
+  { from: 'g', to: 'f', weight: 2 },
+  { from: 'd', to: 'f', weight: 14 },
+  { from: 'd', to: 'e', weight: 9 },
+  { from: 'f', to: 'e', weight: 10 }
+];
+
+let historySteps = [];
+let currentStepIndex = 0;
+
+const phaseColors = {
+  init: 'background:var(--bg3);color:var(--text2);border:0.5px solid var(--border)',
+  scan: 'background:var(--warn-bg);color:var(--warn-text);border:0.5px solid var(--warn-border)',
+  update: 'background:var(--info-bg);color:var(--info-text);border:0.5px solid var(--info-border)',
+  done: 'background:var(--success-bg);color:var(--success-text);border:0.5px solid var(--success-border)'
+};
+
+const phaseNames = {
+  init: 'Início',
+  scan: 'Inspeção',
+  update: 'Atualização',
+  done: 'Concluído'
+};
+
+function initSimulation() {
+  const algo = document.getElementById('algo-select').value;
+  historySteps = [];
+  currentStepIndex = 0;
+  
+  if (algo === 'Kruskal') {
+    generateKruskalHistory();
+  } else {
+    generatePrimHistory();
+  }
+  
+  updateUI();
+}
+
+function generateKruskalHistory() {
+  let parentSet = {};
+  nodes.forEach(n => parentSet[n.id] = n.id);
+  
+  function find(i) {
+    if (parentSet[i] === i) return i;
+    return find(parentSet[i]);
+  }
+  
+  function union(i, j) {
+    let rootI = find(i);
+    let rootJ = find(j);
+    parentSet[rootI] = rootJ;
+  }
+
+  let sortedEdges = [...edges].sort((a, b) => a.weight - b.weight);
+  let currentMST = [];
+  let nodeStates = {};
+  nodes.forEach(n => nodeStates[n.id] = { info: `Conj: [${n.id}]`, inTree: false });
+
+  historySteps.push({
+    mstEdges: [],
+    activeEdge: null,
+    nodeStates: JSON.parse(JSON.stringify(nodeStates)),
+    op: "Inicialização do algoritmo de Kruskal: cada nó começa isolado no seu próprio conjunto independente. Lista de ramos pronta a ser ordenada por peso.",
+    structure: "Conjuntos Disjuntos criados",
+    phase: 'init'
+  });
+
+  sortedEdges.forEach((edge) => {
+    let rootFrom = find(edge.from);
+    let rootTo = find(edge.to);
+    
+    historySteps.push({
+      mstEdges: [...currentMST],
+      activeEdge: edge,
+      nodeStates: JSON.parse(JSON.stringify(nodeStates)),
+      op: `Inspecionando o ramo de menor peso disponível no momento: <b>(${edge.from} — ${edge.to})</b> com peso <b>${edge.weight}</b>.`,
+      structure: `A testar ligação: ${edge.from}-${edge.to}`,
+      phase: 'scan'
+    });
+
+    if (rootFrom !== rootTo) {
+      union(edge.from, edge.to);
+      currentMST.push(edge);
+      
+      nodes.forEach(n => {
+        nodeStates[n.id] = { 
+          info: `Conj: [${find(n.id)}]`, 
+          inTree: currentMST.some(e => e.from === n.id || e.to === n.id)
+        };
+      });
+
+      historySteps.push({
+        mstEdges: [...currentMST],
+        activeEdge: null,
+        nodeStates: JSON.parse(JSON.stringify(nodeStates)),
+        op: `<b>Ramo Seguro!</b> Visto que <code>FIND-SET(${edge.from}) != FIND-SET(${edge.to})</code>, os nós pertencem a árvores diferentes. O ramo foi <b>adicionado</b> e as componentes foram unificadas.`,
+        structure: `Ramos na MST = ${currentMST.length}`,
+        phase: 'update'
+      });
+    } else {
+      historySteps.push({
+        mstEdges: [...currentMST],
+        activeEdge: null,
+        nodeStates: JSON.parse(JSON.stringify(nodeStates)),
+        op: `<b>Ramo Rejeitado!</b> Ambos os nós já partilham o mesmo conjunto representativo (<code>${rootFrom}</code>). Ligá-los iria criar um **ciclo fechado** redundante no grafo.`,
+        structure: "Ciclo detetado e evitado",
+        phase: 'scan'
+      });
+    }
+  });
+
+  historySteps.push({
+    mstEdges: [...currentMST],
+    activeEdge: null,
+    nodeStates: JSON.parse(JSON.stringify(nodeStates)),
+    op: "<b>Concluído!</b> Todas as arestas foram processadas de forma gulosa. A Árvore de Envergadura Mínima de Kruskal foi gerada com sucesso.",
+    structure: `MST Finalizada. Custo Total = ${currentMST.reduce((acc,e)=>acc+e.weight,0)}`,
+    phase: 'done'
+  });
+}
+
+function generatePrimHistory() {
+  let inMST = new Set();
+  let keys = {};
+  let pi = {};
+  
+  nodes.forEach(n => {
+    keys[n.id] = Infinity;
+    pi[n.id] = 'NIL';
+  });
+  
+  keys['a'] = 0; 
+  let currentMSTEdges = [];
+  
+  function getNodeStates() {
+    let states = {};
+    nodes.forEach(n => {
+      let keyText = keys[n.id] === Infinity ? '∞' : keys[n.id];
+      states[n.id] = { 
+        info: `k=${keyText}, π=${pi[n.id]}`,
+        inTree: inMST.has(n.id)
+      };
+    });
+    return states;
+  }
+
+  function getQueueString() {
+    let qArr = [];
+    nodes.forEach(n => {
+      if(!inMST.has(n.id)) {
+        let kText = keys[n.id] === Infinity ? '∞' : keys[n.id];
+        qArr.push(`${n.id}(k=${kText})`);
+      }
+    });
+    return "Fila Q = [" + qArr.join(', ') + "]";
+  }
+
+  historySteps.push({
+    mstEdges: [],
+    activeEdge: null,
+    nodeStates: getNodeStates(),
+    op: "Inicialização do algoritmo de Prim: todos os nós iniciam com chave <code>∞</code> and pai <code>NIL</code>. O vértice de partida <b>a (raiz)</b> é configurado com custo de entrada <code>key = 0</code>.",
+    structure: getQueueString(),
+    phase: 'init'
+  });
+
+  while (inMST.size < nodes.length) {
+    let minKey = Infinity;
+    let u = null;
+    
+    nodes.forEach(n => {
+      if (!inMST.has(n.id) && keys[n.id] < minKey) {
+        minKey = keys[n.id];
+        u = n.id;
+      }
+    });
+
+    if (u === null) break;
+
+    inMST.add(u);
+    
+    if (pi[u] !== 'NIL') {
+      let edgeInTree = edges.find(e => 
+        (e.from === u && e.to === pi[u]) || (e.from === pi[u] && e.to === u)
+      );
+      if (edgeInTree) currentMSTEdges.push(edgeInTree);
+    }
+
+    historySteps.push({
+      mstEdges: [...currentMSTEdges],
+      activeEdge: null,
+      nodeStates: getNodeStates(),
+      op: `Operação <b>EXTRACT-MIN</b>: O nó vértice <b>${u}</b> foi extraído da fila Q por possuir o menor custo atual na fila de prioridade. É integrado permanentemente na árvore.`,
+      structure: getQueueString(),
+      phase: 'update'
+    });
+
+    let adjEdges = edges.filter(e => e.from === u || e.to === u);
+    
+    for (let edge of adjEdges) {
+      let v = (edge.from === u) ? edge.to : edge.from;
+      
+      if (!inMST.has(v)) {
+        historySteps.push({
+          mstEdges: [...currentMSTEdges],
+          activeEdge: edge,
+          nodeStates: getNodeStates(),
+          op: `Inspecionando adjacência direta do nó recém-adicionado: analisando o ramo <b>(${u} — ${v})</b> com peso <b>${edge.weight}</b>.`,
+          structure: `A avaliar vizinho: ${v}`,
+          phase: 'scan'
+        });
+
+        if (edge.weight < keys[v]) {
+          keys[v] = edge.weight;
+          pi[v] = u;
+          
+          historySteps.push({
+            mstEdges: [...currentMSTEdges],
+            activeEdge: null,
+            nodeStates: getNodeStates(),
+            op: `<b>Atualização realizada!</b> O peso da aresta (${edge.weight}) é inferior ao custo anterior registrado no nó <b>${v}</b>. Nova key = <code>${edge.weight}</code> e progenitor atualizado para π = <code>${u}</code>.`,
+            structure: getQueueString(),
+            phase: 'update'
+          });
+        } else {
+          historySteps.push({
+            mstEdges: [...currentMSTEdges],
+            activeEdge: null,
+            nodeStates: getNodeStates(),
+            op: `Sem alteração no nó <b>${v}</b>. O peso deste ramo (${edge.weight}) não é melhor do que a chave de custo mínimo que o nó já possui atualmente (<code>${keys[v]}</code>).`,
+            structure: getQueueString(),
+            phase: 'scan'
+          });
+        }
+      }
+    }
+  }
+
+  historySteps.push({
+    mstEdges: [...currentMSTEdges],
+    activeEdge: null,
+    nodeStates: getNodeStates(),
+    op: "<b>Concluído!</b> Todos os vértices do grafo foram capturados com sucesso pela árvore central de Prim. Árvore de Envergadura Mínima perfeitamente montada.",
+    structure: "Fila Q = [Vazia]",
+    phase: 'done'
+  });
+}
+
+function nextStep() {
+  if (currentStepIndex < historySteps.length - 1) {
+    currentStepIndex++;
+    updateUI();
+  }
+}
+
+function prevStep() {
+  if (currentStepIndex > 0) {
+    currentStepIndex--;
+    updateUI();
+  }
+}
+
+function updateUI() {
+  const currentSnapshot = historySteps[currentStepIndex];
+  if (!currentSnapshot) return;
+  
+  document.getElementById('step-counter-lbl').textContent = `Passo ${currentStepIndex + 1} de ${historySteps.length}`;
+  
+  const pb = document.getElementById('phase-label');
+  pb.style.cssText = (phaseColors[currentSnapshot.phase] || '') + ';padding:3px 12px;border-radius:8px;font-size:12px;font-weight:500';
+  pb.textContent = phaseNames[currentSnapshot.phase] || currentSnapshot.phase;
+  
+  document.getElementById('desc-box').innerHTML = currentSnapshot.op;
+  document.getElementById('structure-lbl').innerHTML = currentSnapshot.structure;
+  
+  document.getElementById('btn-prev').disabled = (currentStepIndex === 0);
+  document.getElementById('btn-next').disabled = (currentStepIndex === historySteps.length - 1);
+  
+  renderGraphSVG(currentSnapshot.mstEdges, currentSnapshot.activeEdge, currentSnapshot.nodeStates);
+}
+
+function renderGraphSVG(mstEdges, activeEdge, nodeStates) {
+  const svg = document.getElementById('graph-svg');
+  svg.innerHTML = '';
+  
+  edges.forEach(edge => {
+    const src = nodes.find(n => n.id === edge.from);
+    const dst = nodes.find(n => n.id === edge.to);
+    
+    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    line.setAttribute("x1", src.x);
+    line.setAttribute("y1", src.y);
+    line.setAttribute("x2", dst.x);
+    line.setAttribute("y2", dst.y);
+    line.setAttribute("class", "edge");
+    
+    let isMST = mstEdges.some(e => (e.from === edge.from && e.to === edge.to) || (e.from === edge.to && e.to === edge.from));
+    let isActive = activeEdge && ((activeEdge.from === edge.from && activeEdge.to === edge.to) || (activeEdge.from === edge.to && activeEdge.to === edge.from));
+    
+    if (isActive) {
+      line.setAttribute("class", "edge active-edge");
+    } else if (isMST) {
+      line.setAttribute("class", "edge mst-edge");
+    } else {
+      line.setAttribute("stroke", "var(--border2)");
+    }
+    svg.appendChild(line);
+
+    const textX = (src.x + dst.x) / 2;
+    const textY = (src.y + dst.y) / 2 - 6;
+    const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    text.setAttribute("x", textX);
+    text.setAttribute("y", textY);
+    text.setAttribute("class", "edge-weight");
+    text.setAttribute("text-anchor", "middle");
+    text.textContent = edge.weight;
+    svg.appendChild(text);
+  });
+
+  nodes.forEach(node => {
+    const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    g.setAttribute("class", "node");
+    
+    const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    circle.setAttribute("cx", node.x);
+    circle.setAttribute("cy", node.y);
+    circle.setAttribute("r", "18");
+    
+    let nState = nodeStates[node.id] || { info: '', inTree: false };
+    
+    if (nState.inTree) {
+      circle.setAttribute("fill", "#212529");
+      circle.setAttribute("stroke", "#000000");
+    } else {
+      circle.setAttribute("fill", "var(--bg)");
+      circle.setAttribute("stroke", "var(--text)");
+    }
+    
+    const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    text.setAttribute("x", node.x);
+    text.setAttribute("y", node.y);
+    text.setAttribute("fill", nState.inTree ? "#ffffff" : "var(--text)");
+    text.textContent = node.id;
+
+    const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    label.setAttribute("x", node.x);
+    label.setAttribute("y", node.y + 32);
+    label.setAttribute("class", "edge-weight");
+    label.setAttribute("text-anchor", "middle");
+    label.setAttribute("fill", "var(--info-border)");
+    label.textContent = nState.info;
+    
+    g.appendChild(label);
+    g.appendChild(circle);
+    g.appendChild(text);
+    svg.appendChild(g);
+  });
+}
+
+window.onload = () => { initSimulation(); };
+</script>
+</body>
+</html>
